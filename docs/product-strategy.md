@@ -8,6 +8,12 @@ The product:
 
 > An AI agent ran. Show me what happened.
 
+The sharper positioning:
+
+> Connect your AI coding agent and see the full provenance of every tool call.
+
+ARI is not only a trace dashboard. It is a provenance layer for AI coding agents that call external tools through MCP.
+
 ## First Audience
 
 - Developers building agents with MCP
@@ -109,3 +115,11 @@ Agent Runtime Inspector helps developers see:
 - which tool the agent called
 - which provider/model handled the request
 - what got recorded for audit
+
+For the Merge-backed path:
+
+> Connect Codex to Merge Agent Handler through ARI, then see the full provenance of every tool call: available tools, selected tool, arguments, result, latency, and audit log.
+
+The operating claim:
+
+> AI coding agents should leave a trace developers can inspect.

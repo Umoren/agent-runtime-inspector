@@ -1,22 +1,26 @@
 {
-  "name": "@ari/cli",
+  "name": "@ari/proxy",
   "version": "0.0.0",
   "type": "module",
   "private": true,
-  "bin": {
-    "ari": "./dist/index.js"
+  "exports": {
+    ".": {
+      "types": "./src/start.ts",
+      "import": "./src/start.ts"
+    }
   },
   "scripts": {
-    "ari": "tsx src/index.ts",
+    "dev": "tsx src/index.ts",
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --passWithNoTests",
     "lint": "eslint src --ext .ts"
   },
   "dependencies": {
-    "@ari/collector": "workspace:*",
+    "@ari/ai-sdk": "workspace:*",
     "@ari/core": "workspace:*",
-    "@ari/proxy": "workspace:*",
+    "@ari/merge": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.13.0",
     "zod": "^3.25.0"
   },
   "devDependencies": {

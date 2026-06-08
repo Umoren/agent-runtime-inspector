@@ -63,6 +63,35 @@ This lets Codex, Claude Code, Cursor, or a Vercel AI SDK app connect to ARI as t
 
 This is the product layer that turns ARI from a passive dashboard into an inspector for actual agent sessions.
 
+## MCP Proxy Milestone
+
+The next milestone keeps the scope narrow:
+
+- ARI starts a local MCP server.
+- An MCP client connects to ARI instead of connecting directly to Merge Agent Handler.
+- ARI forwards tool listing to Merge Agent Handler.
+- ARI forwards tool calls to Merge Agent Handler.
+- ARI records action-path trace events for the forwarded session.
+- The dashboard shows the run without requiring an example script to emit events.
+
+Acceptance checks:
+
+- `ari dev` starts the collector and dashboard.
+- `ari proxy` starts the local MCP proxy.
+- An MCP client can list Merge Agent Handler tools through ARI.
+- An MCP client can call one Merge Agent Handler tool through ARI.
+- The dashboard records `run.started`, `tool.listed`, `tool.called`, `tool.completed`, and `run.completed`.
+- Tool errors are recorded as failed tool executions.
+- Raw provider output stays available behind the raw event log.
+
+Out of scope for this milestone:
+
+- Merge Gateway.
+- Merge Unified API.
+- npm publishing.
+- multiple connected examples.
+- full production observability.
+
 ## Three Paths
 
 ```text

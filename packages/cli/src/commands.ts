@@ -1,6 +1,7 @@
 import { spawn } from "node:child_process";
 import { mockTraceEvents } from "@ari/core";
 import { startCollector } from "@ari/collector";
+import { runProxyServer } from "@ari/proxy";
 import { readConfig, writeDefaultConfig } from "./config.js";
 
 export async function runInitCommand(): Promise<void> {
@@ -75,4 +76,8 @@ export async function runDevCommand(): Promise<void> {
     dashboard.kill("SIGINT");
     process.exit(0);
   });
+}
+
+export async function runProxyCommand(): Promise<void> {
+  await runProxyServer();
 }

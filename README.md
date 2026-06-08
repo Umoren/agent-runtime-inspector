@@ -29,6 +29,7 @@ packages/
   collector/                   Local event collector
   cli/                         ari command
   merge/                       Merge Agent Handler adapter
+  proxy/                       Local MCP proxy for Merge Agent Handler
   ai-sdk/                      Vercel AI SDK instrumentation
 examples/
   vercel-ai-sdk-merge/         First connected example
@@ -100,6 +101,54 @@ ARI_GITHUB_LABELS_JSON='["ari-demo"]'
 ```
 
 In this mode, the example records selected and excluded context, asks the configured model to draft a GitHub issue, then calls `github__create_issue` through Merge Agent Handler.
+
+## MCP Proxy
+
+The proxy path lets an MCP client connect to ARI first. ARI forwards tool listing and tool calls to Merge Agent Handler, then records the action path in the local dashboard.
+
+Runtime path:
+
+```text
+MCP client -> ARI proxy -> Merge Agent Handler -> external tool
+                |
+                -> ARI collector and dashboard
+```
+
+Start the collector and dashboard:
+
+```bash
+pnpm dev
+```
+
+Start the proxy in another terminal:
+
+```bash
+pnpm proxy
+```
+
+For MCP clients that spawn a command, use the silent form so package-manager output does not interfere with stdio:
+
+```json
+{
+  "mcpServers": {
+    "ari-merge": {
+      "command": "pnpm",
+      "args": ["--silent", "proxy"],
+      "cwd": "/absolute/path/to/agent-runtime-inspector"
+    }
+  }
+}
+```
+
+The proxy uses the same Merge env values:
+
+```bash
+MERGE_AGENT_HANDLER_MCP_URL=
+MERGE_REGISTERED_USER_ID=
+MERGE_TOOL_PACK_ID=
+MERGE_API_KEY=
+ARI_COLLECTOR_URL=http://localhost:4319
+```
 
 ## Product Promise
 

@@ -20,7 +20,18 @@ export type MergeAgentHandlerClient = {
     toolName: string;
     arguments: Record<string, unknown>;
     correlationId?: string;
-  }): Promise<Result<{ started: TraceEvent; completed: TraceEvent }, MergeAdapterError>>;
+  }): Promise<
+    Result<
+      {
+        started: TraceEvent;
+        completed: TraceEvent;
+        result?: unknown;
+        status: "success" | "error";
+        errorMessage?: string;
+      },
+      MergeAdapterError
+    >
+  >;
 };
 
 export function createMergeAgentHandlerClient(
@@ -76,18 +87,30 @@ export function createMergeAgentHandlerClient(
           correlationId
         });
 
-        return ok({ started, completed });
+        return ok({
+          started,
+          completed,
+          result,
+          status: toolErrorMessage ? "error" : "success",
+          ...(toolErrorMessage ? { errorMessage: toolErrorMessage } : {})
+        });
       } catch (error) {
+        const message = errorMessage(error);
         const completed = buildToolCompletedEvent({
           runId: input.runId,
           toolName: input.toolName,
           status: "error",
           latencyMs: elapsedMs(startedAt),
-          errorMessage: errorMessage(error),
+          errorMessage: message,
           correlationId
         });
 
-        return ok({ started, completed });
+        return ok({
+          started,
+          completed,
+          status: "error",
+          errorMessage: message
+        });
       }
     }
   };

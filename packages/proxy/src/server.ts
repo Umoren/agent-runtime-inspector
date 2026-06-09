@@ -16,7 +16,8 @@ type ProxyServerOptions = {
 
 type ActiveRun = {
   runId: string;
-  started: boolean;
+  listedTools: boolean;
+  idleTimer: NodeJS.Timeout | undefined;
 };
 
 export async function createAriMcpProxyServer(options: ProxyServerOptions): Promise<Server> {
@@ -55,6 +56,8 @@ export async function createAriMcpProxyServer(options: ProxyServerOptions): Prom
     }
 
     await safeRecord(result.data.event);
+    run.listedTools = true;
+    scheduleListOnlyCompletion(run, result.data.tools.length);
 
     return {
       tools: result.data.tools.map((tool) => ({
@@ -67,6 +70,21 @@ export async function createAriMcpProxyServer(options: ProxyServerOptions): Prom
 
   server.setRequestHandler(CallToolRequestSchema, async (request): Promise<CallToolResult> => {
     const run = await ensureRun();
+    clearIdleCompletion(run);
+
+    if (!run.listedTools) {
+      const listed = await merge.listTools(run.runId);
+
+      if (!listed.ok) {
+        await recordRunCompleted(run.runId, "error", listed.error.message);
+        activeRun = undefined;
+        return textToolResult(listed.error.message, true);
+      }
+
+      await safeRecord(listed.data.event);
+      run.listedTools = true;
+    }
+
     const toolName = request.params.name;
     const toolArguments = request.params.arguments ?? {};
     const result = await merge.callTool({
@@ -106,7 +124,8 @@ export async function createAriMcpProxyServer(options: ProxyServerOptions): Prom
 
     const run: ActiveRun = {
       runId: `run_${crypto.randomUUID()}`,
-      started: true
+      listedTools: false,
+      idleTimer: undefined
     };
 
     activeRun = run;
@@ -124,6 +143,31 @@ export async function createAriMcpProxyServer(options: ProxyServerOptions): Prom
     });
 
     return run;
+  }
+
+  function scheduleListOnlyCompletion(run: ActiveRun, toolsCount: number): void {
+    clearIdleCompletion(run);
+    run.idleTimer = setTimeout(async () => {
+      if (activeRun?.runId !== run.runId) {
+        return;
+      }
+
+      await recordRunCompleted(
+        run.runId,
+        "success",
+        `Merge Agent Handler listed ${String(toolsCount)} tools. No tool call followed in this MCP session.`
+      );
+      activeRun = undefined;
+    }, 5_000);
+  }
+
+  function clearIdleCompletion(run: ActiveRun): void {
+    if (!run.idleTimer) {
+      return;
+    }
+
+    clearTimeout(run.idleTimer);
+    run.idleTimer = undefined;
   }
 
   async function recordRunCompleted(

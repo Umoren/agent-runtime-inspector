@@ -94,7 +94,9 @@ export function getSummaryMode(summary: RunSummary): RunMode {
     return "mock";
   }
 
-  if (summary.title.toLowerCase().includes("merge agent handler")) {
+  const title = summary.title.toLowerCase();
+
+  if (title.includes("merge agent handler") || title.includes("ari mcp proxy")) {
     return "connected";
   }
 
@@ -209,7 +211,11 @@ function getRunMode(events: readonly TraceEvent[]): RunMode {
     return "mock";
   }
 
-  if (started?.type === "run.started" && started.payload.title.toLowerCase().includes("merge agent handler")) {
+  if (
+    started?.type === "run.started" &&
+    (started.payload.title.toLowerCase().includes("merge agent handler") ||
+      started.payload.title.toLowerCase().includes("ari mcp proxy"))
+  ) {
     return "connected";
   }
 

@@ -1,6 +1,6 @@
 # Merge Agent Handler Setup
 
-Agent Runtime Inspector supports mock traces and a Merge Agent Handler connected path.
+Agent Runtime Inspector supports mock traces and a Merge Agent Handler connected action path.
 
 The connected path needs:
 
@@ -47,14 +47,14 @@ To let the model draft a GitHub issue and then create it through Merge Agent Han
 ARI_AGENT_WORKFLOW=github_issue
 ARI_GITHUB_OWNER=
 ARI_GITHUB_REPO=
-ARI_GITHUB_LABELS_JSON='["ari-demo"]'
+ARI_GITHUB_LABELS_JSON='["ari-test"]'
 ```
 
-This workflow calls `github__create_issue`, so use a repository where creating a demo issue is acceptable.
+This workflow calls `github__create_issue`, so use a repository where creating a test issue is acceptable.
 
 ## What The Inspector Shows
 
-The first connected example records:
+The connected action path records:
 
 - selected context
 - excluded context
@@ -124,9 +124,9 @@ pnpm --filter @ari/example-vercel-ai-sdk-merge dev
 
 The tool name and arguments must match the tools exposed by your selected Tool Pack.
 
-## GitHub Issue Workflow
+## Reference GitHub Issue Flow
 
-This is the shareable three-path run:
+This is a reference connected flow for the provenance architecture:
 
 ```bash
 ARI_MODEL_API_KEY="..."
@@ -135,7 +135,7 @@ ARI_MODEL_NAME=claude-haiku-4-5-20251001
 ARI_AGENT_WORKFLOW=github_issue
 ARI_GITHUB_OWNER="..."
 ARI_GITHUB_REPO="..."
-ARI_GITHUB_LABELS_JSON='["ari-demo"]'
+ARI_GITHUB_LABELS_JSON='["ari-test"]'
 pnpm --filter @ari/example-vercel-ai-sdk-merge dev
 ```
 

@@ -1,0 +1,44 @@
+<!--
+Reusable two-column comparison template.
+
+Replace:
+- {{KICKER}}, {{TITLE}}, {{SUBTITLE}}
+- {{LEFT_TITLE}}, {{RIGHT_TITLE}}
+- {{LEFT_ITEM_1}} ... {{LEFT_ITEM_5}}
+- {{RIGHT_ITEM_1}} ... {{RIGHT_ITEM_5}}
+- {{FOOTER}}
+
+Keep letter spacing at default. Keep the credit marker unless the publishing surface already shows byline credit.
+-->
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="900" fill="#F7F8FA"/>
+  <g font-family="Outfit, Avenir Next, Arial, sans-serif">
+    <text x="96" y="92" fill="#6B7280" font-size="18" font-weight="650">{{KICKER}}</text>
+    <text x="96" y="154" fill="#111827" font-size="54" font-weight="720">{{TITLE}}</text>
+    <text x="96" y="204" fill="#4B5563" font-size="27" font-weight="400">{{SUBTITLE}}</text>
+
+    <line x1="96" y1="268" x2="1504" y2="268" stroke="#D5DAE1" stroke-width="1.5"/>
+    <line x1="800" y1="322" x2="800" y2="672" stroke="#D5DAE1" stroke-width="1.5"/>
+
+    <text x="96" y="340" fill="#111827" font-size="34" font-weight="720">{{LEFT_TITLE}}</text>
+    <text x="896" y="340" fill="#111827" font-size="34" font-weight="720">{{RIGHT_TITLE}}</text>
+
+    <g fill="#374151" font-size="27" font-weight="430">
+      <text x="96" y="410">{{LEFT_ITEM_1}}</text>
+      <text x="96" y="472">{{LEFT_ITEM_2}}</text>
+      <text x="96" y="534">{{LEFT_ITEM_3}}</text>
+      <text x="96" y="596">{{LEFT_ITEM_4}}</text>
+      <text x="96" y="658">{{LEFT_ITEM_5}}</text>
+
+      <text x="896" y="410">{{RIGHT_ITEM_1}}</text>
+      <text x="896" y="472">{{RIGHT_ITEM_2}}</text>
+      <text x="896" y="534">{{RIGHT_ITEM_3}}</text>
+      <text x="896" y="596">{{RIGHT_ITEM_4}}</text>
+      <text x="896" y="658">{{RIGHT_ITEM_5}}</text>
+    </g>
+
+    <line x1="96" y1="742" x2="1504" y2="742" stroke="#D5DAE1" stroke-width="1.5"/>
+    <text x="96" y="808" fill="#111827" font-size="31" font-weight="650">{{FOOTER}}</text>
+    <text x="96" y="856" fill="#6B7280" font-size="18" font-weight="600">Samuel Umoren / AI Backend Notes</text>
+  </g>
+</svg>

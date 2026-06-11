@@ -1,0 +1,32 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="900" fill="#F7F8FA"/>
+  <g font-family="Outfit, Avenir Next, Arial, sans-serif">
+    <text x="96" y="92" fill="#6B7280" font-size="18" font-weight="650">Backend Responsibilities</text>
+    <text x="96" y="154" fill="#111827" font-size="54" font-weight="720">AI products add a second backend surface.</text>
+    <text x="96" y="204" fill="#4B5563" font-size="27" font-weight="400">The familiar backend stays in place. The new layer controls context, actions, and model choice.</text>
+
+    <line x1="96" y1="268" x2="1504" y2="268" stroke="#D5DAE1" stroke-width="1.5"/>
+    <line x1="800" y1="322" x2="800" y2="672" stroke="#D5DAE1" stroke-width="1.5"/>
+
+    <text x="96" y="340" fill="#111827" font-size="34" font-weight="720">Traditional backend</text>
+    <text x="896" y="340" fill="#111827" font-size="34" font-weight="720">AI backend additions</text>
+
+    <g fill="#374151" font-size="27" font-weight="430">
+      <text x="96" y="410">Identity, auth, and authorization</text>
+      <text x="96" y="472">Databases and business logic</text>
+      <text x="96" y="534">APIs, queues, and background jobs</text>
+      <text x="96" y="596">Permissions inside the product</text>
+      <text x="96" y="658">Integrations with external apps</text>
+
+      <text x="896" y="410">Context sync and normalization</text>
+      <text x="896" y="472">Permission-aware retrieval</text>
+      <text x="896" y="534">Governed tool execution</text>
+      <text x="896" y="596">Model routing and fallback</text>
+      <text x="896" y="658">Observability, cost, and audit</text>
+    </g>
+
+    <line x1="96" y1="742" x2="1504" y2="742" stroke="#D5DAE1" stroke-width="1.5"/>
+    <text x="96" y="808" fill="#111827" font-size="31" font-weight="650">The new backend surface sits around the LLM, the agent, and the customer systems they touch.</text>
+    <text x="96" y="856" fill="#6B7280" font-size="18" font-weight="600">Samuel Umoren / AI Backend Notes</text>
+  </g>
+</svg>

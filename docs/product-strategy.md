@@ -27,6 +27,29 @@ Get 10-20 developers building agent systems to try ARI as the provenance layer a
 
 The tool should not replace execution layers such as Merge Agent Handler. It should make agent context, permission boundaries, and tool execution easier to inspect and explain.
 
+## Product Sequencing
+
+ARI should stay on its original path for now:
+
+- build the Merge-backed action path well
+- build the real use cases surfaced by builders: telephony agents, async tool calls, permission scope, and excluded context
+- make context provenance a first-class ARI capability
+- keep external context engines behind a provider boundary
+
+Sift can become a future context provider for ARI, but ARI should not depend on Sift before the ARI-side context-provider contract exists.
+
+The current priority is not to plug Sift into ARI. The current priority is to make ARI strong enough that Sift, or any other context system, can plug in later without changing the product model.
+
+In this framing:
+
+```text
+ARI = provenance layer
+Merge = action execution layer
+Sift = possible future context provider
+```
+
+Do not overcomplicate ARI before the core product has enough traction.
+
 ## First Public Build
 
 The first public build centers on the action path:

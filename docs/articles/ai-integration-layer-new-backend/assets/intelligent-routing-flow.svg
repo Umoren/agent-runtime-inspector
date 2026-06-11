@@ -1,0 +1,38 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="900" fill="#F7F8FA"/>
+  <g font-family="Outfit, Avenir Next, Arial, sans-serif">
+    <text x="96" y="92" fill="#6B7280" font-size="18" font-weight="650">Intelligent Routing</text>
+    <text x="96" y="154" fill="#111827" font-size="54" font-weight="720">Prompt complexity can guide model tier.</text>
+    <text x="96" y="204" fill="#4B5563" font-size="27" font-weight="400">The router estimates how hard the request is before choosing a provider and model.</text>
+
+    <line x1="96" y1="270" x2="1504" y2="270" stroke="#D5DAE1" stroke-width="1.5"/>
+
+    <g transform="translate(160 382)">
+      <text x="0" y="0" fill="#2563EB" font-size="16" font-weight="750">01</text>
+      <text x="0" y="54" fill="#111827" font-size="34" font-weight="720">Incoming prompt</text>
+      <text x="0" y="104" fill="#4B5563" font-size="23" font-weight="400">User request and context</text>
+      <line x1="0" y1="152" x2="280" y2="152" stroke="#111827" stroke-width="2"/>
+    </g>
+    <line x1="468" y1="534" x2="552" y2="534" stroke="#A8B0BC" stroke-width="2"/>
+    <path d="M552 534 L540 526 L540 542 Z" fill="#A8B0BC"/>
+
+    <g transform="translate(592 382)">
+      <text x="0" y="0" fill="#2563EB" font-size="16" font-weight="750">02</text>
+      <text x="0" y="54" fill="#111827" font-size="34" font-weight="720">Complexity score</text>
+      <text x="0" y="104" fill="#4B5563" font-size="23" font-weight="400">How demanding is this?</text>
+      <line x1="0" y1="152" x2="280" y2="152" stroke="#111827" stroke-width="2"/>
+    </g>
+    <line x1="900" y1="534" x2="984" y2="534" stroke="#A8B0BC" stroke-width="2"/>
+    <path d="M984 534 L972 526 L972 542 Z" fill="#A8B0BC"/>
+
+    <g transform="translate(1024 382)">
+      <text x="0" y="0" fill="#2563EB" font-size="16" font-weight="750">03</text>
+      <text x="0" y="54" fill="#111827" font-size="34" font-weight="720">Model tier</text>
+      <text x="0" y="104" fill="#4B5563" font-size="23" font-weight="400">Cost and quality band</text>
+      <line x1="0" y1="152" x2="280" y2="152" stroke="#111827" stroke-width="2"/>
+    </g>
+    <line x1="96" y1="650" x2="1504" y2="650" stroke="#D5DAE1" stroke-width="1.5"/>
+    <text x="96" y="716" fill="#111827" font-size="31" font-weight="650">The selected provider/model is a routing decision, not a hardcoded application constant.</text>
+    <text x="96" y="824" fill="#6B7280" font-size="18" font-weight="600">Samuel Umoren / AI Backend Notes</text>
+  </g>
+</svg>

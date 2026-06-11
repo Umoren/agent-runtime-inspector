@@ -1,0 +1,38 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="900" fill="#F7F8FA"/>
+  <g font-family="Outfit, Avenir Next, Arial, sans-serif">
+    <text x="96" y="92" fill="#6B7280" font-size="18" font-weight="650">AI Integration Layer</text>
+    <text x="96" y="154" fill="#111827" font-size="54" font-weight="720">The backend now runs through three paths.</text>
+    <text x="96" y="204" fill="#4B5563" font-size="27" font-weight="400">Context, actions, and model control surround the LLM and the agent using it.</text>
+
+    <line x1="96" y1="268" x2="1504" y2="268" stroke="#D5DAE1" stroke-width="1.5"/>
+
+    <text x="96" y="342" fill="#111827" font-size="30" font-weight="720">Context path</text>
+    <text x="380" y="342" fill="#374151" font-size="25" font-weight="420">sync</text>
+    <text x="540" y="342" fill="#374151" font-size="25" font-weight="420">normalize</text>
+    <text x="760" y="342" fill="#374151" font-size="25" font-weight="420">transform</text>
+    <text x="982" y="342" fill="#374151" font-size="25" font-weight="420">retrieve</text>
+    <text x="1180" y="342" fill="#374151" font-size="25" font-weight="420">permission-check</text>
+    <line x1="96" y1="382" x2="1504" y2="382" stroke="#D5DAE1" stroke-width="1.5"/>
+
+    <text x="96" y="466" fill="#111827" font-size="30" font-weight="720">Action path</text>
+    <text x="380" y="466" fill="#374151" font-size="25" font-weight="420">tool access</text>
+    <text x="600" y="466" fill="#374151" font-size="25" font-weight="420">auth</text>
+    <text x="760" y="466" fill="#374151" font-size="25" font-weight="420">scope</text>
+    <text x="940" y="466" fill="#374151" font-size="25" font-weight="420">execute</text>
+    <text x="1128" y="466" fill="#374151" font-size="25" font-weight="420">log</text>
+    <text x="1260" y="466" fill="#374151" font-size="25" font-weight="420">audit</text>
+    <line x1="96" y1="506" x2="1504" y2="506" stroke="#D5DAE1" stroke-width="1.5"/>
+
+    <text x="96" y="590" fill="#111827" font-size="30" font-weight="720">Model path</text>
+    <text x="380" y="590" fill="#374151" font-size="25" font-weight="420">route</text>
+    <text x="540" y="590" fill="#374151" font-size="25" font-weight="420">fallback</text>
+    <text x="740" y="590" fill="#374151" font-size="25" font-weight="420">monitor</text>
+    <text x="930" y="590" fill="#374151" font-size="25" font-weight="420">control cost</text>
+    <text x="1200" y="590" fill="#374151" font-size="25" font-weight="420">explain decision</text>
+    <line x1="96" y1="630" x2="1504" y2="630" stroke="#D5DAE1" stroke-width="1.5"/>
+
+    <text x="96" y="716" fill="#111827" font-size="31" font-weight="650">Enterprise AI products need a runtime layer that controls data, tools, models, logs, and audit.</text>
+    <text x="96" y="824" fill="#6B7280" font-size="18" font-weight="600">Samuel Umoren / AI Backend Notes</text>
+  </g>
+</svg>

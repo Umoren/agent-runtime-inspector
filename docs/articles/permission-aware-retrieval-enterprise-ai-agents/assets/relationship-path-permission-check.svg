@@ -1,0 +1,47 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="900" fill="#F7F8FA"/>
+  <g font-family="Outfit, Avenir Next, Arial, sans-serif">
+    <text x="96" y="92" fill="#6B7280" font-size="18" font-weight="650">Relationship-Based Access</text>
+    <text x="96" y="154" fill="#111827" font-size="54" font-weight="720">Authorization is answered through paths.</text>
+    <text x="96" y="224" fill="#4B5563" font-size="27" font-weight="400">Access is granted when the user is connected to the source channel.</text>
+    <line x1="96" y1="294" x2="1504" y2="294" stroke="#D5DAE1" stroke-width="1.5"/>
+
+    <circle cx="288" cy="462" r="86" fill="#EFF6FF" stroke="#2563EB" stroke-width="2"/>
+    <text x="288" y="450" fill="#111827" font-size="30" font-weight="720" text-anchor="middle">Person</text>
+    <text x="288" y="490" fill="#4B5563" font-size="20" font-weight="600" text-anchor="middle">current user</text>
+
+    <circle cx="800" cy="462" r="112" fill="#ECFDF5" stroke="#16A34A" stroke-width="2"/>
+    <text x="800" y="450" fill="#111827" font-size="32" font-weight="720" text-anchor="middle">Channel</text>
+    <text x="800" y="490" fill="#4B5563" font-size="21" font-weight="600" text-anchor="middle">source boundary</text>
+    <rect x="726" y="520" width="150" height="36" rx="18" fill="#DCFCE7"/>
+    <text x="750" y="544" fill="#166534" font-size="17" font-weight="750">private Slack</text>
+
+    <circle cx="1312" cy="462" r="86" fill="#FFFBEB" stroke="#D97706" stroke-width="2"/>
+    <text x="1312" y="450" fill="#111827" font-size="30" font-weight="720" text-anchor="middle">Decision</text>
+    <text x="1312" y="490" fill="#4B5563" font-size="20" font-weight="600" text-anchor="middle">derived</text>
+
+    <line x1="374" y1="462" x2="668" y2="462" stroke="#475569" stroke-width="2.5"/>
+    <path d="M668 462 L654 453 L654 471 Z" fill="#475569"/>
+    <text x="542" y="408" fill="#111827" font-size="22" font-weight="720" text-anchor="middle">belongs to</text>
+    <rect x="464" y="436" width="156" height="40" rx="20" fill="#FFFFFF" stroke="#CBD5E1"/>
+    <text x="542" y="460" fill="#6B7280" font-size="17" font-weight="750" text-anchor="middle">MEMBER_OF</text>
+
+    <line x1="1226" y1="462" x2="932" y2="462" stroke="#475569" stroke-width="2.5"/>
+    <path d="M932 462 L946 453 L946 471 Z" fill="#475569"/>
+    <text x="1075" y="408" fill="#111827" font-size="22" font-weight="720" text-anchor="middle">came from</text>
+    <rect x="984" y="436" width="182" height="40" rx="20" fill="#FFFFFF" stroke="#CBD5E1"/>
+    <text x="1075" y="460" fill="#6B7280" font-size="17" font-weight="750" text-anchor="middle">SOURCED_FROM</text>
+
+    <rect x="472" y="610" width="656" height="148" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+    <text x="510" y="646" fill="#2563EB" font-size="16" font-weight="750">PERMISSION QUESTION</text>
+    <text x="510" y="682" fill="#111827" font-size="24" font-weight="650">Does the user have a path to</text>
+    <text x="510" y="714" fill="#111827" font-size="24" font-weight="650">the source channel?</text>
+
+    <rect x="1190" y="634" width="212" height="94" rx="8" fill="#DCFCE7" stroke="#16A34A" stroke-width="1.5"/>
+    <text x="1296" y="674" fill="#166534" font-size="28" font-weight="720" text-anchor="middle">Allowed</text>
+    <text x="1296" y="708" fill="#166534" font-size="19" font-weight="650" text-anchor="middle">path exists</text>
+
+    <line x1="96" y1="784" x2="1504" y2="784" stroke="#D5DAE1" stroke-width="1.5"/>
+    <text x="96" y="824" fill="#6B7280" font-size="18" font-weight="600">Samuel Umoren / Permission-Aware Retrieval Notes</text>
+  </g>
+</svg>

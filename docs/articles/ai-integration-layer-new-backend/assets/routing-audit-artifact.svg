@@ -1,0 +1,38 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="900" fill="#F7F8FA"/>
+  <g font-family="Outfit, Avenir Next, Arial, sans-serif">
+    <text x="96" y="92" fill="#6B7280" font-size="18" font-weight="650">Routing Audit</text>
+    <text x="96" y="154" fill="#111827" font-size="54" font-weight="720">A routing decision needs evidence.</text>
+    <text x="96" y="204" fill="#4B5563" font-size="27" font-weight="400">Security and compliance teams need the policy, inputs, and decision record.</text>
+
+    <line x1="96" y1="270" x2="1504" y2="270" stroke="#D5DAE1" stroke-width="1.5"/>
+
+    <g transform="translate(96 344)">
+      <text x="0" y="0" fill="#2563EB" font-size="16" font-weight="750">01</text>
+      <text x="0" y="52" fill="#111827" font-size="32" font-weight="720">Routing policy</text>
+      <text x="0" y="100" fill="#4B5563" font-size="23" font-weight="400">The rule set in force</text>
+      <line x1="0" y1="146" x2="360" y2="146" stroke="#111827" stroke-width="2"/>
+    </g>
+
+    <g transform="translate(610 344)">
+      <text x="0" y="0" fill="#2563EB" font-size="16" font-weight="750">02</text>
+      <text x="0" y="52" fill="#111827" font-size="32" font-weight="720">Criteria and weights</text>
+      <text x="0" y="100" fill="#4B5563" font-size="23" font-weight="400">Cost, latency, quality, uptime</text>
+      <line x1="0" y1="146" x2="360" y2="146" stroke="#111827" stroke-width="2"/>
+    </g>
+
+    <g transform="translate(1124 344)">
+      <text x="0" y="0" fill="#2563EB" font-size="16" font-weight="750">03</text>
+      <text x="0" y="52" fill="#111827" font-size="32" font-weight="720">Eval scores</text>
+      <text x="0" y="100" fill="#4B5563" font-size="23" font-weight="400">Model scores for the workload</text>
+      <line x1="0" y1="146" x2="360" y2="146" stroke="#111827" stroke-width="2"/>
+    </g>
+
+    <line x1="96" y1="570" x2="1504" y2="570" stroke="#D5DAE1" stroke-width="1.5"/>
+    <text x="96" y="650" fill="#111827" font-size="32" font-weight="720">Decision log</text>
+    <text x="96" y="700" fill="#374151" font-size="25" font-weight="420">Which provider/model was chosen, why it won, and where each score came from.</text>
+
+    <line x1="96" y1="764" x2="1504" y2="764" stroke="#D5DAE1" stroke-width="1.5"/>
+    <text x="96" y="824" fill="#6B7280" font-size="18" font-weight="600">Samuel Umoren / AI Backend Notes</text>
+  </g>
+</svg>

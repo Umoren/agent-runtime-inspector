@@ -1,0 +1,28 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="900" fill="#F7F8FA"/>
+  <g font-family="Outfit, Avenir Next, Arial, sans-serif">
+    <text x="96" y="92" fill="#6B7280" font-size="18" font-weight="650">Permission-Aware Context</text>
+    <text x="96" y="154" fill="#111827" font-size="52" font-weight="720">The product needs provenance.</text>
+    <text x="96" y="204" fill="#4B5563" font-size="27" font-weight="400">Derived knowledge needs a link back to the source and its access rule.</text>
+    <line x1="96" y1="270" x2="1504" y2="270" stroke="#D5DAE1" stroke-width="1.5"/>
+
+    <text x="96" y="340" fill="#111827" font-size="27" font-weight="720">Provenance question</text>
+    <text x="650" y="340" fill="#111827" font-size="27" font-weight="720">What it protects</text>
+    <line x1="96" y1="380" x2="1504" y2="380" stroke="#111827" stroke-width="2"/>
+
+    <g fill="#374151" font-size="26" font-weight="420">
+      <text x="96" y="462">What source produced this knowledge?</text>
+      <text x="650" y="452">The link back to the original document, message,</text>
+      <text x="650" y="488">ticket, or transcript</text>
+
+      <text x="96" y="584">Who can access that source?</text>
+      <text x="650" y="584">The permission rule from the source system</text>
+
+      <text x="96" y="706">Where can this derived knowledge appear?</text>
+      <text x="650" y="696">The product surfaces where the rule still applies</text>
+    </g>
+    <line x1="96" y1="526" x2="1504" y2="526" stroke="#D5DAE1" stroke-width="1.5"/>
+    <line x1="96" y1="648" x2="1504" y2="648" stroke="#D5DAE1" stroke-width="1.5"/>
+    <text x="96" y="824" fill="#6B7280" font-size="18" font-weight="600">Samuel Umoren / AI Backend Notes</text>
+  </g>
+</svg>

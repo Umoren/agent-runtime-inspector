@@ -274,6 +274,7 @@ packages/
 examples/
   vercel-ai-sdk-merge/         Connected Merge example
 docs/
+  articles/                     Product essays and architecture notes
   engineering-standards.md
   product-strategy.md
   comms-plan.md
@@ -298,3 +299,11 @@ That path should include the request, identity, permission snapshot, selected co
 - [Comms plan](docs/comms-plan.md)
 - [Trace event model](docs/trace-event-model.md)
 - [Merge Agent Handler setup](docs/merge-agent-handler-setup.md)
+- [Articles](docs/articles/README.md)
+
+## Articles
+
+These essays explain the product architecture behind ARI:
+
+- [The AI Integration Layer Is Becoming the New Backend](docs/articles/ai-integration-layer-new-backend/index.md)
+- [Permission-Aware Retrieval for Enterprise AI Agents](docs/articles/permission-aware-retrieval-enterprise-ai-agents/index.md)

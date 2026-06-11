@@ -1,0 +1,27 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="900" fill="#F7F8FA"/>
+  <g font-family="Outfit, Avenir Next, Arial, sans-serif">
+    <text x="96" y="92" fill="#6B7280" font-size="18" font-weight="650">Model Routing</text>
+    <text x="96" y="154" fill="#111827" font-size="52" font-weight="720">Different products define “best” differently.</text>
+    <text x="96" y="204" fill="#4B5563" font-size="27" font-weight="400">Build Your Own Router makes the selection criteria explicit.</text>
+    <line x1="96" y1="270" x2="1504" y2="270" stroke="#D5DAE1" stroke-width="1.5"/>
+
+    <text x="96" y="340" fill="#111827" font-size="27" font-weight="720">Product need</text>
+    <text x="620" y="340" fill="#111827" font-size="27" font-weight="720">“Best model” means</text>
+    <line x1="96" y1="380" x2="1504" y2="380" stroke="#111827" stroke-width="2"/>
+
+    <g fill="#374151" font-size="26" font-weight="420">
+      <text x="96" y="470">Cost-sensitive workflow</text>
+      <text x="620" y="470">Lowest cost that still passes the quality threshold</text>
+
+      <text x="96" y="590">Regulated workflow</text>
+      <text x="620" y="590">Highest accuracy on approved models</text>
+
+      <text x="96" y="710">Customer-facing chat</text>
+      <text x="620" y="710">Lowest latency with acceptable quality</text>
+    </g>
+    <line x1="96" y1="530" x2="1504" y2="530" stroke="#D5DAE1" stroke-width="1.5"/>
+    <line x1="96" y1="650" x2="1504" y2="650" stroke="#D5DAE1" stroke-width="1.5"/>
+    <text x="96" y="824" fill="#6B7280" font-size="18" font-weight="600">Samuel Umoren / AI Backend Notes</text>
+  </g>
+</svg>

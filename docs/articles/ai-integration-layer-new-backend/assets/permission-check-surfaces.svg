@@ -1,0 +1,51 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="900" fill="#F7F8FA"/>
+  <g font-family="Outfit, Avenir Next, Arial, sans-serif">
+    <text x="96" y="92" fill="#6B7280" font-size="18" font-weight="650">Permission-Aware Retrieval</text>
+    <text x="96" y="154" fill="#111827" font-size="54" font-weight="720">Permissions travel with derived knowledge.</text>
+    <text x="96" y="204" fill="#4B5563" font-size="27" font-weight="400">The same source rule has to apply when knowledge appears in new product surfaces.</text>
+
+    <line x1="96" y1="270" x2="1504" y2="270" stroke="#D5DAE1" stroke-width="1.5"/>
+
+    <g transform="translate(96 360)">
+      <text x="0" y="0" fill="#2563EB" font-size="16" font-weight="750">01</text>
+      <text x="0" y="54" fill="#111827" font-size="34" font-weight="720">Source content</text>
+      <text x="0" y="104" fill="#4B5563" font-size="23" font-weight="400">Message, page, ticket</text>
+      <line x1="0" y1="152" x2="270" y2="152" stroke="#111827" stroke-width="2"/>
+    </g>
+
+    <line x1="394" y1="512" x2="470" y2="512" stroke="#A8B0BC" stroke-width="2"/>
+    <path d="M470 512 L458 504 L458 520 Z" fill="#A8B0BC"/>
+
+    <g transform="translate(512 360)">
+      <text x="0" y="0" fill="#2563EB" font-size="16" font-weight="750">02</text>
+      <text x="0" y="54" fill="#111827" font-size="34" font-weight="720">Derived knowledge</text>
+      <text x="0" y="104" fill="#4B5563" font-size="23" font-weight="400">Summary, task, decision</text>
+      <line x1="0" y1="152" x2="300" y2="152" stroke="#111827" stroke-width="2"/>
+    </g>
+
+    <line x1="844" y1="512" x2="920" y2="512" stroke="#A8B0BC" stroke-width="2"/>
+    <path d="M920 512 L908 504 L908 520 Z" fill="#A8B0BC"/>
+
+    <g transform="translate(962 360)">
+      <text x="0" y="0" fill="#2563EB" font-size="16" font-weight="750">03</text>
+      <text x="0" y="54" fill="#111827" font-size="34" font-weight="720">Permission check</text>
+      <text x="0" y="104" fill="#4B5563" font-size="23" font-weight="400">User, source ACL, surface</text>
+      <line x1="0" y1="152" x2="330" y2="152" stroke="#111827" stroke-width="2"/>
+    </g>
+
+    <line x1="1292" y1="512" x2="1328" y2="512" stroke="#A8B0BC" stroke-width="2"/>
+    <path d="M1328 512 L1316 504 L1316 520 Z" fill="#A8B0BC"/>
+
+    <g transform="translate(1360 360)">
+      <text x="0" y="0" fill="#2563EB" font-size="16" font-weight="750">04</text>
+      <text x="0" y="54" fill="#111827" font-size="34" font-weight="720">Surface</text>
+      <text x="0" y="104" fill="#4B5563" font-size="23" font-weight="400">Answer or timeline</text>
+      <line x1="0" y1="152" x2="144" y2="152" stroke="#111827" stroke-width="2"/>
+    </g>
+
+    <line x1="96" y1="650" x2="1504" y2="650" stroke="#D5DAE1" stroke-width="1.5"/>
+    <text x="96" y="716" fill="#111827" font-size="31" font-weight="650">A correct answer still needs the correct access rule before it reaches the user.</text>
+    <text x="96" y="824" fill="#6B7280" font-size="18" font-weight="600">Samuel Umoren / AI Backend Notes</text>
+  </g>
+</svg>

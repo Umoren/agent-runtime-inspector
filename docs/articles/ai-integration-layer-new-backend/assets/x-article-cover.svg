@@ -1,0 +1,39 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="900" fill="#F7F8FA"/>
+
+  <g font-family="Outfit, Avenir Next, Arial, sans-serif">
+    <text x="96" y="98" fill="#6B7280" font-size="22" font-weight="650">AI Backend Architecture</text>
+
+    <text x="96" y="214" fill="#111827" font-size="82" font-weight="760">The AI Integration</text>
+    <text x="96" y="306" fill="#111827" font-size="82" font-weight="760">Layer Is Becoming</text>
+    <text x="96" y="398" fill="#111827" font-size="82" font-weight="760">the New Backend</text>
+
+    <text x="96" y="482" fill="#374151" font-size="32" font-weight="420">Context sync, tool execution, model routing,</text>
+    <text x="96" y="526" fill="#374151" font-size="32" font-weight="420">observability, governance, cost, and audit.</text>
+
+    <line x1="96" y1="610" x2="1504" y2="610" stroke="#D5DAE1" stroke-width="1.5"/>
+
+    <g transform="translate(96 680)">
+      <text x="0" y="0" fill="#2563EB" font-size="18" font-weight="750">01</text>
+      <text x="0" y="54" fill="#111827" font-size="35" font-weight="720">Context path</text>
+      <text x="0" y="104" fill="#4B5563" font-size="24" font-weight="420">What the LLM can know</text>
+      <line x1="0" y1="152" x2="340" y2="152" stroke="#111827" stroke-width="2"/>
+    </g>
+
+    <g transform="translate(610 680)">
+      <text x="0" y="0" fill="#2563EB" font-size="18" font-weight="750">02</text>
+      <text x="0" y="54" fill="#111827" font-size="35" font-weight="720">Action path</text>
+      <text x="0" y="104" fill="#4B5563" font-size="24" font-weight="420">What the agent can do</text>
+      <line x1="0" y1="152" x2="340" y2="152" stroke="#111827" stroke-width="2"/>
+    </g>
+
+    <g transform="translate(1124 680)">
+      <text x="0" y="0" fill="#2563EB" font-size="18" font-weight="750">03</text>
+      <text x="0" y="54" fill="#111827" font-size="35" font-weight="720">Model path</text>
+      <text x="0" y="104" fill="#4B5563" font-size="24" font-weight="420">How the request runs</text>
+      <line x1="0" y1="152" x2="340" y2="152" stroke="#111827" stroke-width="2"/>
+    </g>
+
+    <text x="96" y="856" fill="#6B7280" font-size="20" font-weight="600">Samuel Umoren</text>
+  </g>
+</svg>

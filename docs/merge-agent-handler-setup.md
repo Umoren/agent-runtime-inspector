@@ -1,6 +1,6 @@
 # Merge Agent Handler Setup
 
-Agent Runtime Inspector supports mock traces and a Merge Agent Handler connected action path.
+Agent Runtime Inspector supports a Merge Agent Handler connected action path through the ARI MCP proxy.
 
 The connected path needs:
 
@@ -54,10 +54,14 @@ This workflow calls `github__create_issue`, so use a repository where creating a
 
 ## What The Inspector Shows
 
-The connected action path records:
+The connected proxy path records:
 
 - selected context
 - excluded context
+- permission snapshot id
+- context decision id
+- authorization decision id
+- authorization rule
 - provider/model selection
 - model latency and token usage when a model provider is configured
 - Registered User
@@ -88,15 +92,31 @@ Then open:
 http://localhost:3005
 ```
 
-## Mock Mode
+## MCP Proxy Mode
 
-Use mock mode to understand the dashboard before connecting Merge:
+Start the proxy:
 
 ```bash
-pnpm ari mock
+pnpm proxy
 ```
 
-## Connected Mode
+Connect an MCP-capable agent to ARI. Before calling a forwarded Merge tool, call `ari_record_context_scope` with selected context, excluded context, and an authorization rule. ARI blocks forwarded Merge tool calls until this context scope is recorded.
+
+The resulting run records:
+
+```text
+run.started
+context.selected
+context.excluded
+tool.listed
+tool.called
+tool.completed
+run.completed
+```
+
+The action events carry the same `permissionSnapshotId`, `contextDecisionId`, and `authorizationDecisionId` as the context events.
+
+## Example Runner
 
 Start with tool listing:
 

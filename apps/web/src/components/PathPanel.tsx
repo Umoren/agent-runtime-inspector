@@ -4,9 +4,9 @@ import { Badge } from "./ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 
 const pathCopy: Record<TracePath, string> = {
-  context: "Sources selected or excluded before the LLM response",
-  action: "Tools exposed, calls made, arguments sent, and results returned",
-  model: "Provider/model selection, latency, token use, cost, and status",
+  context: "Files considered before action.",
+  action: "Tools exposed, called, and completed.",
+  model: "Provider activity captured for this run.",
   system: "Run lifecycle"
 };
 
@@ -24,7 +24,7 @@ export function PathPanel({ path, events }: { path: TracePath; events: readonly 
             <span className="disclosure-action disclosure-action-closed">Show events</span>
           </summary>
           <CardContent>
-            <EventList path={path} events={events} />
+            <PathContent path={path} events={events} />
           </CardContent>
         </details>
       </Card>
@@ -38,15 +38,27 @@ export function PathPanel({ path, events }: { path: TracePath; events: readonly 
         <CardDescription>{pathCopy[path]}</CardDescription>
       </CardHeader>
       <CardContent>
-        <EventList path={path} events={events} />
+        <PathContent path={path} events={events} />
       </CardContent>
     </Card>
   );
 }
 
-function EventList({ path, events }: { path: TracePath; events: readonly TraceEvent[] }) {
+function PathContent({ path, events }: { path: TracePath; events: readonly TraceEvent[] }) {
   if (events.length === 0) {
     return <EmptyPathState path={path} />;
+  }
+
+  if (path === "context") {
+    return <ContextPath events={events} />;
+  }
+
+  if (path === "action") {
+    return <ActionPath events={events} />;
+  }
+
+  if (path === "model") {
+    return <ModelPath events={events} />;
   }
 
   return events.map((event) => (
@@ -61,10 +73,166 @@ function EventList({ path, events }: { path: TracePath; events: readonly TraceEv
   ));
 }
 
+function ContextPath({ events }: { events: readonly TraceEvent[] }) {
+  const selected = events.filter((event): event is Extract<TraceEvent, { type: "context.selected" }> => event.type === "context.selected");
+  const excluded = events.filter((event): event is Extract<TraceEvent, { type: "context.excluded" }> => event.type === "context.excluded");
+
+  return (
+    <div className="path-groups">
+      <ContextGroup title="Read" events={selected} />
+      <ContextGroup title="Held back" events={excluded} />
+    </div>
+  );
+}
+
+function ContextGroup({
+  title,
+  events
+}: {
+  title: string;
+  events: readonly Extract<TraceEvent, { type: "context.selected" | "context.excluded" }>[];
+}) {
+  return (
+    <section className="path-group">
+      <div className="path-group-heading">
+        <span>{title}</span>
+        <strong>{String(events.length)}</strong>
+      </div>
+      <div className="source-table">
+        {events.map((event) => (
+          <article className="source-row" key={event.id}>
+            <div>
+              <div className="path-row-title">{event.payload.title}</div>
+              <p>{event.payload.reason}</p>
+            </div>
+            <span>{event.payload.permissionRule ?? humanizeKey(event.payload.sourceType)}</span>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function ActionPath({ events }: { events: readonly TraceEvent[] }) {
+  const inventory = events.find((event): event is Extract<TraceEvent, { type: "tool.listed" }> => event.type === "tool.listed");
+  const calls = events.filter((event): event is Extract<TraceEvent, { type: "tool.called" }> => event.type === "tool.called");
+  const completed = events.filter((event): event is Extract<TraceEvent, { type: "tool.completed" }> => event.type === "tool.completed");
+  const blocked = events.filter((event): event is Extract<TraceEvent, { type: "tool.blocked" }> => event.type === "tool.blocked");
+
+  return (
+    <div className="path-groups">
+      {inventory ? (
+        <section className="path-group">
+          <div className="path-group-heading">
+            <span>Available</span>
+            <strong>{String(inventory.payload.tools.length)}</strong>
+          </div>
+          <div className="tool-inventory">
+            <div className="path-row-title">Scoped tools</div>
+            <div className="path-row-meta path-row-meta-plain">
+              {inventory.payload.tools.map((tool) => (
+                <span key={tool.name}>{tool.name}</span>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      <section className="path-group">
+        <div className="path-group-heading">
+          <span>Execution</span>
+          <strong>{String(calls.length)}</strong>
+        </div>
+        <div className="path-sequence">
+          {calls.map((call, index) => {
+            const result = completed.find((event) => event.payload.correlationId === call.payload.correlationId);
+            const status = result?.payload.status ?? "running";
+
+            return (
+              <article className="trail-row" key={call.id}>
+                <div className="trail-index">{String(index + 1).padStart(2, "0")}</div>
+                <div className="path-row-main">
+                  <div className="trail-heading">
+                    <div className="path-row-title">{call.payload.toolName}</div>
+                    <span className={status === "success" ? "trail-status trail-status-good" : status === "error" ? "trail-status trail-status-bad" : "trail-status"}>
+                      {status}
+                    </span>
+                  </div>
+                  <p>{actionSummary(call.payload.toolName, result)}</p>
+                  <div className="path-row-meta">
+                    {result ? <span>{formatDuration(result.payload.latencyMs)}</span> : null}
+                    {call.payload.contextDecisionId ? <span>{call.payload.contextDecisionId}</span> : null}
+                    {call.payload.authorizationDecisionId ? <span>{call.payload.authorizationDecisionId}</span> : null}
+                    {call.payload.authorizationRule ? <span>{call.payload.authorizationRule}</span> : null}
+                  </div>
+                  <details className="path-row-detail">
+                    <summary>Payload</summary>
+                    <div className="path-detail-grid">
+                      <div>
+                        <div className="event-subheading">Input</div>
+                        <PayloadView value={call.payload.arguments} />
+                      </div>
+                      {result?.payload.result === undefined ? null : (
+                        <div>
+                          <div className="event-subheading">Output</div>
+                          <PayloadView value={result.payload.result} />
+                        </div>
+                      )}
+                    </div>
+                  </details>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+
+      {blocked.map((event) => (
+        <article className="path-row" key={event.id}>
+          <div className="path-status path-status-bad">blocked</div>
+          <div className="path-row-main">
+            <div className="path-row-title">{event.payload.toolName}</div>
+            <p>{event.payload.reason}</p>
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+function ModelPath({ events }: { events: readonly TraceEvent[] }) {
+  const modelEvents = events.filter(
+    (event): event is Extract<TraceEvent, { type: "model.called" | "model.completed" }> =>
+      event.type === "model.called" || event.type === "model.completed"
+  );
+
+  if (modelEvents.length === 0) {
+    return <EmptyPathState path="model" />;
+  }
+
+  return (
+    <div className="path-timeline">
+      {modelEvents.map((event) => (
+        <article className="path-row" key={event.id}>
+          <div className={`path-status ${event.type === "model.completed" && event.payload.status === "success" ? "path-status-good" : ""}`}>
+            {event.type === "model.called" ? "called" : event.payload.status}
+          </div>
+          <div className="path-row-main">
+            <div className="path-row-title">
+              {event.payload.provider}/{event.payload.model}
+            </div>
+            <p>{event.type === "model.called" ? event.payload.routeReason ?? event.payload.taskType : modelSummary(event.payload)}</p>
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+}
+
 function pathLabel(path: TracePath): string {
-  if (path === "context") return "Context path";
-  if (path === "action") return "Action path";
-  if (path === "model") return "Model path";
+  if (path === "context") return "Context";
+  if (path === "action") return "Actions";
+  if (path === "model") return "Model";
   return "System events";
 }
 
@@ -103,32 +271,55 @@ function EmptyPathState({ path }: { path: TracePath }) {
 function emptyStateCopy(path: TracePath): { title: string; description: string } {
   if (path === "context") {
     return {
-      title: "No context events recorded.",
-      description:
-        "Context events appear when the run selects or excludes source data before the LLM response."
+      title: "No context events.",
+      description: "No selected or excluded context was recorded."
     };
   }
 
   if (path === "action") {
     return {
-      title: "No action events recorded.",
-      description:
-        "Action events appear when the agent lists tools, calls a tool, receives a result, or gets blocked by policy."
+      title: "No action events.",
+      description: "No tool inventory or tool call was recorded."
     };
   }
 
   if (path === "model") {
     return {
-      title: "No model events recorded.",
-      description:
-        "Model events appear when the run records provider/model selection, latency, token use, cost, or fallback status."
+      title: "No model event captured.",
+      description: "No model provider event was recorded for this run."
     };
   }
 
   return {
-    title: "No system events recorded.",
-    description: "System events show when the run started, completed, failed, or changed lifecycle state."
+    title: "No system events.",
+    description: "No lifecycle events were recorded."
   };
+}
+
+function actionSummary(
+  toolName: string,
+  result: Extract<TraceEvent, { type: "tool.completed" }> | undefined
+): string {
+  if (!result) {
+    return "Call started. No result recorded yet.";
+  }
+
+  return result.payload.status === "success" ? "Tool completed successfully." : result.payload.errorMessage ?? "Tool returned an error.";
+}
+
+function modelSummary(payload: Extract<TraceEvent, { type: "model.completed" }>["payload"]): string {
+  const tokens = [
+    payload.inputTokens === undefined ? undefined : `${String(payload.inputTokens)} input tokens`,
+    payload.outputTokens === undefined ? undefined : `${String(payload.outputTokens)} output tokens`
+  ].filter((item): item is string => Boolean(item));
+
+  return [
+    `Completed in ${formatDuration(payload.latencyMs)}`,
+    ...tokens,
+    payload.estimatedCostUsd === undefined ? undefined : `$${payload.estimatedCostUsd.toFixed(6)} estimated`
+  ]
+    .filter(Boolean)
+    .join(" · ");
 }
 
 function EventDetail({ event }: { event: TraceEvent }) {
@@ -141,7 +332,8 @@ function EventDetail({ event }: { event: TraceEvent }) {
             items={[
               ["Source", humanizeKey(event.payload.sourceType)],
               ["Access rule", event.payload.permissionRule ?? "Not recorded"],
-              ["Reason", event.payload.reason]
+              ["Reason", event.payload.reason],
+              ...provenanceItems(event.payload)
             ]}
           />
         </div>
@@ -151,7 +343,8 @@ function EventDetail({ event }: { event: TraceEvent }) {
         <div className="event-detail">
           <KeyValueList
             items={[
-              ["Tools available", String(event.payload.tools.length)]
+              ["Tools available", String(event.payload.tools.length)],
+              ...provenanceItems(event.payload)
             ]}
           />
         </div>
@@ -159,18 +352,20 @@ function EventDetail({ event }: { event: TraceEvent }) {
     case "tool.called":
       return (
         <div className="event-detail">
+          <KeyValueList items={provenanceItems(event.payload)} />
           <div className="event-subheading">Arguments sent</div>
           <ToolArgumentsView toolName={event.payload.toolName} value={event.payload.arguments} />
         </div>
       );
-    case "tool.completed":
+    case "tool.completed": {
       const toolStatus = toolCompletedStatus(event.payload);
       return (
         <div className="event-detail">
           <KeyValueList
             items={[
               ["Status", toolStatus],
-              ["Latency", formatDuration(event.payload.latencyMs)]
+              ["Latency", formatDuration(event.payload.latencyMs)],
+              ...provenanceItems(event.payload)
             ]}
           />
           {toolErrorMessage(event.payload) ? <p className="event-error">{toolErrorMessage(event.payload)}</p> : null}
@@ -182,8 +377,13 @@ function EventDetail({ event }: { event: TraceEvent }) {
           )}
         </div>
       );
+    }
     case "tool.blocked":
-      return <p className="event-detail">{event.payload.reason}</p>;
+      return (
+        <div className="event-detail">
+          <KeyValueList items={[["Reason", event.payload.reason], ...provenanceItems(event.payload)]} />
+        </div>
+      );
     case "model.called":
       return <p className="event-detail">{event.payload.routeReason ?? event.payload.taskType}</p>;
     case "model.completed":
@@ -235,6 +435,10 @@ function toolErrorMessage(payload: Extract<TraceEvent, { type: "tool.completed" 
 }
 
 function KeyValueList({ items }: { items: readonly [string, string][] }) {
+  if (items.length === 0) {
+    return null;
+  }
+
   return (
     <dl className="key-value-list">
       {items.map(([key, value]) => (
@@ -245,6 +449,22 @@ function KeyValueList({ items }: { items: readonly [string, string][] }) {
       ))}
     </dl>
   );
+}
+
+function provenanceItems(payload: {
+  permissionSnapshotId?: string | undefined;
+  contextDecisionId?: string | undefined;
+  authorizationDecisionId?: string | undefined;
+  authorizationRule?: string | undefined;
+}): [string, string][] {
+  return [
+    ...(payload.permissionSnapshotId ? ([["Permission snapshot", payload.permissionSnapshotId]] as [string, string][]) : []),
+    ...(payload.contextDecisionId ? ([["Context decision", payload.contextDecisionId]] as [string, string][]) : []),
+    ...(payload.authorizationDecisionId
+      ? ([["Authorization decision", payload.authorizationDecisionId]] as [string, string][])
+      : []),
+    ...(payload.authorizationRule ? ([["Authorization rule", payload.authorizationRule]] as [string, string][]) : [])
+  ];
 }
 
 function ToolArgumentsView({ toolName, value }: { toolName: string; value: unknown }) {
@@ -307,9 +527,11 @@ function PayloadView({ value }: { value: unknown }) {
   }
 
   if (Array.isArray(value)) {
+    const items = value as readonly unknown[];
+
     return (
       <ul className="payload-list">
-        {value.map((item, index) => (
+        {items.map((item, index) => (
           <li key={index}>
             <PayloadValue value={item} />
           </li>

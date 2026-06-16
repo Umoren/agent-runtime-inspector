@@ -1,11 +1,10 @@
 import Link from "next/link";
-import { PlayCircle, Plug } from "lucide-react";
+import { Plug } from "lucide-react";
 import { getRuns, getSummaryMode, getSystemStatus } from "../src/lib/collector";
 import { formatDateTime } from "../src/lib/format";
 import { Button } from "../src/components/ui/button";
 import { Badge } from "../src/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../src/components/ui/card";
-import { loadMockRunAction } from "./actions";
 
 export default async function HomePage() {
   const [runs, status] = await Promise.all([getRuns(), getSystemStatus()]);
@@ -21,12 +20,6 @@ export default async function HomePage() {
           Agent Runtime Inspector
         </Link>
         <div className="nav-actions">
-          <form action={loadMockRunAction}>
-            <Button type="submit">
-              <PlayCircle aria-hidden="true" size={16} />
-              Load mock
-            </Button>
-          </form>
           <Button asChild className="button-secondary">
             <Link href="#merge-setup">
               <Plug aria-hidden="true" size={16} />
@@ -48,22 +41,9 @@ export default async function HomePage() {
       <section className="grid grid-2 mode-grid" id="modes">
         <Card>
           <CardHeader>
-            <CardTitle>Mock mode</CardTitle>
+            <CardTitle>Real MCP proxy path</CardTitle>
             <CardDescription>
-              Load a complete trace so you can see context selection, tool execution, model routing, and audit logs without setup.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form action={loadMockRunAction}>
-              <Button type="submit">Load mock run</Button>
-            </form>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Live Merge mode</CardTitle>
-            <CardDescription>
-              Add Merge credentials first. Then choose either a direct tool call or the GitHub issue workflow.
+              Connect an MCP-capable agent to ARI, record context scope, then forward tool calls through Merge Agent Handler.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -123,7 +103,6 @@ export default async function HomePage() {
             <StatusItem label="Storage" value={status.storage} />
             <StatusItem label="Merge" value={status.merge.state} tone={status.merge.state === "configured" ? "good" : "warn"} />
             <StatusItem label="Model" value={status.model.state} tone={status.model.state === "configured" ? "good" : "warn"} />
-            <StatusItem label="Mock trace" value={status.mockTrace} tone="good" />
           </div>
           <p className="helper-text">Collector URL: {status.collectorUrl}</p>
         </CardContent>
@@ -153,14 +132,18 @@ export default async function HomePage() {
       <Card className="section" id="runs">
         <CardHeader>
           <CardTitle>Latest runs</CardTitle>
-          <CardDescription>{runs.length === 0 ? "No runs recorded yet." : `Showing ${visibleRuns.length} of ${runs.length} run${runs.length === 1 ? "" : "s"}.`}</CardDescription>
+          <CardDescription>
+            {runs.length === 0
+              ? "No runs recorded yet."
+              : `Showing ${String(visibleRuns.length)} of ${String(runs.length)} run${runs.length === 1 ? "" : "s"}.`}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {runs.length === 0 ? (
             <div className="empty-state">
               <div className="event-title">No runs recorded yet.</div>
               <p>
-                Load the mock run to see a complete trace, or run a connected Merge Agent Handler example to record a new run.
+                Start the ARI MCP proxy, record context scope from an MCP-capable agent, then call a forwarded Merge tool.
               </p>
             </div>
           ) : (

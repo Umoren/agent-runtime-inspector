@@ -27,12 +27,13 @@ Every event includes:
 - `type`
 - typed `payload`
 
-The current schema uses `runId` as the common boundary. The stronger provenance model will add durable decision ids so context, authorization, and action events can be bound explicitly:
+The schema uses `runId` as the run boundary and durable decision ids so context, authorization, and action events can be bound explicitly:
 
 ```text
 permissionSnapshotId
 contextDecisionId
 authorizationDecisionId
+authorizationRule
 ```
 
 The goal is not only to show that a tool ran. The event stream should prove which context and permission boundary justified the action.

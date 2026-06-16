@@ -139,6 +139,11 @@ pre {
   margin-top: 32px;
 }
 
+.path-stack {
+  display: grid;
+  gap: 18px;
+}
+
 .setup-list {
   display: grid;
   gap: 10px;
@@ -249,6 +254,137 @@ pre {
   padding-top: 0;
 }
 
+.path-timeline {
+  display: grid;
+}
+
+.path-groups {
+  display: grid;
+  gap: 18px;
+}
+
+.path-group {
+  border: 1px solid var(--border);
+  min-width: 0;
+}
+
+.path-group-heading {
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 14px;
+}
+
+.path-group-heading span {
+  color: var(--muted-foreground);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.path-group-heading strong {
+  color: var(--foreground);
+  font-size: 16px;
+}
+
+.path-row {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 96px minmax(0, 1fr);
+  padding: 16px 0;
+}
+
+.path-row + .path-row {
+  border-top: 1px solid var(--border);
+}
+
+.path-row:first-child {
+  padding-top: 0;
+}
+
+.path-row:last-child {
+  padding-bottom: 0;
+}
+
+.path-status {
+  align-self: start;
+  border: 1px solid var(--border);
+  color: var(--muted-foreground);
+  font-size: 12px;
+  font-weight: 850;
+  padding: 6px 8px;
+  text-align: center;
+}
+
+.path-status-good {
+  color: var(--success);
+}
+
+.path-status-bad {
+  color: var(--destructive);
+}
+
+.path-status-muted {
+  color: #92400e;
+}
+
+.path-row-main {
+  min-width: 0;
+}
+
+.path-row-title {
+  color: var(--foreground);
+  font-size: 16px;
+  font-weight: 850;
+  overflow-wrap: anywhere;
+}
+
+.path-row-main p {
+  color: var(--muted-foreground);
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 6px 0 0;
+}
+
+.path-row-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.path-row-meta span {
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+  padding: 4px 6px;
+}
+
+.path-row-meta-plain span {
+  border: 0;
+  padding: 0;
+}
+
+.path-row-detail {
+  margin-top: 12px;
+}
+
+.path-row-detail summary {
+  color: var(--muted-foreground);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.path-detail-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 10px;
+}
+
 .event-type {
   color: var(--primary);
   font-size: 13px;
@@ -303,9 +439,82 @@ pre {
   min-width: 0;
 }
 
-.path-card-action .event:first-child .event-title {
+.source-table,
+.path-sequence {
+  display: grid;
+}
+
+.source-row {
+  align-items: start;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) 140px;
+  padding: 14px;
+}
+
+.source-row + .source-row {
+  border-top: 1px solid var(--border);
+}
+
+.source-row p {
   color: var(--muted-foreground);
-  font-size: 15px;
+  font-size: 13px;
+  line-height: 1.45;
+  margin: 5px 0 0;
+}
+
+.source-row > span {
+  color: var(--muted-foreground);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.tool-inventory {
+  padding: 14px;
+}
+
+.trail-row {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 42px minmax(0, 1fr);
+  padding: 14px;
+}
+
+.trail-row + .trail-row {
+  border-top: 1px solid var(--border);
+}
+
+.trail-index {
+  color: var(--muted-foreground);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.trail-heading {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.trail-status {
+  border: 1px solid var(--border);
+  color: var(--muted-foreground);
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 850;
+  padding: 4px 7px;
+}
+
+.trail-status-good {
+  color: var(--success);
+}
+
+.trail-status-bad {
+  color: var(--destructive);
 }
 
 .key-value-list,
@@ -514,6 +723,124 @@ pre {
   max-width: 900px;
 }
 
+.verification-passed {
+  color: var(--success);
+}
+
+.verification-failed {
+  color: var(--destructive);
+}
+
+.verification-not-recorded {
+  color: #92400e;
+}
+
+.audit-chain [data-slot="card-content"] {
+  display: grid;
+  gap: 18px;
+}
+
+.audit-chain-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.audit-block {
+  border: 1px solid var(--border);
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  padding: 16px;
+}
+
+.audit-heading {
+  align-items: baseline;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.audit-heading span {
+  color: var(--muted-foreground);
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.audit-heading strong {
+  color: var(--foreground);
+  font-size: 18px;
+  overflow-wrap: anywhere;
+}
+
+.audit-context-list,
+.audit-facts {
+  display: grid;
+  gap: 8px;
+}
+
+.audit-context-list article {
+  border-left: 3px solid var(--border);
+  padding-left: 10px;
+}
+
+.audit-context-list strong {
+  color: var(--foreground);
+  display: block;
+  font-size: 13px;
+  font-weight: 850;
+  overflow-wrap: anywhere;
+}
+
+.audit-block p,
+.audit-context-list p {
+  color: var(--muted-foreground);
+  font-size: 13px;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.audit-context-list p {
+  margin-top: 4px;
+}
+
+.audit-fact {
+  display: grid;
+  gap: 4px;
+}
+
+.audit-fact span {
+  color: var(--muted-foreground);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.audit-fact code {
+  color: var(--foreground);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.audit-result {
+  align-items: center;
+  border: 1px solid var(--border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 14px 16px;
+}
+
+.audit-result strong {
+  color: var(--success);
+}
+
+.audit-result span,
+.audit-result p {
+  color: var(--muted-foreground);
+  font-size: 13px;
+  margin: 0;
+}
+
 .status-success {
   color: var(--success);
 }
@@ -613,6 +940,32 @@ pre {
   }
 
   .status-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .path-row {
+    grid-template-columns: 1fr;
+  }
+
+  .path-status {
+    text-align: left;
+    width: max-content;
+  }
+
+  .path-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .source-row,
+  .trail-row {
+    grid-template-columns: 1fr;
+  }
+
+  .source-row > span {
+    text-align: left;
+  }
+
+  .audit-chain-grid {
     grid-template-columns: 1fr;
   }
 }

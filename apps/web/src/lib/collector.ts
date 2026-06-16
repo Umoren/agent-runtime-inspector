@@ -1,8 +1,8 @@
-import { buildRunSummary, groupEventsByPath, mockTraceEvents, traceEventListSchema } from "@ari/core";
+import { buildRunSummary, groupEventsByPath, traceEventListSchema } from "@ari/core";
 import type { RunSummary, TraceEvent } from "@ari/core";
 import { envValue } from "./env";
 
-export type RunMode = "mock" | "connected" | "unknown";
+export type RunMode = "connected" | "unknown";
 
 export type SystemStatus = {
   collector: "running" | "unreachable";
@@ -10,7 +10,6 @@ export type SystemStatus = {
   storage: "local SQLite";
   merge: MergeConfigStatus;
   model: ModelConfigStatus;
-  mockTrace: "available";
 };
 
 export type MergeConfigStatus = {
@@ -28,11 +27,6 @@ export type ModelConfigStatus = {
   state: "configured" | "manual fallback";
   required: EnvVarStatus[];
   optional: EnvVarStatus[];
-};
-
-export type MockLoadResult = {
-  runId: string;
-  events: number;
 };
 
 export async function getRuns(): Promise<RunSummary[]> {
@@ -63,19 +57,19 @@ export async function getRunEvents(runId: string): Promise<TraceEvent[]> {
     const response = await fetch(`${collectorUrl}/runs/${runId}`, { cache: "no-store" });
 
     if (!response.ok) {
-      return mockTraceEvents;
+      return [];
     }
 
     const body: unknown = await response.json();
     const parsed = traceEventListSchema.safeParse(body);
 
     if (!parsed.success) {
-      return mockTraceEvents;
+      return [];
     }
 
     return parsed.data;
   } catch {
-    return mockTraceEvents;
+    return [];
   }
 }
 
@@ -90,10 +84,6 @@ export function buildDashboardModel(events: readonly TraceEvent[]) {
 }
 
 export function getSummaryMode(summary: RunSummary): RunMode {
-  if (summary.runId.startsWith("mock-")) {
-    return "mock";
-  }
-
   const title = summary.title.toLowerCase();
 
   if (title.includes("merge agent handler") || title.includes("ari mcp proxy")) {
@@ -135,29 +125,8 @@ export async function getSystemStatus(): Promise<SystemStatus> {
       state: missingModelRequired.length === 0 ? "configured" : "manual fallback",
       required: modelRequired,
       optional: [envStatus("ARI_MODEL_PROVIDER"), envStatus("ARI_MODEL_BASE_URL"), envStatus("ARI_MODEL_PROMPT")]
-    },
-    mockTrace: "available"
+    }
   };
-}
-
-export async function loadMockTrace(): Promise<MockLoadResult> {
-  const collectorUrl = getCollectorUrl();
-  const response = await fetch(`${collectorUrl}/mock`, {
-    method: "POST",
-    cache: "no-store"
-  });
-
-  if (!response.ok) {
-    throw new Error(`Collector rejected mock trace: ${String(response.status)} ${response.statusText}`);
-  }
-
-  const body: unknown = await response.json();
-
-  if (!isMockLoadResult(body)) {
-    throw new Error("Collector returned an invalid mock trace response.");
-  }
-
-  return body;
 }
 
 function explainRun(events: readonly TraceEvent[]): string {
@@ -205,12 +174,6 @@ function explainRun(events: readonly TraceEvent[]): string {
 
 function getRunMode(events: readonly TraceEvent[]): RunMode {
   const started = events.find((event) => event.type === "run.started");
-  const runId = events[0]?.runId ?? "";
-
-  if (runId.startsWith("mock-") || started?.source === "mock") {
-    return "mock";
-  }
-
   if (
     started?.type === "run.started" &&
     (started.payload.title.toLowerCase().includes("merge agent handler") ||
@@ -241,15 +204,6 @@ const runSummaryListSchema = {
     return { success: true as const, data: input as RunSummary[] };
   }
 };
-
-function isMockLoadResult(input: unknown): input is MockLoadResult {
-  if (!input || typeof input !== "object") {
-    return false;
-  }
-
-  const candidate = input as Record<string, unknown>;
-  return typeof candidate.runId === "string" && typeof candidate.events === "number";
-}
 
 function envStatus(name: string): EnvVarStatus {
   return {

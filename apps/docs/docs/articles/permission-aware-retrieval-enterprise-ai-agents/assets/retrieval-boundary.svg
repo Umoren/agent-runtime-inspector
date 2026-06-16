@@ -1,0 +1,58 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="900" fill="#F7F8FA"/>
+  <g font-family="Outfit, Avenir Next, Arial, sans-serif">
+    <text x="96" y="92" fill="#6B7280" font-size="18" font-weight="650">Permission-Aware Retrieval</text>
+    <text x="96" y="142" fill="#111827" font-size="44" font-weight="720">The retrieval boundary decides</text>
+    <text x="96" y="198" fill="#111827" font-size="44" font-weight="720">what reaches the answer.</text>
+    <text x="96" y="260" fill="#4B5563" font-size="24" font-weight="400">Relevant context still has to pass the current user's source permissions.</text>
+    <line x1="96" y1="314" x2="1504" y2="314" stroke="#D5DAE1" stroke-width="1.5"/>
+
+    <g transform="translate(96 338)">
+      <rect x="0" y="0" width="330" height="322" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+      <text x="28" y="44" fill="#2563EB" font-size="17" font-weight="750">USER QUESTION</text>
+      <text x="28" y="92" fill="#111827" font-size="24" font-weight="720">Why is this</text>
+      <text x="28" y="126" fill="#111827" font-size="24" font-weight="720">customer escalation</text>
+      <text x="28" y="160" fill="#111827" font-size="24" font-weight="720">blocked?</text>
+      <line x1="28" y1="216" x2="302" y2="216" stroke="#D5DAE1" stroke-width="1.5"/>
+      <text x="28" y="264" fill="#4B5563" font-size="16" font-weight="600">Needs company context.</text>
+    </g>
+
+    <line x1="448" y1="483" x2="536" y2="483" stroke="#D5DAE1" stroke-width="2"/>
+    <path d="M536 483 L522 474 L522 492 Z" fill="#D5DAE1"/>
+
+    <g transform="translate(568 338)">
+      <rect x="0" y="0" width="396" height="322" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+      <text x="28" y="44" fill="#111827" font-size="24" font-weight="720">Retrieved context</text>
+      <text x="28" y="80" fill="#4B5563" font-size="18" font-weight="400">The system finds useful sources.</text>
+      <rect x="28" y="116" width="144" height="36" rx="18" fill="#DCFCE7"/>
+      <text x="50" y="140" fill="#166534" font-size="16" font-weight="750">support ticket</text>
+      <rect x="190" y="116" width="130" height="36" rx="18" fill="#DCFCE7"/>
+      <text x="212" y="140" fill="#166534" font-size="16" font-weight="750">Linear issue</text>
+      <rect x="28" y="166" width="138" height="36" rx="18" fill="#DCFCE7"/>
+      <text x="50" y="190" fill="#166534" font-size="16" font-weight="750">account note</text>
+      <rect x="184" y="166" width="168" height="36" rx="18" fill="#FEE2E2"/>
+      <text x="206" y="190" fill="#991B1B" font-size="16" font-weight="750">private Slack</text>
+      <line x1="28" y1="234" x2="368" y2="234" stroke="#D5DAE1" stroke-width="1.5"/>
+      <text x="28" y="266" fill="#4B5563" font-size="16" font-weight="600">Relevance needs permission.</text>
+    </g>
+
+    <line x1="986" y1="483" x2="1074" y2="483" stroke="#D5DAE1" stroke-width="2"/>
+    <path d="M1074 483 L1060 474 L1060 492 Z" fill="#D5DAE1"/>
+
+    <g transform="translate(1106 338)">
+      <rect x="0" y="0" width="398" height="322" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+      <text x="28" y="44" fill="#111827" font-size="24" font-weight="720">Boundary check</text>
+      <text x="28" y="80" fill="#4B5563" font-size="17" font-weight="400">Access decides what moves forward.</text>
+      <text x="28" y="118" fill="#166534" font-size="17" font-weight="750">Allowed context</text>
+      <text x="28" y="146" fill="#111827" font-size="18" font-weight="650">ticket + issue + note</text>
+      <text x="28" y="188" fill="#991B1B" font-size="17" font-weight="750">Blocked context</text>
+      <text x="28" y="216" fill="#111827" font-size="18" font-weight="650">private Slack</text>
+      <line x1="28" y1="250" x2="370" y2="250" stroke="#D5DAE1" stroke-width="1.5"/>
+      <text x="28" y="282" fill="#4B5563" font-size="14" font-weight="650">Only allowed context reaches prompt.</text>
+    </g>
+
+    <line x1="96" y1="696" x2="1504" y2="696" stroke="#D5DAE1" stroke-width="1.5"/>
+    <text x="96" y="758" fill="#111827" font-size="29" font-weight="650">Permission-aware retrieval filters context before the prompt.</text>
+    <text x="96" y="824" fill="#6B7280" font-size="18" font-weight="600">Samuel Umoren / Permission-Aware Retrieval Notes</text>
+  </g>
+</svg>

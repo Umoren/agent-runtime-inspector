@@ -270,6 +270,9 @@ Merge Agent Handler remains the first action execution layer. ARI owns the conte
 | `pnpm dev` | Start collector and dashboard |
 | `pnpm proxy` | Start the local MCP proxy |
 | `pnpm example:merge` | Run the Merge Agent Handler example |
+| `pnpm docs:dev` | Start the Docusaurus documentation site |
+| `pnpm docs:build` | Build the documentation site |
+| `pnpm docs:serve` | Serve the built documentation site |
 | `pnpm typecheck` | Typecheck the workspace |
 | `pnpm test` | Run tests |
 
@@ -278,6 +281,7 @@ Merge Agent Handler remains the first action execution layer. ARI owns the conte
 ```text
 apps/
   web/                         Local dashboard
+  docs/                        Docusaurus documentation site
 packages/
   core/                        Trace schemas, types, aggregation
   collector/                   Local event collector
@@ -321,3 +325,7 @@ These essays explain the product architecture behind ARI:
 
 - [The AI Integration Layer Is Becoming the New Backend](docs/articles/ai-integration-layer-new-backend/index.md)
 - [Permission-Aware Retrieval for Enterprise AI Agents](docs/articles/permission-aware-retrieval-enterprise-ai-agents/index.md)
+
+## License
+
+MIT. See [LICENSE](LICENSE).

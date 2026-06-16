@@ -23,28 +23,27 @@ ARI organizes each run into provenance paths:
 | Model path | How did the request run? | provider, model, latency, token use, status |
 | System path | What happened to the run? | start, completion, status, summary |
 
-For the Merge-backed action path, the current core loop is:
+For the Merge-backed MCP path, the current core loop is:
 
 ```text
-agent asks to use a tool
-ARI lists Merge Agent Handler tools
-agent chooses a tool
+agent records selected and excluded context through ARI
+ARI records the permission snapshot, context decision, and authorization rule
+ARI lists Merge Agent Handler tools under the configured Tool Pack and Registered User
+agent chooses a forwarded tool
 ARI forwards the call to Merge
 Merge executes the tool
-ARI records the trace
+ARI records the linked trace
 ```
 
-That turns an agent action into something a developer can inspect after the run. The product direction extends this with ARI-owned context retrieval so each tool call can be bound to what the agent was allowed to know, what was withheld, and which permission boundary justified the action.
+That turns an agent action into something a developer can inspect after the run: what the agent was allowed to know, what was withheld, which tool scope was available, which authorization rule permitted the call, which arguments were sent, and what result came back.
 
 ## Current Status
 
-This is an early OSS build with three working modes:
+This is an early OSS build focused on one runtime path:
 
-- Mock mode: loads a complete sample run without credentials.
-- Example mode: runs a scripted Merge Agent Handler workflow.
 - Proxy mode: lets an MCP-capable agent connect to ARI first, then ARI forwards tool calls to Merge Agent Handler and records the action path.
 
-The current build focuses on the action path. The next core layer is context provenance: ARI-owned retrieval, permission evaluation, selected/excluded context, and binding the resulting context decision to later tool calls.
+The proxy exposes one ARI-owned MCP tool, `ari_record_context_scope`. The agent must call it before forwarded Merge tools. ARI then binds `tool.listed`, `tool.called`, and `tool.completed` to the recorded `permissionSnapshotId`, `contextDecisionId`, and `authorizationDecisionId`.
 
 ## Quickstart
 
@@ -65,14 +64,6 @@ The dashboard runs on:
 ```text
 http://localhost:3005
 ```
-
-Load the sample trace from another terminal:
-
-```bash
-pnpm ari mock
-```
-
-Use mock mode first if you want to understand the dashboard before connecting Merge credentials.
 
 ## Live Merge Setup
 
@@ -102,35 +93,6 @@ pnpm example:merge
 ```
 
 The example loads the nearest `.env` file automatically. Blank optional values are treated as unset.
-
-## Reference GitHub Issue Flow
-
-ARI includes a reference workflow that creates a GitHub issue through Merge Agent Handler.
-
-Add a model provider:
-
-```bash
-ARI_MODEL_PROVIDER=anthropic
-ARI_MODEL_API_KEY=
-ARI_MODEL_NAME=claude-haiku-4-5-20251001
-```
-
-Then add the GitHub target:
-
-```bash
-ARI_AGENT_WORKFLOW=github_issue
-ARI_GITHUB_OWNER=Umoren
-ARI_GITHUB_REPO=playlist-sorter
-ARI_GITHUB_LABELS_JSON='["ari-test"]'
-```
-
-Run the example:
-
-```bash
-pnpm example:merge
-```
-
-This workflow records selected and excluded context, asks the configured model to draft a GitHub issue, then calls `github__create_issue` through Merge Agent Handler. It is a reference flow for the architecture, not the product boundary.
 
 ## MCP Proxy Mode
 
@@ -162,15 +124,53 @@ For MCP clients that spawn a command, use the silent form so package-manager out
 }
 ```
 
-Once connected, the MCP client can list Merge Agent Handler tools and call them through ARI. The dashboard records a complete action run as:
+Once connected, the MCP client sees:
+
+```text
+ari_record_context_scope
+<forwarded Merge Agent Handler tools>
+```
+
+Before calling a forwarded Merge tool, the agent calls `ari_record_context_scope` with:
+
+```json
+{
+  "title": "Create issue from allowed project context",
+  "authorizationRule": "selected_project_context_allows_issue_creation",
+  "selected": [
+    {
+      "sourceId": "project-docs",
+      "sourceType": "project_doc",
+      "title": "Public project docs",
+      "reason": "Needed to prepare the issue body.",
+      "permissionRule": "project_read"
+    }
+  ],
+  "excluded": [
+    {
+      "sourceId": "local-env",
+      "sourceType": "secret_file",
+      "title": ".env",
+      "reason": "Credential material must not enter the tool call context.",
+      "permissionRule": "no_secret_material"
+    }
+  ]
+}
+```
+
+Then the agent calls a forwarded Merge tool. The dashboard records:
 
 ```text
 run.started
+context.selected
+context.excluded
 tool.listed
 tool.called
 tool.completed
 run.completed
 ```
+
+The action events carry the same permission/context/authorization IDs as the context events.
 
 ## Codex Setup
 
@@ -186,24 +186,36 @@ cwd = "/absolute/path/to/agent-runtime-inspector"
 startup_timeout_sec = 20
 tool_timeout_sec = 90
 default_tools_approval_mode = "prompt"
-enabled_tools = [
-  "github__get_authenticated_user",
-  "github__create_issue"
-]
 ```
 
 Replace `cwd` with the absolute path to your local checkout.
 
-Then start a fresh Codex session from the ARI repo and check MCP status:
+Start a fresh Codex session from the ARI repo and check MCP status:
 
 ```text
 /mcp
 ```
 
-First test:
+First record context:
 
 ```text
-Use ari_merge to call github__get_authenticated_user.
+Use ari_merge to call ari_record_context_scope for this run.
+
+Selected context:
+- sourceId: project-docs
+- sourceType: project_doc
+- title: Public project docs
+- reason: Needed to prepare the tool call.
+- permissionRule: project_read
+
+Excluded context:
+- sourceId: local-env
+- sourceType: secret_file
+- title: .env
+- reason: Credential material must not enter tool arguments.
+- permissionRule: no_secret_material
+
+Authorization rule: selected_project_context_allows_tool_call
 ```
 
 Then test a tool call that changes GitHub state:
@@ -216,6 +228,9 @@ The issue body should say:
 Codex created this issue through the ARI MCP proxy.
 
 This test verifies that ARI records:
+- selected context
+- excluded context
+- the authorization rule
 - the Merge tool inventory
 - the selected GitHub tool
 - the arguments Codex sent
@@ -225,7 +240,7 @@ This test verifies that ARI records:
 After creating the issue, return the issue URL.
 ```
 
-ARI should record the tool inventory, selected tool, arguments, result, latency, and audit events in the dashboard.
+ARI should record the context scope, tool inventory, selected tool, arguments, result, latency, and audit events in the dashboard.
 
 ## Context Provenance Direction
 
@@ -253,7 +268,6 @@ Merge Agent Handler remains the first action execution layer. ARI owns the conte
 | Command | Purpose |
 | --- | --- |
 | `pnpm dev` | Start collector and dashboard |
-| `pnpm ari mock` | Load the sample trace |
 | `pnpm proxy` | Start the local MCP proxy |
 | `pnpm example:merge` | Run the Merge Agent Handler example |
 | `pnpm typecheck` | Typecheck the workspace |

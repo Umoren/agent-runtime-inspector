@@ -1,6 +1,5 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { mockTraceEvents } from "@ari/core";
 import type { TraceStore } from "./store.js";
 import { createMemoryTraceStore } from "./store.js";
 
@@ -41,19 +40,6 @@ export function createCollectorApp(options: CollectorAppOptions = {}) {
     }
 
     return context.json(result.data, 201);
-  });
-
-  app.post("/mock", (context) => {
-    const result = store.appendEvents(mockTraceEvents);
-
-    if (!result.ok) {
-      return context.json(result.error, 400);
-    }
-
-    return context.json({
-      runId: mockTraceEvents[0]?.runId,
-      events: result.data.length
-    });
   });
 
   app.delete("/events", (context) => {

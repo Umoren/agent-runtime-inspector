@@ -21,5 +21,3 @@ export type { TraceEvent, TraceEventType, TracePath, TraceSource } from "./event
 
 export { buildRunSummary, groupEventsByPath } from "./run.js";
 export type { PathSummary, RunStatus, RunSummary } from "./run.js";
-
-export { mockTraceEvents } from "./mock-trace.js";

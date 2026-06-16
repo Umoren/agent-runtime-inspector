@@ -1,0 +1,68 @@
+<!--
+Reusable horizontal-flow template.
+
+Replace:
+- {{KICKER}}, {{TITLE}}, {{SUBTITLE}}
+- {{STEP_1_TITLE}}, {{STEP_1_TEXT}} ... {{STEP_5_TITLE}}, {{STEP_5_TEXT}}
+- {{FOOTER}}
+
+Keep letter spacing at default. If fewer than five steps are needed, remove the extra step group and arrow.
+Keep the credit marker unless the publishing surface already shows byline credit.
+-->
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="900" fill="#F7F8FA"/>
+  <g font-family="Outfit, Avenir Next, Arial, sans-serif">
+    <text x="96" y="92" fill="#6B7280" font-size="18" font-weight="650">{{KICKER}}</text>
+    <text x="96" y="154" fill="#111827" font-size="54" font-weight="720">{{TITLE}}</text>
+    <text x="96" y="204" fill="#4B5563" font-size="27" font-weight="400">{{SUBTITLE}}</text>
+
+    <line x1="96" y1="270" x2="1504" y2="270" stroke="#D5DAE1" stroke-width="1.5"/>
+
+    <g transform="translate(96 382)">
+      <text x="0" y="0" fill="#2563EB" font-size="16" font-weight="750">01</text>
+      <text x="0" y="54" fill="#111827" font-size="32" font-weight="720">{{STEP_1_TITLE}}</text>
+      <text x="0" y="102" fill="#4B5563" font-size="22" font-weight="400">{{STEP_1_TEXT}}</text>
+      <line x1="0" y1="150" x2="210" y2="150" stroke="#111827" stroke-width="2"/>
+    </g>
+    <line x1="330" y1="532" x2="386" y2="532" stroke="#A8B0BC" stroke-width="2"/>
+    <path d="M386 532 L374 524 L374 540 Z" fill="#A8B0BC"/>
+
+    <g transform="translate(424 382)">
+      <text x="0" y="0" fill="#2563EB" font-size="16" font-weight="750">02</text>
+      <text x="0" y="54" fill="#111827" font-size="32" font-weight="720">{{STEP_2_TITLE}}</text>
+      <text x="0" y="102" fill="#4B5563" font-size="22" font-weight="400">{{STEP_2_TEXT}}</text>
+      <line x1="0" y1="150" x2="210" y2="150" stroke="#111827" stroke-width="2"/>
+    </g>
+    <line x1="658" y1="532" x2="714" y2="532" stroke="#A8B0BC" stroke-width="2"/>
+    <path d="M714 532 L702 524 L702 540 Z" fill="#A8B0BC"/>
+
+    <g transform="translate(752 382)">
+      <text x="0" y="0" fill="#2563EB" font-size="16" font-weight="750">03</text>
+      <text x="0" y="54" fill="#111827" font-size="32" font-weight="720">{{STEP_3_TITLE}}</text>
+      <text x="0" y="102" fill="#4B5563" font-size="22" font-weight="400">{{STEP_3_TEXT}}</text>
+      <line x1="0" y1="150" x2="210" y2="150" stroke="#111827" stroke-width="2"/>
+    </g>
+    <line x1="986" y1="532" x2="1042" y2="532" stroke="#A8B0BC" stroke-width="2"/>
+    <path d="M1042 532 L1030 524 L1030 540 Z" fill="#A8B0BC"/>
+
+    <g transform="translate(1080 382)">
+      <text x="0" y="0" fill="#2563EB" font-size="16" font-weight="750">04</text>
+      <text x="0" y="54" fill="#111827" font-size="32" font-weight="720">{{STEP_4_TITLE}}</text>
+      <text x="0" y="102" fill="#4B5563" font-size="22" font-weight="400">{{STEP_4_TEXT}}</text>
+      <line x1="0" y1="150" x2="210" y2="150" stroke="#111827" stroke-width="2"/>
+    </g>
+    <line x1="1314" y1="532" x2="1370" y2="532" stroke="#A8B0BC" stroke-width="2"/>
+    <path d="M1370 532 L1358 524 L1358 540 Z" fill="#A8B0BC"/>
+
+    <g transform="translate(1408 382)">
+      <text x="0" y="0" fill="#2563EB" font-size="16" font-weight="750">05</text>
+      <text x="0" y="54" fill="#111827" font-size="32" font-weight="720">{{STEP_5_TITLE}}</text>
+      <text x="0" y="102" fill="#4B5563" font-size="22" font-weight="400">{{STEP_5_TEXT}}</text>
+      <line x1="0" y1="150" x2="96" y2="150" stroke="#111827" stroke-width="2"/>
+    </g>
+
+    <line x1="96" y1="650" x2="1504" y2="650" stroke="#D5DAE1" stroke-width="1.5"/>
+    <text x="96" y="716" fill="#111827" font-size="31" font-weight="650">{{FOOTER}}</text>
+    <text x="96" y="824" fill="#6B7280" font-size="18" font-weight="600">Samuel Umoren / AI Backend Notes</text>
+  </g>
+</svg>

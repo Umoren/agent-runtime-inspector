@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const tracePathSchema = z.enum(["context", "action", "model", "system"]);
-export const traceSourceSchema = z.enum(["mock", "merge", "ai-sdk", "collector"]);
+export const traceSourceSchema = z.enum(["merge", "ai-sdk", "collector"]);
 
 const baseTraceEventSchema = z.object({
   id: z.string().min(1),
@@ -9,6 +9,13 @@ const baseTraceEventSchema = z.object({
   timestamp: z.string().datetime(),
   path: tracePathSchema,
   source: traceSourceSchema
+});
+
+const provenanceIdsSchema = z.object({
+  permissionSnapshotId: z.string().min(1).optional(),
+  contextDecisionId: z.string().min(1).optional(),
+  authorizationDecisionId: z.string().min(1).optional(),
+  authorizationRule: z.string().min(1).optional()
 });
 
 export const runStartedEventSchema = baseTraceEventSchema.extend({
@@ -24,7 +31,7 @@ export const runStartedEventSchema = baseTraceEventSchema.extend({
 export const contextSelectedEventSchema = baseTraceEventSchema.extend({
   type: z.literal("context.selected"),
   path: z.literal("context"),
-  payload: z.object({
+  payload: provenanceIdsSchema.extend({
     sourceId: z.string().min(1),
     sourceType: z.string().min(1),
     title: z.string().min(1),
@@ -36,7 +43,7 @@ export const contextSelectedEventSchema = baseTraceEventSchema.extend({
 export const contextExcludedEventSchema = baseTraceEventSchema.extend({
   type: z.literal("context.excluded"),
   path: z.literal("context"),
-  payload: z.object({
+  payload: provenanceIdsSchema.extend({
     sourceId: z.string().min(1),
     sourceType: z.string().min(1),
     title: z.string().min(1),
@@ -48,7 +55,7 @@ export const contextExcludedEventSchema = baseTraceEventSchema.extend({
 export const toolListedEventSchema = baseTraceEventSchema.extend({
   type: z.literal("tool.listed"),
   path: z.literal("action"),
-  payload: z.object({
+  payload: provenanceIdsSchema.extend({
     toolPackId: z.string().min(1),
     registeredUserId: z.string().min(1),
     tools: z.array(
@@ -65,7 +72,7 @@ export const toolListedEventSchema = baseTraceEventSchema.extend({
 export const toolCalledEventSchema = baseTraceEventSchema.extend({
   type: z.literal("tool.called"),
   path: z.literal("action"),
-  payload: z.object({
+  payload: provenanceIdsSchema.extend({
     toolName: z.string().min(1),
     toolPackId: z.string().min(1).optional(),
     registeredUserId: z.string().min(1).optional(),
@@ -77,7 +84,7 @@ export const toolCalledEventSchema = baseTraceEventSchema.extend({
 export const toolCompletedEventSchema = baseTraceEventSchema.extend({
   type: z.literal("tool.completed"),
   path: z.literal("action"),
-  payload: z.object({
+  payload: provenanceIdsSchema.extend({
     toolName: z.string().min(1),
     status: z.enum(["success", "error"]),
     latencyMs: z.number().nonnegative(),
@@ -90,7 +97,7 @@ export const toolCompletedEventSchema = baseTraceEventSchema.extend({
 export const toolBlockedEventSchema = baseTraceEventSchema.extend({
   type: z.literal("tool.blocked"),
   path: z.literal("action"),
-  payload: z.object({
+  payload: provenanceIdsSchema.extend({
     toolName: z.string().min(1),
     reason: z.string().min(1),
     policy: z.string().optional()

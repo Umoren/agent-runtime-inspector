@@ -1,0 +1,24 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="900" fill="#F7F8FA"/>
+  <g font-family="Outfit, Avenir Next, Arial, sans-serif">
+    <text x="96" y="92" fill="#6B7280" font-size="18" font-weight="650">Tool Execution</text>
+    <text x="96" y="154" fill="#111827" font-size="52" font-weight="720">A tool call needs a sequence of checks.</text>
+    <text x="96" y="204" fill="#4B5563" font-size="27" font-weight="400">Example request: create a Linear issue from a support escalation.</text>
+    <line x1="96" y1="264" x2="1504" y2="264" stroke="#D5DAE1" stroke-width="1.5"/>
+
+    <text x="96" y="326" fill="#111827" font-size="25" font-weight="720">Step</text>
+    <text x="520" y="326" fill="#111827" font-size="25" font-weight="720">What the system checks</text>
+    <line x1="96" y1="360" x2="1504" y2="360" stroke="#111827" stroke-width="2"/>
+
+    <g fill="#374151" font-size="25" font-weight="420">
+      <text x="96" y="426">Identity</text><text x="520" y="426">Which user is asking?</text>
+      <text x="96" y="490">Authorization</text><text x="520" y="490">Which Linear workspace did they connect?</text>
+      <text x="96" y="554">Scope</text><text x="520" y="554">Which actions did they grant?</text>
+      <text x="96" y="618">Tool access</text><text x="520" y="618">Is issue creation available to this agent?</text>
+      <text x="96" y="682">Validation</text><text x="520" y="682">Are the project, title, and body valid?</text>
+      <text x="96" y="746">Execution</text><text x="520" y="746">Did Linear accept the request?</text>
+      <text x="96" y="810">Audit</text><text x="520" y="810">What gets logged for review?</text>
+    </g>
+    <text x="96" y="872" fill="#6B7280" font-size="18" font-weight="600">Samuel Umoren / AI Backend Notes</text>
+  </g>
+</svg>

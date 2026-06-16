@@ -29,7 +29,7 @@ export function readNearestEnvFile(startDirectory = process.cwd()): Record<strin
 function findNearestFile(fileName: string, startDirectory: string): string | null {
   let currentDirectory = startDirectory;
 
-  while (true) {
+  for (;;) {
     const candidate = join(currentDirectory, fileName);
 
     if (existsSync(candidate)) {

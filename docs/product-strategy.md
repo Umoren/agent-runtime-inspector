@@ -27,6 +27,8 @@ Get 10-20 developers building agent systems to try ARI as the provenance layer a
 
 The tool should not replace execution layers such as Merge Agent Handler. It should make agent context, permission boundaries, and tool execution easier to inspect and explain.
 
+The current build priority is permission scope and excluded context on the real MCP proxy path: an agent records what context it is allowed to use, what context is withheld, which authorization rule permits later tool calls, and ARI binds that decision to the proxied tool inventory, call, arguments, result, and audit record.
+
 ## Product Sequencing
 
 ARI should stay on its original path for now:
@@ -64,7 +66,7 @@ The first public build centers on the action path:
 - local trace
 - audit-friendly export
 
-Mock traces explain the full three-path concept before a developer connects credentials.
+The first public build should not depend on sample traces. A developer should connect an MCP-capable agent, record context scope through ARI, call a real forwarded tool, and inspect the resulting audit chain.
 
 ## Next Product Layer
 

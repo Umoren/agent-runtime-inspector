@@ -1,0 +1,65 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="900" fill="#F7F8FA"/>
+  <g font-family="Outfit, Avenir Next, Arial, sans-serif">
+    <text x="96" y="92" fill="#6B7280" font-size="18" font-weight="650">Source Permission</text>
+    <text x="96" y="154" fill="#111827" font-size="54" font-weight="720">Derived knowledge carries source risk.</text>
+    <text x="96" y="224" fill="#4B5563" font-size="27" font-weight="400">When source content changes shape, its permission boundary has to travel with it.</text>
+    <line x1="96" y1="294" x2="1504" y2="294" stroke="#D5DAE1" stroke-width="1.5"/>
+
+    <g transform="translate(96 344)">
+      <text x="0" y="0" fill="#2563EB" font-size="16" font-weight="750">01 SOURCE</text>
+      <rect x="0" y="26" width="300" height="184" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+      <text x="26" y="74" fill="#111827" font-size="29" font-weight="720">Private Slack</text>
+      <text x="26" y="112" fill="#4B5563" font-size="24" font-weight="400">message</text>
+      <rect x="26" y="142" width="242" height="38" rx="19" fill="#FEF3C7"/>
+      <text x="48" y="167" fill="#92400E" font-size="18" font-weight="750">private channel</text>
+    </g>
+
+    <line x1="410" y1="464" x2="428" y2="464" stroke="#A8B0BC" stroke-width="2"/>
+    <path d="M428 464 L414 455 L414 473 Z" fill="#A8B0BC"/>
+
+    <g transform="translate(442 344)">
+      <text x="0" y="0" fill="#2563EB" font-size="16" font-weight="750">02 EXTRACTED</text>
+      <rect x="0" y="26" width="300" height="184" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+      <text x="26" y="74" fill="#111827" font-size="29" font-weight="720">Decision</text>
+      <text x="26" y="112" fill="#4B5563" font-size="24" font-weight="400">Rollout delayed</text>
+      <rect x="26" y="142" width="242" height="38" rx="19" fill="#FEF3C7"/>
+      <text x="48" y="167" fill="#92400E" font-size="18" font-weight="750">boundary carried</text>
+    </g>
+
+    <line x1="756" y1="464" x2="774" y2="464" stroke="#A8B0BC" stroke-width="2"/>
+    <path d="M774 464 L760 455 L760 473 Z" fill="#A8B0BC"/>
+
+    <g transform="translate(788 344)">
+      <text x="0" y="0" fill="#2563EB" font-size="16" font-weight="750">03 SURFACE</text>
+      <rect x="0" y="26" width="300" height="184" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+      <text x="26" y="74" fill="#111827" font-size="29" font-weight="720">Project</text>
+      <text x="26" y="112" fill="#4B5563" font-size="24" font-weight="400">timeline</text>
+      <rect x="26" y="142" width="242" height="38" rx="19" fill="#FEF3C7"/>
+      <text x="48" y="167" fill="#92400E" font-size="18" font-weight="750">boundary carried</text>
+    </g>
+
+    <line x1="1102" y1="464" x2="1120" y2="464" stroke="#A8B0BC" stroke-width="2"/>
+    <path d="M1120 464 L1106 455 L1106 473 Z" fill="#A8B0BC"/>
+
+    <g transform="translate(1134 344)">
+      <text x="0" y="0" fill="#2563EB" font-size="16" font-weight="750">04 ANSWER</text>
+      <rect x="0" y="26" width="300" height="184" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+      <text x="26" y="74" fill="#111827" font-size="29" font-weight="720">Answer</text>
+      <text x="26" y="112" fill="#4B5563" font-size="24" font-weight="400">drafted</text>
+      <rect x="26" y="142" width="242" height="38" rx="19" fill="#DCFCE7"/>
+      <text x="48" y="167" fill="#166534" font-size="18" font-weight="750">access checked first</text>
+    </g>
+
+    <line x1="126" y1="594" x2="1404" y2="594" stroke="#D97706" stroke-width="3"/>
+    <circle cx="246" cy="594" r="8" fill="#D97706"/>
+    <circle cx="592" cy="594" r="8" fill="#D97706"/>
+    <circle cx="938" cy="594" r="8" fill="#D97706"/>
+    <circle cx="1284" cy="594" r="8" fill="#D97706"/>
+    <text x="520" y="624" fill="#92400E" font-size="22" font-weight="750">source permission travels with each transformation</text>
+
+    <line x1="96" y1="674" x2="1504" y2="674" stroke="#D5DAE1" stroke-width="1.5"/>
+    <text x="96" y="736" fill="#111827" font-size="31" font-weight="650">The same permission boundary follows the knowledge into every surface.</text>
+    <text x="96" y="824" fill="#6B7280" font-size="18" font-weight="600">Samuel Umoren / Permission-Aware Retrieval Notes</text>
+  </g>
+</svg>

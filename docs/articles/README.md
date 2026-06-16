@@ -16,4 +16,3 @@ ARI sits inside the architecture described by these pieces:
 - the AI integration layer around agents, tools, models, and business systems
 - the permission-aware retrieval boundary before context reaches an LLM
 - the provenance record that shows what an agent knew, what it did, and what changed
-

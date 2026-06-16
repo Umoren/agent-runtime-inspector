@@ -1,0 +1,59 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="900" fill="#F7F8FA"/>
+  <g font-family="Outfit, Avenir Next, Arial, sans-serif">
+    <text x="96" y="92" fill="#6B7280" font-size="18" font-weight="650">Connector Reliability</text>
+    <text x="96" y="154" fill="#111827" font-size="54" font-weight="720">Connector quality becomes product behavior.</text>
+    <text x="96" y="204" fill="#4B5563" font-size="27" font-weight="400">Tool schemas, workloads, test runs, and metrics create the feedback loop.</text>
+
+    <line x1="96" y1="270" x2="1504" y2="270" stroke="#D5DAE1" stroke-width="1.5"/>
+    <path d="M1338 330 C1320 296 1240 296 1200 330" stroke="#A8B0BC" stroke-width="2" fill="none"/>
+    <path d="M1200 330 L1216 328 L1208 342 Z" fill="#A8B0BC"/>
+
+    <g transform="translate(96 388)">
+      <text x="0" y="0" fill="#2563EB" font-size="16" font-weight="750">01</text>
+      <text x="0" y="54" fill="#111827" font-size="30" font-weight="720">Tool schema</text>
+      <text x="0" y="100" fill="#4B5563" font-size="21" font-weight="400">Name, args, formats</text>
+      <line x1="0" y1="146" x2="200" y2="146" stroke="#111827" stroke-width="2"/>
+    </g>
+    <line x1="322" y1="534" x2="382" y2="534" stroke="#A8B0BC" stroke-width="2"/>
+    <path d="M382 534 L370 526 L370 542 Z" fill="#A8B0BC"/>
+
+    <g transform="translate(420 388)">
+      <text x="0" y="0" fill="#2563EB" font-size="16" font-weight="750">02</text>
+      <text x="0" y="54" fill="#111827" font-size="30" font-weight="720">Workload</text>
+      <text x="0" y="100" fill="#4B5563" font-size="21" font-weight="400">Representative tasks</text>
+      <line x1="0" y1="146" x2="200" y2="146" stroke="#111827" stroke-width="2"/>
+    </g>
+    <line x1="646" y1="534" x2="706" y2="534" stroke="#A8B0BC" stroke-width="2"/>
+    <path d="M706 534 L694 526 L694 542 Z" fill="#A8B0BC"/>
+
+    <g transform="translate(744 388)">
+      <text x="0" y="0" fill="#2563EB" font-size="16" font-weight="750">03</text>
+      <text x="0" y="54" fill="#111827" font-size="30" font-weight="720">Test runs</text>
+      <text x="0" y="100" fill="#4B5563" font-size="21" font-weight="400">Repeat and compare</text>
+      <line x1="0" y1="146" x2="200" y2="146" stroke="#111827" stroke-width="2"/>
+    </g>
+    <line x1="970" y1="534" x2="1030" y2="534" stroke="#A8B0BC" stroke-width="2"/>
+    <path d="M1030 534 L1018 526 L1018 542 Z" fill="#A8B0BC"/>
+
+    <g transform="translate(1068 388)">
+      <text x="0" y="0" fill="#2563EB" font-size="16" font-weight="750">04</text>
+      <text x="0" y="54" fill="#111827" font-size="30" font-weight="720">Metrics</text>
+      <text x="0" y="100" fill="#4B5563" font-size="21" font-weight="400">Latency, hit, success</text>
+      <line x1="0" y1="146" x2="200" y2="146" stroke="#111827" stroke-width="2"/>
+    </g>
+    <line x1="1294" y1="534" x2="1354" y2="534" stroke="#A8B0BC" stroke-width="2"/>
+    <path d="M1354 534 L1342 526 L1342 542 Z" fill="#A8B0BC"/>
+
+    <g transform="translate(1392 388)">
+      <text x="0" y="0" fill="#2563EB" font-size="16" font-weight="750">05</text>
+      <text x="0" y="54" fill="#111827" font-size="30" font-weight="720">Update</text>
+      <text x="0" y="100" fill="#4B5563" font-size="21" font-weight="400">Fix connector drift</text>
+      <line x1="0" y1="146" x2="112" y2="146" stroke="#111827" stroke-width="2"/>
+    </g>
+
+    <line x1="96" y1="650" x2="1504" y2="650" stroke="#D5DAE1" stroke-width="1.5"/>
+    <text x="96" y="716" fill="#111827" font-size="31" font-weight="650">When the connector drifts, the agent workflow drifts with it.</text>
+    <text x="96" y="824" fill="#6B7280" font-size="18" font-weight="600">Samuel Umoren / AI Backend Notes</text>
+  </g>
+</svg>

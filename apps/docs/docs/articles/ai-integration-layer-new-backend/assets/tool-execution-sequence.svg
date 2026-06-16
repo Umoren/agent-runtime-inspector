@@ -1,0 +1,57 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="900" fill="#F7F8FA"/>
+  <g font-family="Outfit, Avenir Next, Arial, sans-serif">
+    <text x="96" y="92" fill="#6B7280" font-size="18" font-weight="650">Governed Tool Execution</text>
+    <text x="96" y="154" fill="#111827" font-size="54" font-weight="720">A tool call needs a runtime path.</text>
+    <text x="96" y="204" fill="#4B5563" font-size="27" font-weight="400">The product has to bind the request to tools, auth, scopes, execution, and audit.</text>
+
+    <line x1="96" y1="270" x2="1504" y2="270" stroke="#D5DAE1" stroke-width="1.5"/>
+
+    <g transform="translate(96 380)">
+      <text x="0" y="0" fill="#2563EB" font-size="16" font-weight="750">01</text>
+      <text x="0" y="54" fill="#111827" font-size="30" font-weight="720">Agent request</text>
+      <text x="0" y="100" fill="#4B5563" font-size="21" font-weight="400">Create an issue</text>
+      <line x1="0" y1="146" x2="190" y2="146" stroke="#111827" stroke-width="2"/>
+    </g>
+    <line x1="308" y1="526" x2="358" y2="526" stroke="#A8B0BC" stroke-width="2"/>
+    <path d="M358 526 L346 518 L346 534 Z" fill="#A8B0BC"/>
+
+    <g transform="translate(394 380)">
+      <text x="0" y="0" fill="#2563EB" font-size="16" font-weight="750">02</text>
+      <text x="0" y="54" fill="#111827" font-size="30" font-weight="720">Tool Pack</text>
+      <text x="0" y="100" fill="#4B5563" font-size="21" font-weight="400">Allowed tools</text>
+      <line x1="0" y1="146" x2="190" y2="146" stroke="#111827" stroke-width="2"/>
+    </g>
+    <line x1="606" y1="526" x2="656" y2="526" stroke="#A8B0BC" stroke-width="2"/>
+    <path d="M656 526 L644 518 L644 534 Z" fill="#A8B0BC"/>
+
+    <g transform="translate(692 380)">
+      <text x="0" y="0" fill="#2563EB" font-size="16" font-weight="750">03</text>
+      <text x="0" y="54" fill="#111827" font-size="30" font-weight="720">Scoped auth</text>
+      <text x="0" y="100" fill="#4B5563" font-size="21" font-weight="400">User and account</text>
+      <line x1="0" y1="146" x2="190" y2="146" stroke="#111827" stroke-width="2"/>
+    </g>
+    <line x1="904" y1="526" x2="954" y2="526" stroke="#A8B0BC" stroke-width="2"/>
+    <path d="M954 526 L942 518 L942 534 Z" fill="#A8B0BC"/>
+
+    <g transform="translate(990 380)">
+      <text x="0" y="0" fill="#2563EB" font-size="16" font-weight="750">04</text>
+      <text x="0" y="54" fill="#111827" font-size="30" font-weight="720">Tool call</text>
+      <text x="0" y="100" fill="#4B5563" font-size="21" font-weight="400">Validate and execute</text>
+      <line x1="0" y1="146" x2="190" y2="146" stroke="#111827" stroke-width="2"/>
+    </g>
+    <line x1="1202" y1="526" x2="1252" y2="526" stroke="#A8B0BC" stroke-width="2"/>
+    <path d="M1252 526 L1240 518 L1240 534 Z" fill="#A8B0BC"/>
+
+    <g transform="translate(1288 380)">
+      <text x="0" y="0" fill="#2563EB" font-size="16" font-weight="750">05</text>
+      <text x="0" y="54" fill="#111827" font-size="30" font-weight="720">Log and audit</text>
+      <text x="0" y="100" fill="#4B5563" font-size="21" font-weight="400">Record the result</text>
+      <line x1="0" y1="146" x2="216" y2="146" stroke="#111827" stroke-width="2"/>
+    </g>
+
+    <line x1="96" y1="650" x2="1504" y2="650" stroke="#D5DAE1" stroke-width="1.5"/>
+    <text x="96" y="716" fill="#111827" font-size="31" font-weight="650">Tool execution is the governed runtime path between an agent and a customer system.</text>
+    <text x="96" y="824" fill="#6B7280" font-size="18" font-weight="600">Samuel Umoren / AI Backend Notes</text>
+  </g>
+</svg>

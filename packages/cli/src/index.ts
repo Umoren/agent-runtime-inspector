@@ -2,7 +2,6 @@
 import {
   runDevCommand,
   runInitCommand,
-  runMockCommand,
   runProxyCommand,
   runReplayCommand
 } from "./commands.js";
@@ -15,9 +14,6 @@ switch (command) {
     break;
   case "init":
     await runInitCommand();
-    break;
-  case "mock":
-    await runMockCommand();
     break;
   case "proxy":
     await runProxyCommand();
@@ -35,7 +31,6 @@ function printHelp(): void {
 Usage:
   ari dev              Start collector and dashboard
   ari init             Create ari.config.json
-  ari mock             Load the sample trace into the running collector
   ari proxy            Start the local MCP proxy for Merge Agent Handler
   ari replay <runId>   Print a dashboard URL for a stored run
 `);

@@ -74,6 +74,62 @@ describe("Merge Agent Handler client", () => {
     }
   });
 
+  it("binds listed, called, and completed tool events to provenance decisions", async () => {
+    const transport: AgentHandlerTransport = {
+      async listTools() {
+        return [
+          {
+            name: "github__create_issue"
+          }
+        ];
+      },
+      async callTool() {
+        return { issueId: "ISSUE-1" };
+      }
+    };
+    const client = createMergeAgentHandlerClient(
+      {
+        mcpUrl: "https://example.com/mcp",
+        registeredUserId: "ru_123",
+        toolPackId: "tp_123"
+      },
+      transport
+    );
+    const provenance = {
+      permissionSnapshotId: "perm_123",
+      contextDecisionId: "ctx_123",
+      authorizationDecisionId: "auth_123",
+      authorizationRule: "project_context_allows_issue_creation"
+    };
+
+    const listed = await client.listTools("run_123", provenance);
+    const called = await client.callTool({
+      runId: "run_123",
+      toolName: "github__create_issue",
+      arguments: {
+        title: "Test"
+      },
+      correlationId: "corr_123",
+      provenance
+    });
+
+    expect(listed.ok).toBe(true);
+    expect(called.ok).toBe(true);
+
+    if (listed.ok && listed.data.event.type === "tool.listed") {
+      expect(listed.data.event.payload.contextDecisionId).toBe("ctx_123");
+      expect(listed.data.event.payload.permissionSnapshotId).toBe("perm_123");
+      expect(listed.data.event.payload.authorizationDecisionId).toBe("auth_123");
+    }
+
+    if (called.ok && called.data.started.type === "tool.called" && called.data.completed.type === "tool.completed") {
+      expect(called.data.started.payload.contextDecisionId).toBe("ctx_123");
+      expect(called.data.started.payload.authorizationRule).toBe("project_context_allows_issue_creation");
+      expect(called.data.completed.payload.contextDecisionId).toBe("ctx_123");
+      expect(called.data.completed.payload.authorizationDecisionId).toBe("auth_123");
+    }
+  });
+
   it("marks MCP tool results with isError as failed tool executions", async () => {
     const transport: AgentHandlerTransport = {
       async listTools() {

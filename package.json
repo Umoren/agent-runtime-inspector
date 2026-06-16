@@ -2,6 +2,15 @@
   "name": "agent-runtime-inspector",
   "version": "0.0.0",
   "private": true,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Umoren/agent-runtime-inspector.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Umoren/agent-runtime-inspector/issues"
+  },
+  "homepage": "https://github.com/Umoren/agent-runtime-inspector#readme",
   "type": "module",
   "packageManager": "pnpm@10.18.0",
   "scripts": {
@@ -9,6 +18,9 @@
     "dev": "tsx packages/cli/src/index.ts dev",
     "proxy": "tsx packages/cli/src/index.ts proxy",
     "web:dev": "pnpm --filter @ari/web dev",
+    "docs:dev": "pnpm --filter @ari/docs start",
+    "docs:build": "pnpm --filter @ari/docs build",
+    "docs:serve": "pnpm --filter @ari/docs serve",
     "example:merge": "pnpm --filter @ari/example-vercel-ai-sdk-merge dev",
     "build": "pnpm -r build",
     "typecheck": "pnpm -r typecheck",

@@ -1,14 +1,13 @@
 import Link from "next/link";
-import { ArrowLeft, Home, PlayCircle } from "lucide-react";
+import { ArrowLeft, Home } from "lucide-react";
 import { RawEventLog } from "../../../src/components/RawEventLog";
 import { PathPanel } from "../../../src/components/PathPanel";
 import { RunSummaryPanel } from "../../../src/components/RunSummaryPanel";
-import { WhatHappenedPanel } from "../../../src/components/WhatHappenedPanel";
+import { PermissionAuditChain } from "../../../src/components/PermissionAuditChain";
 import { buildDashboardModel, getRunEvents } from "../../../src/lib/collector";
 import { Separator } from "../../../src/components/ui/separator";
 import { Button } from "../../../src/components/ui/button";
 import { Badge } from "../../../src/components/ui/badge";
-import { loadMockRunAction } from "../../actions";
 
 export default async function RunPage({ params }: { params: Promise<{ runId: string }> }) {
   const { runId } = await params;
@@ -32,12 +31,6 @@ export default async function RunPage({ params }: { params: Promise<{ runId: str
             </Link>
           </Button>
         </div>
-        <form action={loadMockRunAction}>
-          <Button type="submit">
-            <PlayCircle aria-hidden="true" size={16} />
-            Load mock
-          </Button>
-        </form>
       </nav>
 
       <section className="hero">
@@ -46,18 +39,16 @@ export default async function RunPage({ params }: { params: Promise<{ runId: str
           <Badge>{modeLabel(dashboard.mode)}</Badge>
         </div>
         <h1>{dashboard.summary.title}</h1>
-        <p>
-          Read the summary first, then inspect the context, action, model, and system events behind the run.
-        </p>
+        <p>What context was allowed, what was withheld, which tool ran, and why that call was permitted.</p>
       </section>
 
       <RunSummaryPanel summary={dashboard.summary} />
 
-      <WhatHappenedPanel explanation={dashboard.explanation} />
+      <PermissionAuditChain events={dashboard.raw} />
 
       <Separator className="section" />
 
-      <section className="grid grid-3 section">
+      <section className="path-stack section">
         <PathPanel path="context" events={dashboard.grouped.context} />
         <PathPanel path="action" events={dashboard.grouped.action} />
         <PathPanel path="model" events={dashboard.grouped.model} />
@@ -72,11 +63,7 @@ export default async function RunPage({ params }: { params: Promise<{ runId: str
   );
 }
 
-function modeLabel(mode: "mock" | "connected" | "unknown"): string {
-  if (mode === "mock") {
-    return "mock mode";
-  }
-
+function modeLabel(mode: "connected" | "unknown"): string {
   if (mode === "connected") {
     return "live Merge mode";
   }

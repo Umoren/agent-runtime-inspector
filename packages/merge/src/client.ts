@@ -14,12 +14,16 @@ export type MergeAdapterError =
     };
 
 export type MergeAgentHandlerClient = {
-  listTools(runId: string): Promise<Result<{ tools: AgentHandlerTool[]; event: TraceEvent }, MergeAdapterError>>;
+  listTools(
+    runId: string,
+    provenance?: ToolCallProvenance
+  ): Promise<Result<{ tools: AgentHandlerTool[]; event: TraceEvent }, MergeAdapterError>>;
   callTool(input: {
     runId: string;
     toolName: string;
     arguments: Record<string, unknown>;
     correlationId?: string;
+    provenance?: ToolCallProvenance;
   }): Promise<
     Result<
       {
@@ -34,12 +38,19 @@ export type MergeAgentHandlerClient = {
   >;
 };
 
+export type ToolCallProvenance = {
+  permissionSnapshotId: string;
+  contextDecisionId: string;
+  authorizationDecisionId: string;
+  authorizationRule?: string;
+};
+
 export function createMergeAgentHandlerClient(
   config: MergeAgentHandlerConfig,
   transport: AgentHandlerTransport
 ): MergeAgentHandlerClient {
   return {
-    async listTools(runId) {
+    async listTools(runId, provenance) {
       try {
         const tools = await transport.listTools();
         return ok({
@@ -48,7 +59,8 @@ export function createMergeAgentHandlerClient(
             runId,
             registeredUserId: config.registeredUserId,
             toolPackId: config.toolPackId,
-            tools
+            tools,
+            ...(provenance ? { provenance } : {})
           })
         });
       } catch (error) {
@@ -67,7 +79,8 @@ export function createMergeAgentHandlerClient(
         toolPackId: config.toolPackId,
         registeredUserId: config.registeredUserId,
         arguments: input.arguments,
-        correlationId
+        correlationId,
+        ...(input.provenance ? { provenance: input.provenance } : {})
       });
 
       try {
@@ -84,7 +97,8 @@ export function createMergeAgentHandlerClient(
           latencyMs: elapsedMs(startedAt),
           result,
           ...(toolErrorMessage ? { errorMessage: toolErrorMessage } : {}),
-          correlationId
+          correlationId,
+          ...(input.provenance ? { provenance: input.provenance } : {})
         });
 
         return ok({
@@ -102,7 +116,8 @@ export function createMergeAgentHandlerClient(
           status: "error",
           latencyMs: elapsedMs(startedAt),
           errorMessage: message,
-          correlationId
+          correlationId,
+          ...(input.provenance ? { provenance: input.provenance } : {})
         });
 
         return ok({
@@ -121,6 +136,7 @@ function buildToolListedEvent(input: {
   registeredUserId: string;
   toolPackId: string;
   tools: readonly AgentHandlerTool[];
+  provenance?: ToolCallProvenance;
 }): TraceEvent {
   return {
     id: crypto.randomUUID(),
@@ -130,6 +146,7 @@ function buildToolListedEvent(input: {
     source: "merge",
     timestamp: new Date().toISOString(),
     payload: {
+      ...provenancePayload(input.provenance),
       registeredUserId: input.registeredUserId,
       toolPackId: input.toolPackId,
       tools: input.tools.map((tool) => ({
@@ -148,6 +165,7 @@ function buildToolCalledEvent(input: {
   toolName: string;
   arguments: Record<string, unknown>;
   correlationId: string;
+  provenance?: ToolCallProvenance;
 }): TraceEvent {
   return {
     id: crypto.randomUUID(),
@@ -157,6 +175,7 @@ function buildToolCalledEvent(input: {
     source: "merge",
     timestamp: new Date().toISOString(),
     payload: {
+      ...provenancePayload(input.provenance),
       toolName: input.toolName,
       toolPackId: input.toolPackId,
       registeredUserId: input.registeredUserId,
@@ -174,6 +193,7 @@ function buildToolCompletedEvent(input: {
   result?: unknown;
   errorMessage?: string;
   correlationId: string;
+  provenance?: ToolCallProvenance;
 }): TraceEvent {
   return {
     id: crypto.randomUUID(),
@@ -183,6 +203,7 @@ function buildToolCompletedEvent(input: {
     source: "merge",
     timestamp: new Date().toISOString(),
     payload: {
+      ...provenancePayload(input.provenance),
       toolName: input.toolName,
       status: input.status,
       latencyMs: input.latencyMs,
@@ -190,6 +211,19 @@ function buildToolCompletedEvent(input: {
       ...(input.errorMessage ? { errorMessage: input.errorMessage } : {}),
       correlationId: input.correlationId
     }
+  };
+}
+
+function provenancePayload(provenance: ToolCallProvenance | undefined): Partial<TraceEvent["payload"]> {
+  if (!provenance) {
+    return {};
+  }
+
+  return {
+    permissionSnapshotId: provenance.permissionSnapshotId,
+    contextDecisionId: provenance.contextDecisionId,
+    authorizationDecisionId: provenance.authorizationDecisionId,
+    ...(provenance.authorizationRule ? { authorizationRule: provenance.authorizationRule } : {})
   };
 }
 

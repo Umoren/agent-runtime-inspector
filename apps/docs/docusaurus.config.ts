@@ -49,7 +49,7 @@ const config: Config = {
   plugins: [weakResolveServerBundlePatch],
 
   themeConfig: {
-    image: "img/ari-social-card.svg",
+    image: "img/ari-social-card.png",
     navbar: {
       title: "ARI",
       items: [

@@ -10,7 +10,15 @@ AI agent runtime -> ARI provenance layer -> tool execution layer -> external sys
                          -> local collector -> dashboard
 ```
 
-ARI is built for OSS builders who want a concrete record around agent work without sending trace data to a hosted vendor.
+ARI is built for OSS builders who want a concrete record around agent work before sending trace data to a hosted vendor.
+
+## Why local-first?
+
+Hosted observability tools help teams debug and monitor LLM and agent systems. ARI focuses on the earlier boundary: the first provenance record around an agent run should be inspectable on the developer's machine.
+
+An agent trace can contain retrieved context, tool arguments, customer records, repository details, internal docs, permission decisions, and excluded context. That trace is no longer harmless telemetry. It can become a copy of the sensitive workflow the agent touched.
+
+ARI keeps that first record local so a builder can inspect what happened, decide what should be redacted, and choose what is safe to export or share.
 
 ## What ARI records
 

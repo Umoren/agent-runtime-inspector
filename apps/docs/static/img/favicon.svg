@@ -1,9 +1,1 @@
-<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-  <rect width="64" height="64" rx="12" fill="#111827"/>
-  <path d="M16 20h16l6 8h10" fill="none" stroke="#60a5fa" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M16 44h14l8-10h10" fill="none" stroke="#f97316" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="16" cy="20" r="4" fill="#ffffff"/>
-  <circle cx="48" cy="28" r="4" fill="#ffffff"/>
-  <circle cx="16" cy="44" r="4" fill="#ffffff"/>
-  <circle cx="48" cy="34" r="4" fill="#ffffff"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><rect width="64" height="64" fill="#111827" rx="12"/><path fill="none" stroke="#60a5fa" stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M16 20h16l6 8h10"/><path fill="none" stroke="#f97316" stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M16 44h14l8-10h10"/><circle cx="16" cy="20" r="4" fill="#fff"/><circle cx="48" cy="28" r="4" fill="#fff"/><circle cx="16" cy="44" r="4" fill="#fff"/><circle cx="48" cy="34" r="4" fill="#fff"/></svg>

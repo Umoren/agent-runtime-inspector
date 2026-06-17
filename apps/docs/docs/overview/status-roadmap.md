@@ -19,8 +19,8 @@ The current implementation focuses on local collection, dashboard inspection, tr
 
 ## Roadmap
 
-- Authorize the first useful Merge Agent Handler tool set for a real `umoren-site` workflow: GitHub + Notion + Exa or Firecrawl + Google Sheets.
-- Use that workflow to test ARI against content, research, and site-update work rather than only toy read-only calls.
+- Add end-to-end examples that show ARI inspecting real tool-backed agent workflows.
+- Expand connector coverage examples for repository, knowledge-base, research, and spreadsheet-backed work.
 - Move from agent-declared context scope toward ARI-owned context retrieval.
 - Add ARI context tools such as `ari_search_context`, `ari_get_context`, and `ari_get_permission_boundary`.
 - Add stronger policy checks around tool scope, tool arguments, redactions, blocks, and rule violations.

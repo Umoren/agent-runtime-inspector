@@ -1,6 +1,6 @@
 # Deploy the docs site
 
-ARI's public documentation site is built from `apps/docs` and is intended to run at:
+ARI's public documentation site is built from `apps/docs` and runs at:
 
 ```text
 https://ari.umoren.xyz

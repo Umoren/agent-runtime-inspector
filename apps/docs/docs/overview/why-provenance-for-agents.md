@@ -6,6 +6,8 @@ An agent can read context, choose a tool, send arguments to another system, rece
 
 Provenance gives that record a shape.
 
+It also gives the trace a boundary. Agent traces can carry the same sensitive material the agent touched: retrieved context, tool arguments, customer records, repository details, internal docs, permission decisions, and excluded context. A useful provenance layer should make that record inspectable before it leaves the developer's machine.
+
 ## The useful questions
 
 For an agent run, ARI is designed to help answer:

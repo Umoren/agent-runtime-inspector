@@ -68,6 +68,17 @@ The first public build centers on the action path:
 
 The first public build should not depend on sample traces. A developer should connect an MCP-capable agent, record context scope through ARI, call a real forwarded tool, and inspect the resulting audit chain.
 
+## Useful Authorization Path
+
+The next useful Merge Agent Handler authorization set for the `umoren-site` project is GitHub + Notion + Exa or Firecrawl + Google Sheets.
+
+That combination turns ARI from a tool-call demo into a real content, research, and site workflow:
+
+- GitHub for repository work, issues, PRs, and site-change tracking.
+- Notion for content planning and editorial context.
+- Exa or Firecrawl for research over public sources and product pages.
+- Google Sheets for article, outreach, and content-performance tracking.
+
 ## Next Product Layer
 
 ARI should become a local MCP proxy, not only a dashboard that receives events from example scripts.

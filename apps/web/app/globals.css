@@ -244,6 +244,97 @@ pre {
   margin: 14px 0 0;
 }
 
+.collector-latest-error {
+  border: 1px solid var(--border);
+  margin-top: 16px;
+  padding: 14px;
+}
+
+.collector-latest-error p {
+  color: var(--muted-foreground);
+  font-size: 14px;
+  line-height: 1.45;
+  margin: 8px 0;
+}
+
+.collector-latest-error code,
+.collector-log-row code {
+  color: var(--foreground);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.collector-log-list {
+  border: 1px solid var(--border);
+  display: grid;
+  margin-top: 16px;
+}
+
+.collector-actions {
+  align-items: center;
+  border: 1px solid var(--border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding: 14px;
+}
+
+.collector-actions .helper-text {
+  margin: 0;
+}
+
+.collector-log-row {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+}
+
+.collector-log-row + .collector-log-row {
+  border-top: 1px solid var(--border);
+}
+
+.collector-log-meta {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.collector-log-meta span {
+  color: var(--muted-foreground);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.collector-log-level {
+  text-transform: uppercase;
+}
+
+.collector-log-info {
+  color: var(--primary);
+}
+
+.collector-log-warn {
+  color: #92400e;
+}
+
+.collector-log-error {
+  color: var(--destructive);
+}
+
+.collector-log-row pre {
+  background: var(--muted);
+  border: 1px solid var(--border);
+  color: var(--muted-foreground);
+  font-size: 12px;
+  max-height: 220px;
+  overflow: auto;
+  padding: 10px;
+}
+
 .event {
   border-top: 1px solid var(--border);
   padding: 14px 0;
@@ -473,6 +564,23 @@ pre {
 
 .tool-inventory {
   padding: 14px;
+}
+
+.tool-inventory p {
+  color: var(--muted-foreground);
+  font-size: 13px;
+  line-height: 1.45;
+  margin: 6px 0 0;
+}
+
+.tool-inventory-list .path-row-meta {
+  margin-top: 12px;
+}
+
+.tool-inventory-details .path-row-meta {
+  max-height: 220px;
+  overflow: auto;
+  padding: 2px 0;
 }
 
 .trail-row {

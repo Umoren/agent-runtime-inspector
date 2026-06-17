@@ -2,14 +2,40 @@ import { buildRunSummary, groupEventsByPath, traceEventListSchema } from "@ari/c
 import type { RunSummary, TraceEvent } from "@ari/core";
 import { envValue } from "./env";
 
-export type RunMode = "connected" | "unknown";
+export type RunMode = "mcp-proxy" | "merge-action" | "model" | "collector";
 
 export type SystemStatus = {
-  collector: "running" | "unreachable";
+  collector: "running" | "degraded" | "unreachable";
   collectorUrl: string;
   storage: "local SQLite";
   merge: MergeConfigStatus;
   model: ModelConfigStatus;
+  collectorHealth: CollectorHealth | undefined;
+  collectorLogs: CollectorLogEntry[];
+};
+
+export type CollectorHealth = {
+  ok: boolean;
+  service: string;
+  status: "running" | "degraded";
+  storage: {
+    state: "readable" | "unreadable";
+  };
+  logCounts: {
+    info: number;
+    warn: number;
+    error: number;
+  };
+  latestError?: CollectorLogEntry;
+};
+
+export type CollectorLogEntry = {
+  id: string;
+  timestamp: string;
+  level: "info" | "warn" | "error";
+  event: string;
+  message: string;
+  details?: Record<string, unknown>;
 };
 
 export type MergeConfigStatus = {
@@ -84,13 +110,23 @@ export function buildDashboardModel(events: readonly TraceEvent[]) {
 }
 
 export function getSummaryMode(summary: RunSummary): RunMode {
-  const title = summary.title.toLowerCase();
+  const hasContext = summary.paths.context.totalEvents > 0;
+  const hasAction = summary.paths.action.totalEvents > 0;
+  const hasModel = summary.paths.model.totalEvents > 0;
 
-  if (title.includes("merge agent handler") || title.includes("ari mcp proxy")) {
-    return "connected";
+  if (hasContext && hasAction) {
+    return "mcp-proxy";
   }
 
-  return "unknown";
+  if (hasAction) {
+    return "merge-action";
+  }
+
+  if (hasModel) {
+    return "model";
+  }
+
+  return "collector";
 }
 
 export async function getSystemStatus(): Promise<SystemStatus> {
@@ -111,9 +147,11 @@ export async function getSystemStatus(): Promise<SystemStatus> {
   const missingRequired = required.filter((item) => !item.configured);
   const modelRequired = [envStatus("ARI_MODEL_API_KEY"), envStatus("ARI_MODEL_NAME")];
   const missingModelRequired = modelRequired.filter((item) => !item.configured);
+  const collectorHealth = await getCollectorHealth();
+  const collectorLogs = await getCollectorLogs();
 
   return {
-    collector: (await canReachCollector()) ? "running" : "unreachable",
+    collector: collectorHealth?.status ?? "unreachable",
     collectorUrl: getCollectorUrl(),
     storage: "local SQLite",
     merge: {
@@ -125,7 +163,9 @@ export async function getSystemStatus(): Promise<SystemStatus> {
       state: missingModelRequired.length === 0 ? "configured" : "manual fallback",
       required: modelRequired,
       optional: [envStatus("ARI_MODEL_PROVIDER"), envStatus("ARI_MODEL_BASE_URL"), envStatus("ARI_MODEL_PROMPT")]
-    }
+    },
+    collectorHealth,
+    collectorLogs
   };
 }
 
@@ -173,25 +213,67 @@ function explainRun(events: readonly TraceEvent[]): string {
 }
 
 function getRunMode(events: readonly TraceEvent[]): RunMode {
-  const started = events.find((event) => event.type === "run.started");
-  if (
-    started?.type === "run.started" &&
-    (started.payload.title.toLowerCase().includes("merge agent handler") ||
-      started.payload.title.toLowerCase().includes("ari mcp proxy"))
-  ) {
-    return "connected";
+  if (events.some(isMcpProxyEvidence)) {
+    return "mcp-proxy";
   }
 
-  return "unknown";
+  if (events.some((event) => event.source === "merge" || event.type.startsWith("tool."))) {
+    return "merge-action";
+  }
+
+  if (events.some((event) => event.source === "ai-sdk" || event.type.startsWith("model."))) {
+    return "model";
+  }
+
+  return "collector";
 }
 
-async function canReachCollector(): Promise<boolean> {
+function isMcpProxyEvidence(event: TraceEvent): boolean {
+  if (event.type === "context.selected" || event.type === "context.excluded") {
+    return Boolean(event.payload.contextDecisionId || event.payload.permissionSnapshotId || event.payload.authorizationDecisionId);
+  }
+
+  if (event.type === "tool.listed" || event.type === "tool.called" || event.type === "tool.completed" || event.type === "tool.blocked") {
+    return Boolean(event.payload.contextDecisionId || event.payload.permissionSnapshotId || event.payload.authorizationDecisionId);
+  }
+
+  return false;
+}
+
+async function getCollectorHealth(): Promise<CollectorHealth | undefined> {
   try {
     const collectorUrl = getCollectorUrl();
     const response = await fetch(`${collectorUrl}/health`, { cache: "no-store" });
-    return response.ok;
+
+    if (!response.ok) {
+      return undefined;
+    }
+
+    const body: unknown = await response.json();
+    return isCollectorHealth(body) ? body : undefined;
   } catch {
-    return false;
+    return undefined;
+  }
+}
+
+async function getCollectorLogs(): Promise<CollectorLogEntry[]> {
+  try {
+    const collectorUrl = getCollectorUrl();
+    const response = await fetch(`${collectorUrl}/logs?limit=8`, { cache: "no-store" });
+
+    if (!response.ok) {
+      return [];
+    }
+
+    const body: unknown = await response.json();
+
+    if (!isRecord(body) || !Array.isArray(body.logs)) {
+      return [];
+    }
+
+    return body.logs.filter(isCollectorLogEntry);
+  } catch {
+    return [];
   }
 }
 
@@ -221,4 +303,42 @@ function runTimeMs(run: RunSummary): number {
   const time = Date.parse(value);
 
   return Number.isNaN(time) ? 0 : time;
+}
+
+function isCollectorHealth(input: unknown): input is CollectorHealth {
+  if (!isRecord(input)) {
+    return false;
+  }
+
+  return (
+    typeof input.ok === "boolean" &&
+    input.service === "agent-runtime-inspector-collector" &&
+    (input.status === "running" || input.status === "degraded") &&
+    isRecord(input.storage) &&
+    (input.storage.state === "readable" || input.storage.state === "unreadable") &&
+    isRecord(input.logCounts) &&
+    typeof input.logCounts.info === "number" &&
+    typeof input.logCounts.warn === "number" &&
+    typeof input.logCounts.error === "number" &&
+    (input.latestError === undefined || isCollectorLogEntry(input.latestError))
+  );
+}
+
+function isCollectorLogEntry(input: unknown): input is CollectorLogEntry {
+  if (!isRecord(input)) {
+    return false;
+  }
+
+  return (
+    typeof input.id === "string" &&
+    typeof input.timestamp === "string" &&
+    (input.level === "info" || input.level === "warn" || input.level === "error") &&
+    typeof input.event === "string" &&
+    typeof input.message === "string" &&
+    (input.details === undefined || isRecord(input.details))
+  );
+}
+
+function isRecord(input: unknown): input is Record<string, unknown> {
+  return Boolean(input) && typeof input === "object" && !Array.isArray(input);
 }

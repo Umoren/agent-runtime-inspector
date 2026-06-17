@@ -4,7 +4,7 @@ import { RawEventLog } from "../../../src/components/RawEventLog";
 import { PathPanel } from "../../../src/components/PathPanel";
 import { RunSummaryPanel } from "../../../src/components/RunSummaryPanel";
 import { PermissionAuditChain } from "../../../src/components/PermissionAuditChain";
-import { buildDashboardModel, getRunEvents } from "../../../src/lib/collector";
+import { buildDashboardModel, getRunEvents, type RunMode } from "../../../src/lib/collector";
 import { Separator } from "../../../src/components/ui/separator";
 import { Button } from "../../../src/components/ui/button";
 import { Badge } from "../../../src/components/ui/badge";
@@ -63,10 +63,18 @@ export default async function RunPage({ params }: { params: Promise<{ runId: str
   );
 }
 
-function modeLabel(mode: "connected" | "unknown"): string {
-  if (mode === "connected") {
-    return "live Merge mode";
+function modeLabel(mode: RunMode): string {
+  if (mode === "mcp-proxy") {
+    return "MCP proxy run";
   }
 
-  return "unknown mode";
+  if (mode === "merge-action") {
+    return "Merge action run";
+  }
+
+  if (mode === "model") {
+    return "model run";
+  }
+
+  return "collector run";
 }

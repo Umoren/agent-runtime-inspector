@@ -54,6 +54,7 @@ const sidebars: SidebarsConfig = {
       items: [
         "reference/cli-commands",
         "reference/environment-variables",
+        "reference/deployment",
         "reference/trace-event-types",
         "reference/package-architecture"
       ]

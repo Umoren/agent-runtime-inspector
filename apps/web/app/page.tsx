@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { Plug } from "lucide-react";
-import { getRuns, getSummaryMode, getSystemStatus } from "../src/lib/collector";
+import { type CollectorLogEntry, getRuns, getSummaryMode, getSystemStatus } from "../src/lib/collector";
 import { formatDateTime } from "../src/lib/format";
 import { Button } from "../src/components/ui/button";
 import { Badge } from "../src/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../src/components/ui/card";
+import { clearLocalTracesAction } from "./actions";
 
 export default async function HomePage() {
   const [runs, status] = await Promise.all([getRuns(), getSystemStatus()]);
@@ -108,6 +109,39 @@ export default async function HomePage() {
         </CardContent>
       </Card>
 
+      <Card className="section">
+        <details className="setup-panel">
+          <summary className="disclosure-summary">
+            <div>
+              <CardTitle>Collector diagnostics</CardTitle>
+              <CardDescription>Recent collector health and storage events from the local runtime.</CardDescription>
+            </div>
+            <span className="disclosure-action disclosure-action-open">Hide diagnostics</span>
+            <span className="disclosure-action disclosure-action-closed">Show diagnostics</span>
+          </summary>
+          <CardContent>
+            <div className="status-strip">
+              <StatusItem label="Health" value={status.collector} tone={collectorTone(status.collector)} />
+              <StatusItem label="Storage read" value={status.collectorHealth?.storage.state ?? "unknown"} tone={status.collectorHealth?.storage.state === "unreadable" ? "bad" : "neutral"} />
+              <StatusItem label="Errors" value={String(status.collectorHealth?.logCounts.error ?? 0)} tone={(status.collectorHealth?.logCounts.error ?? 0) > 0 ? "bad" : "good"} />
+              <StatusItem label="Warnings" value={String(status.collectorHealth?.logCounts.warn ?? 0)} tone={(status.collectorHealth?.logCounts.warn ?? 0) > 0 ? "warn" : "good"} />
+            </div>
+            {status.collectorHealth?.latestError && status.collector === "degraded" ? (
+              <div className="collector-latest-error">
+                <div className="event-title">Latest collector error</div>
+                <p>{status.collectorHealth.latestError.message}</p>
+                <code>{status.collectorHealth.latestError.event}</code>
+              </div>
+            ) : null}
+            <form action={clearLocalTracesAction} className="collector-actions">
+              <Button type="submit" className="button-secondary">Clear local traces</Button>
+              <p className="helper-text">Clears the local trace event store when stale or incompatible rows block run reads.</p>
+            </form>
+            <CollectorLogList logs={status.collectorLogs} />
+          </CardContent>
+        </details>
+      </Card>
+
       <section className="grid grid-3">
         <Card>
           <CardHeader>
@@ -168,6 +202,40 @@ export default async function HomePage() {
       </Card>
     </main>
   );
+}
+
+function CollectorLogList({ logs }: { logs: readonly CollectorLogEntry[] }) {
+  if (logs.length === 0) {
+    return <p className="helper-text">No collector log entries recorded yet.</p>;
+  }
+
+  return (
+    <div className="collector-log-list">
+      {logs.map((entry) => (
+        <article className="collector-log-row" key={entry.id}>
+          <div className="collector-log-meta">
+            <Badge className={`collector-log-level collector-log-${entry.level}`}>{entry.level}</Badge>
+            <span>{formatDateTime(entry.timestamp)}</span>
+          </div>
+          <div className="event-title">{entry.message}</div>
+          <code>{entry.event}</code>
+          {entry.details ? <pre>{JSON.stringify(entry.details, null, 2)}</pre> : null}
+        </article>
+      ))}
+    </div>
+  );
+}
+
+function collectorTone(status: "running" | "degraded" | "unreachable"): "good" | "warn" | "bad" {
+  if (status === "running") {
+    return "good";
+  }
+
+  if (status === "degraded") {
+    return "warn";
+  }
+
+  return "bad";
 }
 
 function RunList({ runs }: { runs: Awaited<ReturnType<typeof getRuns>> }) {

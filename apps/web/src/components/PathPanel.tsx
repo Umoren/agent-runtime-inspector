@@ -129,11 +129,10 @@ function ActionPath({ events }: { events: readonly TraceEvent[] }) {
           </div>
           <div className="tool-inventory">
             <div className="path-row-title">Scoped tools</div>
-            <div className="path-row-meta path-row-meta-plain">
-              {inventory.payload.tools.map((tool) => (
-                <span key={tool.name}>{tool.name}</span>
-              ))}
-            </div>
+            <p>
+              ARI recorded {String(inventory.payload.tools.length)} tools exposed through the configured Tool Pack and Registered User.
+            </p>
+            <ToolInventory tools={inventory.payload.tools} />
           </div>
         </section>
       ) : null}
@@ -196,6 +195,31 @@ function ActionPath({ events }: { events: readonly TraceEvent[] }) {
           </div>
         </article>
       ))}
+    </div>
+  );
+}
+
+function ToolInventory({ tools }: { tools: readonly { name: string; description?: string | undefined }[] }) {
+  const preview = tools.slice(0, 12);
+  const remaining = tools.length - preview.length;
+
+  return (
+    <div className="tool-inventory-list">
+      <div className="path-row-meta">
+        {preview.map((tool) => (
+          <span key={tool.name}>{tool.name}</span>
+        ))}
+      </div>
+      {remaining > 0 ? (
+        <details className="path-row-detail tool-inventory-details">
+          <summary>Show all scoped tools ({String(tools.length)})</summary>
+          <div className="path-row-meta">
+            {tools.map((tool) => (
+              <span key={tool.name}>{tool.name}</span>
+            ))}
+          </div>
+        </details>
+      ) : null}
     </div>
   );
 }

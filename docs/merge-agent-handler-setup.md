@@ -9,6 +9,7 @@ MERGE_AGENT_HANDLER_MCP_URL=
 MERGE_REGISTERED_USER_ID=
 MERGE_TOOL_PACK_ID=
 MERGE_API_KEY=
+ARI_CONTEXT_PROVIDER_CONFIG_PATH=
 ARI_CONTEXT_REGISTRY_PATH=
 ```
 
@@ -25,7 +26,11 @@ MERGE_TOOL_NAME=
 MERGE_TOOL_ARGUMENTS_JSON='{}'
 ```
 
-To let ARI provide context before the tool call, set `ARI_CONTEXT_REGISTRY_PATH` to a local JSON registry. The registry supplies requester permission snapshots and candidate context sources; ARI evaluates the source permissions at runtime instead of relying on the agent to declare what context was selected.
+To let ARI provide context before the tool call, set either `ARI_CONTEXT_PROVIDER_CONFIG_PATH` or `ARI_CONTEXT_REGISTRY_PATH`.
+
+Use `ARI_CONTEXT_PROVIDER_CONFIG_PATH` for the current provider config path. It supports file-backed context sources and is the preferred path for using real repository or workspace files as context. See [File-Backed Context Provider](./file-context-provider.md) for the concepts, algorithms, config contract, and implementation notes.
+
+Use `ARI_CONTEXT_REGISTRY_PATH` for the older local JSON registry path. The registry supplies requester permission snapshots and candidate context sources directly; ARI evaluates the source permissions at runtime instead of relying on the agent to declare what context was selected.
 
 Example registry shape:
 

@@ -1,6 +1,9 @@
 import type { TraceEvent } from "@ari/core";
 import type { CallToolResult, ListToolsResult } from "@modelcontextprotocol/sdk/types.js";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { z } from "zod";
+import { createLocalContextProvider } from "./context-provider.js";
+import type { createAriMcpProxyServer as createAriMcpProxyServerType } from "./server.js";
 
 const mocks = vi.hoisted(() => {
   const recordedEvents: TraceEvent[] = [];
@@ -17,8 +20,9 @@ const mocks = vi.hoisted(() => {
 vi.mock("@ari/ai-sdk", () => ({
   createHttpRecorder() {
     return {
-      async record(event: TraceEvent) {
+      record(event: TraceEvent) {
         mocks.recordedEvents.push(event);
+        return Promise.resolve();
       }
     };
   }
@@ -42,7 +46,7 @@ type TestServer = {
   _requestHandlers: Map<string, RequestHandler>;
 };
 
-let createAriMcpProxyServer: typeof import("./server.js").createAriMcpProxyServer;
+let createAriMcpProxyServer: typeof createAriMcpProxyServerType;
 
 describe("ARI MCP proxy server", () => {
   beforeAll(async () => {
@@ -143,8 +147,20 @@ describe("ARI MCP proxy server", () => {
     const server = await createTestServer();
     const result = await listTools(server);
 
-    expect(result.tools.map((tool) => tool.name)).toEqual(["ari_record_context_scope", "linear_create_issue"]);
+    expect(result.tools.map((tool) => tool.name)).toEqual(["ari_get_context", "ari_record_context_scope", "linear_create_issue"]);
   }, 15_000);
+
+  it("returns an explicit error when ARI context is requested without a configured context provider", async () => {
+    const server = await createTestServer();
+    const result = await callTool(server, "ari_get_context", {
+      task: "Create a follow-up issue",
+      requesterId: "samuel",
+      purpose: "support_to_linear_issue"
+    });
+
+    expect(result.isError).toBe(true);
+    expect(textFromToolResult(result)).toContain("no context provider is configured");
+  });
 
   it("blocks forwarded tool calls until context scope is recorded", async () => {
     const server = await createTestServer();
@@ -206,12 +222,13 @@ describe("ARI MCP proxy server", () => {
         authorizationRule: "support_ticket_allows_issue_creation"
       })
     );
+    const manualProvenanceMatcher: unknown = expect.objectContaining({
+      contextDecisionId: "ctx_123"
+    });
     expect(mocks.callTool).toHaveBeenCalledWith(
       expect.objectContaining({
         toolName: "linear_create_issue",
-        provenance: expect.objectContaining({
-          contextDecisionId: "ctx_123"
-        })
+        provenance: manualProvenanceMatcher
       })
     );
 
@@ -239,6 +256,79 @@ describe("ARI MCP proxy server", () => {
       "support_ticket_allows_issue_creation"
     ]);
   });
+
+  it("gets context from ARI, withholds excluded content, and binds later tool events to the generated context decision", async () => {
+    const server = await createTestServer({
+      contextProvider: createLocalContextProvider({
+        requesters: [
+          {
+            requesterId: "samuel",
+            scopes: ["support_team_member", "linear_issue_writer"]
+          }
+        ],
+        sources: [
+          {
+            sourceId: "support_ticket_438",
+            sourceType: "support_ticket",
+            title: "Checkout failure after SSO login",
+            content: "Customer cannot complete checkout after SSO login.",
+            requiredScopes: ["support_team_member"],
+            allowedPurposes: ["support_to_linear_issue"]
+          },
+          {
+            sourceId: "private_finance_note_991",
+            sourceType: "slack_message",
+            title: "Private finance escalation note",
+            content: "Finance-only risk memo that must not be returned to the agent.",
+            requiredScopes: ["finance_channel_member"],
+            allowedPurposes: ["support_to_linear_issue"]
+          }
+        ]
+      })
+    });
+
+    const contextResult = await callTool(server, "ari_get_context", {
+      task: "Create a Linear issue from this support escalation.",
+      requesterId: "samuel",
+      purpose: "support_to_linear_issue"
+    });
+
+    expect(contextResult.isError).toBe(false);
+    const contextPayload = contextResponseSchema.parse(JSON.parse(textFromToolResult(contextResult)) as unknown);
+    expect(contextPayload.selected).toEqual([
+      expect.objectContaining({
+        sourceId: "support_ticket_438",
+        content: "Customer cannot complete checkout after SSO login."
+      })
+    ]);
+    expect(contextPayload.excludedSummary).toHaveLength(1);
+    expect(contextPayload.excludedSummary[0]?.sourceId).toBe("private_finance_note_991");
+    expect(contextPayload.excludedSummary[0]).not.toHaveProperty("content");
+
+    const toolResult = await callTool(server, "linear_create_issue", {
+      title: "Escalate checkout failure"
+    });
+
+    expect(toolResult.isError).toBe(false);
+    const providerProvenanceMatcher: unknown = expect.objectContaining({
+      contextDecisionId: contextPayload.contextDecisionId
+    });
+    expect(mocks.callTool).toHaveBeenCalledWith(
+      expect.objectContaining({
+        provenance: providerProvenanceMatcher
+      })
+    );
+
+    const linkedEvents = mocks.recordedEvents.filter(
+      (event) =>
+        event.type === "context.selected" ||
+        event.type === "context.excluded" ||
+        event.type === "tool.listed" ||
+        event.type === "tool.called" ||
+        event.type === "tool.completed"
+    );
+    expect(linkedEvents.every((event) => event.payload.contextDecisionId === contextPayload.contextDecisionId)).toBe(true);
+  });
 });
 
 type ProvenanceFixture = {
@@ -248,17 +338,46 @@ type ProvenanceFixture = {
   authorizationRule?: string;
 };
 
-async function createTestServer(): Promise<TestServer> {
+const contextResponseSchema = z.object({
+  contextDecisionId: z.string().min(1),
+  selected: z.array(
+    z.object({
+      sourceId: z.string().min(1),
+      content: z.string().min(1)
+    })
+  ),
+  excludedSummary: z.array(
+    z.object({
+      sourceId: z.string().min(1),
+      content: z.string().optional()
+    })
+  )
+});
+
+async function createTestServer(
+  options: Partial<Parameters<typeof createAriMcpProxyServer>[0]> = {}
+): Promise<TestServer> {
   const server = await createAriMcpProxyServer({
     collectorUrl: "http://collector.test",
     merge: {
       mcpUrl: "https://merge.test/mcp",
       registeredUserId: "ru_123",
       toolPackId: "tp_123"
-    }
+    },
+    ...options
   });
 
   return server as unknown as TestServer;
+}
+
+function textFromToolResult(result: CallToolResult): string {
+  const first = result.content[0];
+
+  if (!first || first.type !== "text") {
+    throw new Error("Expected text tool result.");
+  }
+
+  return first.text;
 }
 
 async function listTools(server: TestServer): Promise<ListToolsResult> {

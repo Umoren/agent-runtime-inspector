@@ -6,6 +6,7 @@ const optionalString = z.preprocess(emptyStringToUndefined, z.string().min(1).op
 
 const proxyEnvSchema = z.object({
   ARI_COLLECTOR_URL: z.preprocess(emptyStringToUndefined, z.string().url().default("http://localhost:4319")),
+  ARI_CONTEXT_REGISTRY_PATH: optionalString,
   MERGE_AGENT_HANDLER_MCP_URL: z.string().url(),
   MERGE_REGISTERED_USER_ID: z.string().min(1),
   MERGE_TOOL_PACK_ID: z.string().min(1),
@@ -37,7 +38,7 @@ function loadNearestEnvFile(startDirectory = process.cwd()): void {
 function findNearestFile(fileName: string, startDirectory: string): string | null {
   let currentDirectory = startDirectory;
 
-  while (true) {
+  for (;;) {
     const candidate = join(currentDirectory, fileName);
 
     if (existsSync(candidate)) {

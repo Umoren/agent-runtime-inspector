@@ -9,6 +9,7 @@ MERGE_AGENT_HANDLER_MCP_URL=
 MERGE_REGISTERED_USER_ID=
 MERGE_TOOL_PACK_ID=
 MERGE_API_KEY=
+ARI_CONTEXT_REGISTRY_PATH=
 ```
 
 `MERGE_API_KEY` is required for Agent Handler MCP requests. Merge sends it as:
@@ -22,6 +23,39 @@ To record one tool call, add:
 ```bash
 MERGE_TOOL_NAME=
 MERGE_TOOL_ARGUMENTS_JSON='{}'
+```
+
+To let ARI provide context before the tool call, set `ARI_CONTEXT_REGISTRY_PATH` to a local JSON registry. The registry supplies requester permission snapshots and candidate context sources; ARI evaluates the source permissions at runtime instead of relying on the agent to declare what context was selected.
+
+Example registry shape:
+
+```json
+{
+  "requesters": [
+    {
+      "requesterId": "samuel",
+      "scopes": ["support_team_member", "github_issue_writer"]
+    }
+  ],
+  "sources": [
+    {
+      "sourceId": "support_ticket_438",
+      "sourceType": "support_ticket",
+      "title": "Checkout failure after SSO login",
+      "content": "Customer cannot complete checkout after SSO login.",
+      "requiredScopes": ["support_team_member"],
+      "allowedPurposes": ["support_to_github_issue"]
+    },
+    {
+      "sourceId": "private_finance_note_991",
+      "sourceType": "slack_message",
+      "title": "Private finance escalation note",
+      "content": "Finance-only context that must not be returned to the agent.",
+      "requiredScopes": ["finance_channel_member"],
+      "allowedPurposes": ["support_to_github_issue"]
+    }
+  ]
+}
 ```
 
 To record a live model path, add:
@@ -100,7 +134,21 @@ Start the proxy:
 pnpm proxy
 ```
 
-Connect an MCP-capable agent to ARI. Before calling a forwarded Merge tool, call `ari_record_context_scope` with selected context, excluded context, and an authorization rule. ARI blocks forwarded Merge tool calls until this context scope is recorded.
+Connect an MCP-capable agent to ARI. The preferred path is to call `ari_get_context` first so ARI can retrieve allowed context, record excluded context, and bind that decision to later forwarded tool calls.
+
+`ari_get_context` input:
+
+```json
+{
+  "task": "Create a GitHub issue from this support escalation.",
+  "requesterId": "samuel",
+  "purpose": "support_to_github_issue"
+}
+```
+
+The tool returns selected context content to the agent and returns only summaries for excluded context. Excluded source content is recorded by ARI as audit evidence but is not returned to the agent.
+
+`ari_record_context_scope` remains available for clients that already selected context outside ARI. ARI blocks forwarded Merge tool calls until either `ari_get_context` or `ari_record_context_scope` establishes a context scope.
 
 The resulting run records:
 

@@ -9,11 +9,22 @@ import {
   type MergeAgentHandlerConfig,
   type ToolCallProvenance
 } from "@ari/merge";
+import {
+  createScopePermissionEvaluator,
+  type ContextProvider,
+  type ContextRequest,
+  type EvaluatedContext,
+  type ExcludedContext,
+  type PermissionEvaluator,
+  type SelectedContext
+} from "./context-provider.js";
 import { z } from "zod";
 
 type ProxyServerOptions = {
   collectorUrl: string;
   merge: MergeAgentHandlerConfig;
+  contextProvider?: ContextProvider;
+  permissionEvaluator?: PermissionEvaluator;
 };
 
 type ActiveRun = {
@@ -31,6 +42,7 @@ type ContextScope = {
 };
 
 const ARI_CONTEXT_SCOPE_TOOL_NAME = "ari_record_context_scope";
+const ARI_GET_CONTEXT_TOOL_NAME = "ari_get_context";
 
 const contextItemSchema = z.object({
   sourceId: z.string().min(1),
@@ -50,12 +62,22 @@ const contextScopeInputSchema = z.object({
   excluded: z.array(contextItemSchema).default([])
 });
 
+const contextRequestInputSchema = z.object({
+  title: z.string().min(1).optional(),
+  task: z.string().min(1),
+  requesterId: z.string().min(1),
+  purpose: z.string().min(1)
+});
+
+// eslint-disable-next-line @typescript-eslint/no-deprecated
 export async function createAriMcpProxyServer(options: ProxyServerOptions): Promise<Server> {
   const transport = await createMcpSdkTransport(options.merge);
   const merge = createMergeAgentHandlerClient(options.merge, transport);
   const recorder = createHttpRecorder({ collectorUrl: options.collectorUrl });
+  const permissionEvaluator = options.permissionEvaluator ?? createScopePermissionEvaluator();
   let activeRun: ActiveRun | undefined;
 
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   const server = new Server(
     {
       name: "agent-runtime-inspector-proxy",
@@ -75,7 +97,7 @@ export async function createAriMcpProxyServer(options: ProxyServerOptions): Prom
 
     if (!result.ok) {
       return {
-        tools: [ariContextScopeTool()],
+        tools: [ariGetContextTool(), ariContextScopeTool()],
         _meta: {
           ariError: result.error.message
         }
@@ -84,6 +106,7 @@ export async function createAriMcpProxyServer(options: ProxyServerOptions): Prom
 
     return {
       tools: [
+        ariGetContextTool(),
         ariContextScopeTool(),
         ...result.data.tools.map((tool) => ({
           name: tool.name,
@@ -95,6 +118,10 @@ export async function createAriMcpProxyServer(options: ProxyServerOptions): Prom
   });
 
   server.setRequestHandler(CallToolRequestSchema, async (request): Promise<CallToolResult> => {
+    if (request.params.name === ARI_GET_CONTEXT_TOOL_NAME) {
+      return await getContext(toRecord(request.params.arguments ?? {}));
+    }
+
     if (request.params.name === ARI_CONTEXT_SCOPE_TOOL_NAME) {
       return await recordContextScope(toRecord(request.params.arguments ?? {}));
     }
@@ -162,7 +189,7 @@ export async function createAriMcpProxyServer(options: ProxyServerOptions): Prom
       run.runId,
       result.data.status,
       result.data.status === "success"
-        ? `Merge Agent Handler called ${toolName} after ${run.contextScope.selectedCount} selected context item(s) and ${run.contextScope.excludedCount} excluded context item(s) were recorded.`
+        ? `Merge Agent Handler called ${toolName} after ${String(run.contextScope.selectedCount)} selected context item(s) and ${String(run.contextScope.excludedCount)} excluded context item(s) were recorded.`
         : `Merge Agent Handler called ${toolName} after context scope recording, and the tool returned an error.`
     );
     activeRun = undefined;
@@ -173,6 +200,63 @@ export async function createAriMcpProxyServer(options: ProxyServerOptions): Prom
 
     return textToolResult(result.data.errorMessage ?? `Merge Agent Handler could not call ${toolName}.`, true);
   });
+
+  async function getContext(input: Record<string, unknown>): Promise<CallToolResult> {
+    const parsed = contextRequestInputSchema.safeParse(input);
+
+    if (!parsed.success) {
+      return textToolResult(parsed.error.message, true);
+    }
+
+    if (!options.contextProvider) {
+      return textToolResult(
+        "ARI cannot provide context because no context provider is configured. Set ARI_CONTEXT_REGISTRY_PATH or inject a ContextProvider.",
+        true
+      );
+    }
+
+    const request: ContextRequest = parsed.data;
+    const run = await ensureRun(parsed.data.title ?? parsed.data.task);
+    clearIdleCompletion(run);
+    const requester = await options.contextProvider.getRequesterSnapshot(request.requesterId);
+
+    if (!requester) {
+      await recordRunCompleted(run.runId, "error", `No requester snapshot found for ${request.requesterId}.`);
+      activeRun = undefined;
+      return textToolResult(`No requester snapshot found for ${request.requesterId}.`, true);
+    }
+
+    const provenance: ToolCallProvenance = {
+      permissionSnapshotId: `perm_${crypto.randomUUID()}`,
+      contextDecisionId: `ctx_${crypto.randomUUID()}`,
+      authorizationDecisionId: `auth_${crypto.randomUUID()}`,
+      authorizationRule: `${requester.requesterId} may use selected context for ${request.purpose} when source scope requirements are satisfied`
+    };
+    const sources = await options.contextProvider.getCandidateSources(request);
+    const evaluated = permissionEvaluator.evaluate({
+      request,
+      requester,
+      sources,
+      provenance
+    });
+
+    run.contextScope = {
+      title: parsed.data.title,
+      selectedCount: evaluated.selected.length,
+      excludedCount: evaluated.excluded.length,
+      provenance
+    };
+
+    for (const item of evaluated.selected) {
+      await safeRecord(contextEvent(run.runId, "context.selected", provenance, item));
+    }
+
+    for (const item of evaluated.excluded) {
+      await safeRecord(contextEvent(run.runId, "context.excluded", provenance, item));
+    }
+
+    return textToolResult(JSON.stringify(contextResponse(evaluated), null, 2), false);
+  }
 
   async function recordContextScope(input: Record<string, unknown>): Promise<CallToolResult> {
     const parsed = contextScopeInputSchema.safeParse(input);
@@ -324,6 +408,36 @@ function ariContextScopeTool(): ListToolsResult["tools"][number] {
   };
 }
 
+function ariGetContextTool(): ListToolsResult["tools"][number] {
+  return {
+    name: ARI_GET_CONTEXT_TOOL_NAME,
+    description:
+      "Ask ARI to retrieve allowed context, record excluded context, and bind that context decision to later proxied tool calls.",
+    inputSchema: {
+      type: "object",
+      required: ["task", "requesterId", "purpose"],
+      properties: {
+        title: {
+          type: "string",
+          description: "Human-readable title for this agent run."
+        },
+        task: {
+          type: "string",
+          description: "The task the agent is trying to complete."
+        },
+        requesterId: {
+          type: "string",
+          description: "Identity whose permission snapshot should be evaluated."
+        },
+        purpose: {
+          type: "string",
+          description: "Purpose boundary for the context request."
+        }
+      }
+    }
+  };
+}
+
 function contextItemJsonSchema(): Record<string, unknown> {
   return {
     type: "object",
@@ -352,7 +466,7 @@ function contextEvent(
   runId: string,
   type: "context.selected" | "context.excluded",
   provenance: ToolCallProvenance,
-  item: z.infer<typeof contextItemSchema>
+  item: z.infer<typeof contextItemSchema> | SelectedContext | ExcludedContext
 ): TraceEvent {
   return {
     id: crypto.randomUUID(),
@@ -372,6 +486,30 @@ function contextEvent(
       reason: item.reason,
       permissionRule: item.permissionRule
     }
+  };
+}
+
+function contextResponse(evaluated: EvaluatedContext): Record<string, unknown> {
+  return {
+    permissionSnapshotId: evaluated.provenance.permissionSnapshotId,
+    contextDecisionId: evaluated.provenance.contextDecisionId,
+    authorizationDecisionId: evaluated.provenance.authorizationDecisionId,
+    authorizationRule: evaluated.provenance.authorizationRule,
+    selected: evaluated.selected.map((item) => ({
+      sourceId: item.sourceId,
+      sourceType: item.sourceType,
+      title: item.title,
+      content: item.content,
+      reason: item.reason,
+      permissionRule: item.permissionRule
+    })),
+    excludedSummary: evaluated.excluded.map((item) => ({
+      sourceId: item.sourceId,
+      sourceType: item.sourceType,
+      title: item.title,
+      reason: item.reason,
+      permissionRule: item.permissionRule
+    }))
   };
 }
 

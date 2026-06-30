@@ -2,6 +2,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { mergeAgentHandlerConfigSchema } from "@ari/merge";
 import { readProxyEnv } from "./env.js";
 import { createAriMcpProxyServer } from "./server.js";
+import { createLocalContextProviderFromFile } from "./context-provider.js";
 
 export async function runProxyServer(): Promise<void> {
   const env = readProxyEnv();
@@ -14,11 +15,14 @@ export async function runProxyServer(): Promise<void> {
 
   const server = await createAriMcpProxyServer({
     collectorUrl: env.ARI_COLLECTOR_URL,
-    merge
+    merge,
+    ...(env.ARI_CONTEXT_REGISTRY_PATH
+      ? { contextProvider: createLocalContextProviderFromFile(env.ARI_CONTEXT_REGISTRY_PATH) }
+      : {})
   });
 
-  process.on("SIGINT", async () => {
-    await server.close();
+  process.on("SIGINT", () => {
+    void server.close();
     process.exit(0);
   });
 

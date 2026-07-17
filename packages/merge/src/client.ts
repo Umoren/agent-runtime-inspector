@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import type { Result, TraceEvent } from "@ari/core";
 import { err, ok } from "@ari/core";
 import type { MergeAgentHandlerConfig } from "./config.js";
@@ -138,6 +139,12 @@ function buildToolListedEvent(input: {
   tools: readonly AgentHandlerTool[];
   provenance?: ToolCallProvenance;
 }): TraceEvent {
+  const compactTools = [...input.tools]
+    .map((tool) => ({
+      name: tool.name
+    }))
+    .sort((left, right) => left.name.localeCompare(right.name));
+
   return {
     id: crypto.randomUUID(),
     runId: input.runId,
@@ -149,13 +156,41 @@ function buildToolListedEvent(input: {
       ...provenancePayload(input.provenance),
       registeredUserId: input.registeredUserId,
       toolPackId: input.toolPackId,
-      tools: input.tools.map((tool) => ({
-        name: tool.name,
-        ...(tool.description ? { description: tool.description } : {}),
-        ...(tool.inputSchema === undefined ? {} : { inputSchema: tool.inputSchema })
-      }))
+      toolCount: input.tools.length,
+      inventoryHash: toolInventoryHash(input.tools),
+      tools: compactTools
     }
   };
+}
+
+function toolInventoryHash(tools: readonly AgentHandlerTool[]): string {
+  const inventory = [...tools]
+    .map((tool) => ({
+      name: tool.name,
+      ...(tool.description === undefined ? {} : { description: tool.description }),
+      ...(tool.inputSchema === undefined ? {} : { inputSchema: canonicalize(tool.inputSchema) })
+    }))
+    .sort((left, right) => left.name.localeCompare(right.name));
+  const digest = createHash("sha256").update(JSON.stringify(inventory)).digest("hex");
+
+  return `sha256:${digest}`;
+}
+
+function canonicalize(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map(canonicalize);
+  }
+
+  if (!value || typeof value !== "object") {
+    return value;
+  }
+
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>)
+      .filter(([, item]) => item !== undefined)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, item]) => [key, canonicalize(item)])
+  );
 }
 
 function buildToolCalledEvent(input: {

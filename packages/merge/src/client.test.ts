@@ -5,16 +5,22 @@ import type { AgentHandlerTransport } from "./transport.js";
 describe("Merge Agent Handler client", () => {
   it("builds a tool listed event from transport tools", async () => {
     const transport: AgentHandlerTransport = {
-      async listTools() {
-        return [
+      listTools() {
+        return Promise.resolve([
           {
             name: "linear_create_issue",
-            description: "Create a Linear issue."
+            description: "Create a Linear issue.",
+            inputSchema: {
+              type: "object",
+              properties: {
+                title: { type: "string" }
+              }
+            }
           }
-        ];
+        ]);
       },
-      async callTool() {
-        return {};
+      callTool() {
+        return Promise.resolve({});
       }
     };
     const client = createMergeAgentHandlerClient(
@@ -32,18 +38,64 @@ describe("Merge Agent Handler client", () => {
     if (result.ok) {
       expect(result.data.event.type).toBe("tool.listed");
       if (result.data.event.type === "tool.listed") {
-        expect(result.data.event.payload.tools[0]?.name).toBe("linear_create_issue");
+        expect(result.data.event.payload.tools).toEqual([{ name: "linear_create_issue" }]);
+        expect(result.data.event.payload.toolCount).toBe(1);
+        expect(result.data.event.payload.inventoryHash).toMatch(/^sha256:[a-f0-9]{64}$/);
+        expect(result.data.event.payload.tools[0]).not.toHaveProperty("description");
+        expect(result.data.event.payload.tools[0]).not.toHaveProperty("inputSchema");
+        expect(result.data.tools[0]?.description).toBe("Create a Linear issue.");
+        expect(result.data.tools[0]?.inputSchema).toEqual({
+          type: "object",
+          properties: {
+            title: { type: "string" }
+          }
+        });
       }
+    }
+  });
+
+  it("builds the same inventory hash regardless of tool order or schema key order", async () => {
+    const first = createMergeAgentHandlerClient(
+      {
+        mcpUrl: "https://example.com/mcp",
+        registeredUserId: "ru_123",
+        toolPackId: "tp_123"
+      },
+      transportWithTools([
+        { name: "beta", inputSchema: { required: ["id"], type: "object" } },
+        { name: "alpha", inputSchema: { type: "object", properties: { id: { type: "string" } } } }
+      ])
+    );
+    const second = createMergeAgentHandlerClient(
+      {
+        mcpUrl: "https://example.com/mcp",
+        registeredUserId: "ru_123",
+        toolPackId: "tp_123"
+      },
+      transportWithTools([
+        { name: "alpha", inputSchema: { properties: { id: { type: "string" } }, type: "object" } },
+        { name: "beta", inputSchema: { type: "object", required: ["id"] } }
+      ])
+    );
+
+    const firstResult = await first.listTools("run_first");
+    const secondResult = await second.listTools("run_second");
+
+    expect(firstResult.ok).toBe(true);
+    expect(secondResult.ok).toBe(true);
+    if (firstResult.ok && secondResult.ok && firstResult.data.event.type === "tool.listed" && secondResult.data.event.type === "tool.listed") {
+      expect(firstResult.data.event.payload.inventoryHash).toBe(secondResult.data.event.payload.inventoryHash);
+      expect(firstResult.data.event.payload.tools.map((tool) => tool.name)).toEqual(["alpha", "beta"]);
     }
   });
 
   it("builds tool called and completed events", async () => {
     const transport: AgentHandlerTransport = {
-      async listTools() {
-        return [];
+      listTools() {
+        return Promise.resolve([]);
       },
-      async callTool() {
-        return { issueId: "LIN-1" };
+      callTool() {
+        return Promise.resolve({ issueId: "LIN-1" });
       }
     };
     const client = createMergeAgentHandlerClient(
@@ -76,15 +128,15 @@ describe("Merge Agent Handler client", () => {
 
   it("binds listed, called, and completed tool events to provenance decisions", async () => {
     const transport: AgentHandlerTransport = {
-      async listTools() {
-        return [
+      listTools() {
+        return Promise.resolve([
           {
             name: "github__create_issue"
           }
-        ];
+        ]);
       },
-      async callTool() {
-        return { issueId: "ISSUE-1" };
+      callTool() {
+        return Promise.resolve({ issueId: "ISSUE-1" });
       }
     };
     const client = createMergeAgentHandlerClient(
@@ -132,11 +184,11 @@ describe("Merge Agent Handler client", () => {
 
   it("marks MCP tool results with isError as failed tool executions", async () => {
     const transport: AgentHandlerTransport = {
-      async listTools() {
-        return [];
+      listTools() {
+        return Promise.resolve([]);
       },
-      async callTool() {
-        return {
+      callTool() {
+        return Promise.resolve({
           isError: true,
           content: [
             {
@@ -144,7 +196,7 @@ describe("Merge Agent Handler client", () => {
               text: "GitHub rejected the create issue request."
             }
           ]
-        };
+        });
       }
     };
     const client = createMergeAgentHandlerClient(
@@ -172,3 +224,14 @@ describe("Merge Agent Handler client", () => {
     }
   });
 });
+
+function transportWithTools(tools: Awaited<ReturnType<AgentHandlerTransport["listTools"]>>): AgentHandlerTransport {
+  return {
+    listTools() {
+      return Promise.resolve(tools);
+    },
+    callTool() {
+      return Promise.resolve({});
+    }
+  };
+}

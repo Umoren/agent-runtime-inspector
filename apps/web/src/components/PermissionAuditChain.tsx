@@ -34,7 +34,7 @@ export function PermissionAuditChain({ events }: { events: readonly TraceEvent[]
             <ContextList events={chain.excluded} empty="No excluded context recorded." />
           </AuditBlock>
 
-          <AuditBlock label="Tool scope" value={chain.listed ? `${String(chain.listed.payload.tools.length)} tools` : "not listed"}>
+          <AuditBlock label="Tool scope" value={chain.listed ? `${String(chain.listed.payload.toolCount ?? chain.listed.payload.tools.length)} tools` : "not listed"}>
             {chain.listed ? (
               <div className="audit-facts">
                 <Fact label="Tool Pack" value={chain.listed.payload.toolPackId} />

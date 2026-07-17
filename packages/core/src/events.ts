@@ -58,11 +58,11 @@ export const toolListedEventSchema = baseTraceEventSchema.extend({
   payload: provenanceIdsSchema.extend({
     toolPackId: z.string().min(1),
     registeredUserId: z.string().min(1),
+    toolCount: z.number().int().nonnegative().optional(),
+    inventoryHash: z.string().regex(/^sha256:[a-f0-9]{64}$/).optional(),
     tools: z.array(
       z.object({
         name: z.string().min(1),
-        description: z.string().optional(),
-        inputSchema: z.unknown().optional(),
         risk: z.enum(["read", "write", "admin"]).optional()
       })
     )

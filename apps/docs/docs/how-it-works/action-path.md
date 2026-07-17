@@ -8,7 +8,9 @@ What did it call?
 What came back?
 ```
 
-For Merge-backed execution, ARI records Tool Pack, Registered User, available tools, selected tool, arguments, result, latency, status, and correlation metadata.
+For Merge-backed execution, ARI records Tool Pack, Registered User, the upstream tool count and names, an inventory hash, selected tool, arguments, result, latency, status, and correlation metadata.
+
+ARI computes the inventory hash from the complete runtime tool definitions, including descriptions and input schemas. Those definitions still go to the MCP client, while the trace keeps only compact evidence. The recorded inventory describes the ARI proxy boundary; downstream client allowlists are outside the current observation boundary.
 
 ## Core events
 

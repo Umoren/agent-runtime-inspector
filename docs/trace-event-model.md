@@ -62,7 +62,11 @@ Excluded context is first-class evidence. It proves that a candidate source exis
 
 What the agent could do.
 
-This path records Tool Packs, available tools, tool calls, arguments, results, latency, and blocked actions.
+This path records Tool Packs, compact upstream tool inventories, tool calls, arguments, results, latency, and blocked actions.
+
+`tool.listed` persists the tool count, sorted tool names, and a SHA-256 hash of the full runtime inventory. Tool descriptions and input schemas remain available to the live MCP client but are not copied into every trace. The hash changes when the upstream names, descriptions, or schemas change.
+
+The inventory is observed at ARI's proxy boundary. A downstream MCP client may apply an additional allowlist, so ARI does not describe the upstream inventory as the agent's final effective tool scope.
 
 The action path should bind tool calls back to context and authorization decisions:
 

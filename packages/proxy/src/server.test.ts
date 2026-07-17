@@ -59,6 +59,18 @@ describe("ARI MCP proxy server", () => {
     mocks.callTool.mockReset();
 
     mocks.listTools.mockImplementation((runId: string, provenance?: ProvenanceFixture) => {
+      const tools = [
+        {
+          name: "linear_create_issue",
+          description: "Create a Linear issue.",
+          inputSchema: {
+            type: "object",
+            properties: {
+              title: { type: "string" }
+            }
+          }
+        }
+      ];
       const event: Extract<TraceEvent, { type: "tool.listed" }> = {
         id: "evt_tool_listed",
         runId,
@@ -70,19 +82,16 @@ describe("ARI MCP proxy server", () => {
           ...provenance,
           toolPackId: "tp_123",
           registeredUserId: "ru_123",
-          tools: [
-            {
-              name: "linear_create_issue",
-              description: "Create a Linear issue."
-            }
-          ]
+          toolCount: 1,
+          inventoryHash: `sha256:${"a".repeat(64)}`,
+          tools: [{ name: "linear_create_issue" }]
         }
       };
 
       return Promise.resolve({
         ok: true,
         data: {
-          tools: event.payload.tools,
+          tools,
           event
         }
       });

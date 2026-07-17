@@ -125,12 +125,12 @@ function ActionPath({ events }: { events: readonly TraceEvent[] }) {
         <section className="path-group">
           <div className="path-group-heading">
             <span>Available</span>
-            <strong>{String(inventory.payload.tools.length)}</strong>
+            <strong>{String(inventory.payload.toolCount ?? inventory.payload.tools.length)}</strong>
           </div>
           <div className="tool-inventory">
             <div className="path-row-title">Scoped tools</div>
             <p>
-              ARI recorded {String(inventory.payload.tools.length)} tools exposed through the configured Tool Pack and Registered User.
+              ARI recorded {String(inventory.payload.toolCount ?? inventory.payload.tools.length)} tools reported by the configured Tool Pack and Registered User.
             </p>
             <ToolInventory tools={inventory.payload.tools} />
           </div>
@@ -367,7 +367,8 @@ function EventDetail({ event }: { event: TraceEvent }) {
         <div className="event-detail">
           <KeyValueList
             items={[
-              ["Tools available", String(event.payload.tools.length)],
+              ["Tools reported", String(event.payload.toolCount ?? event.payload.tools.length)],
+              ["Inventory hash", event.payload.inventoryHash ?? "Not recorded"],
               ...provenanceItems(event.payload)
             ]}
           />

@@ -1,0 +1,47 @@
+{
+  "kind": "file",
+  "root": "..",
+  "defaultMaxBytes": 64000,
+  "requesters": [
+    {
+      "requesterId": "samuel",
+      "scopes": ["ari_repo_reader"]
+    }
+  ],
+  "sources": [
+    {
+      "sourceType": "ari_implementation",
+      "include": [
+        "packages/proxy/src/context-provider.ts",
+        "packages/proxy/src/server.ts"
+      ],
+      "requiredScopes": ["ari_repo_reader"],
+      "allowedPurposes": ["ari_context_audit"],
+      "classification": "internal"
+    },
+    {
+      "sourceType": "ari_documentation",
+      "include": [
+        "docs/file-context-provider.md",
+        "docs/merge-agent-handler-setup.md"
+      ],
+      "requiredScopes": ["ari_repo_reader"],
+      "allowedPurposes": ["ari_context_audit"],
+      "classification": "internal"
+    },
+    {
+      "sourceType": "ari_test_evidence",
+      "include": ["packages/proxy/src/context-provider.test.ts"],
+      "requiredScopes": ["ari_test_reader"],
+      "allowedPurposes": ["ari_context_audit"],
+      "classification": "internal"
+    },
+    {
+      "sourceType": "local_secret",
+      "include": [".env"],
+      "requiredScopes": [],
+      "allowedPurposes": ["ari_context_audit"],
+      "classification": "secret"
+    }
+  ]
+}

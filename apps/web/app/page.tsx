@@ -1,290 +1,169 @@
 import Link from "next/link";
-import { Plug } from "lucide-react";
+import {
+  Activity,
+  ArrowUpRight,
+  CheckCircle2,
+  ChevronDown,
+  CircleAlert,
+  Database,
+  Settings2
+} from "lucide-react";
 import { type CollectorLogEntry, getRuns, getSummaryMode, getSystemStatus } from "../src/lib/collector";
-import { formatDateTime } from "../src/lib/format";
+import { formatDateTime, humanizeKey } from "../src/lib/format";
 import { Button } from "../src/components/ui/button";
 import { Badge } from "../src/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../src/components/ui/card";
 import { clearLocalTracesAction } from "./actions";
 
 export default async function HomePage() {
   const [runs, status] = await Promise.all([getRuns(), getSystemStatus()]);
   const directToolVars = status.merge.optional.filter((item) => item.name.startsWith("MERGE_TOOL"));
   const githubWorkflowVars = status.merge.optional.filter((item) => item.name.startsWith("ARI_"));
-  const visibleRuns = runs.slice(0, 3);
-  const olderRuns = runs.slice(3);
 
   return (
-    <main className="shell">
-      <nav className="top-nav">
-        <Link className="brand-link" href="/">
-          Agent Runtime Inspector
-        </Link>
-        <div className="nav-actions">
-          <Button asChild className="button-secondary">
-            <Link href="#merge-setup">
-              <Plug aria-hidden="true" size={16} />
-              Merge setup
-            </Link>
-          </Button>
+    <main className="console-shell">
+      <nav className="audit-nav console-nav">
+        <Link className="audit-brand" href="/"><span>ARI</span><small>Agent Runtime Inspector</small></Link>
+        <div className="runtime-state">
+          <span className={`runtime-dot runtime-dot-${collectorTone(status.collector)}`} />
+          Collector {status.collector}
         </div>
       </nav>
 
-      <section className="hero">
-        <div className="kicker">Agent Runtime Inspector</div>
-        <h1>Inspect what happened during an agent run.</h1>
-        <p>
-          See what the LLM knew, what the agent could do, which provider/model handled the request,
-          and what got recorded for audit.
-        </p>
-      </section>
+      <header className="console-heading">
+        <div>
+          <span>Runtime evidence</span>
+          <h1>Runs</h1>
+          <p>{runs.length} recorded run{runs.length === 1 ? "" : "s"} in local SQLite storage.</p>
+        </div>
+        <div className="console-statuses">
+          <SystemPill icon={<Activity size={15} />} label="Collector" value={status.collector} tone={collectorTone(status.collector)} />
+          <SystemPill icon={<Database size={15} />} label="Storage" value="local" tone="good" />
+          <SystemPill icon={<CheckCircle2 size={15} />} label="Merge" value={status.merge.state === "configured" ? "ready" : "setup needed"} tone={status.merge.state === "configured" ? "good" : "warn"} />
+        </div>
+      </header>
 
-      <section className="grid grid-2 mode-grid" id="modes">
-        <Card>
-          <CardHeader>
-            <CardTitle>Real MCP proxy path</CardTitle>
-            <CardDescription>
-              Connect an MCP-capable agent to ARI, record context scope, then forward tool calls through Merge Agent Handler.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button asChild>
-              <Link href="#merge-setup">Review setup</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </section>
-
-      <Card className="section" id="merge-setup">
-        <details className="setup-panel">
-          <summary className="disclosure-summary">
-            <div>
-              <CardTitle>Merge setup</CardTitle>
-              <CardDescription>
-                Check which environment variables are already set before running the connected example.
-              </CardDescription>
-            </div>
-            <span className="disclosure-action disclosure-action-open">Hide setup</span>
-            <span className="disclosure-action disclosure-action-closed">Show setup</span>
-          </summary>
-          <CardContent>
-            <div className="setup-list setup-list-compact">
-              <div className="setup-heading">Minimum Merge credentials</div>
-              {status.merge.required.map((item) => (
-                <EnvVarRow configured={item.configured} key={item.name} name={item.name} required />
-              ))}
-              <div className="setup-heading">Direct tool call</div>
-              {directToolVars.map((item) => (
-                <EnvVarRow configured={item.configured} key={item.name} name={item.name} />
-              ))}
-              <div className="setup-heading">GitHub issue workflow</div>
-              {githubWorkflowVars.map((item) => (
-                <EnvVarRow configured={item.configured} key={item.name} name={item.name} />
-              ))}
-              <div className="setup-heading">Live model provider</div>
-              {status.model.required.map((item) => (
-                <EnvVarRow configured={item.configured} key={item.name} name={item.name} />
-              ))}
-              {status.model.optional.map((item) => (
-                <EnvVarRow configured={item.configured} key={item.name} name={item.name} />
-              ))}
-            </div>
-          </CardContent>
-        </details>
-      </Card>
-
-      <Card className="section">
-        <CardHeader>
-          <CardTitle>System status</CardTitle>
-          <CardDescription>Use this to see whether the local inspector is ready before opening a run.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="status-strip">
-            <StatusItem label="Collector" value={status.collector} tone={status.collector === "running" ? "good" : "bad"} />
-            <StatusItem label="Storage" value={status.storage} />
-            <StatusItem label="Merge" value={status.merge.state} tone={status.merge.state === "configured" ? "good" : "warn"} />
-            <StatusItem label="Model" value={status.model.state} tone={status.model.state === "configured" ? "good" : "warn"} />
+      <section className="run-index" id="runs">
+        <div className="run-index-heading">
+          <div>
+            <span>Recent activity</span>
+            <h2>Audit trail</h2>
           </div>
-          <p className="helper-text">Collector URL: {status.collectorUrl}</p>
-        </CardContent>
-      </Card>
+          <strong>{runs.length}</strong>
+        </div>
+        {runs.length === 0 ? (
+          <div className="run-index-empty">
+            <CircleAlert size={22} />
+            <div><strong>No runs recorded</strong><p>The collector is ready for the first trace.</p></div>
+          </div>
+        ) : <RunList runs={runs} />}
+      </section>
 
-      <Card className="section">
-        <details className="setup-panel">
-          <summary className="disclosure-summary">
-            <div>
-              <CardTitle>Collector diagnostics</CardTitle>
-              <CardDescription>Recent collector health and storage events from the local runtime.</CardDescription>
-            </div>
-            <span className="disclosure-action disclosure-action-open">Hide diagnostics</span>
-            <span className="disclosure-action disclosure-action-closed">Show diagnostics</span>
+      <section className="operator-panel">
+        <details>
+          <summary>
+            <span><Settings2 size={18} /><span><strong>Runtime configuration</strong><small>Connections, environment and collector diagnostics</small></span></span>
+            <ChevronDown size={18} />
           </summary>
-          <CardContent>
-            <div className="status-strip">
-              <StatusItem label="Health" value={status.collector} tone={collectorTone(status.collector)} />
-              <StatusItem label="Storage read" value={status.collectorHealth?.storage.state ?? "unknown"} tone={status.collectorHealth?.storage.state === "unreadable" ? "bad" : "neutral"} />
-              <StatusItem label="Errors" value={String(status.collectorHealth?.logCounts.error ?? 0)} tone={(status.collectorHealth?.logCounts.error ?? 0) > 0 ? "bad" : "good"} />
-              <StatusItem label="Warnings" value={String(status.collectorHealth?.logCounts.warn ?? 0)} tone={(status.collectorHealth?.logCounts.warn ?? 0) > 0 ? "warn" : "good"} />
+          <div className="operator-body">
+            <div className="operator-grid">
+              <ConfigGroup title="Merge credentials" items={status.merge.required} />
+              <ConfigGroup title="Direct action" items={directToolVars} />
+              <ConfigGroup title="GitHub workflow" items={githubWorkflowVars} />
+              <ConfigGroup title="Model provider" items={[...status.model.required, ...status.model.optional]} />
+            </div>
+            <div className="diagnostic-row">
+              <StatusFact label="Storage read" value={status.collectorHealth?.storage.state ?? "unknown"} />
+              <StatusFact label="Errors" value={String(status.collectorHealth?.logCounts.error ?? 0)} />
+              <StatusFact label="Warnings" value={String(status.collectorHealth?.logCounts.warn ?? 0)} />
+              <StatusFact label="Collector URL" value={status.collectorUrl} />
             </div>
             {status.collectorHealth?.latestError && status.collector === "degraded" ? (
-              <div className="collector-latest-error">
-                <div className="event-title">Latest collector error</div>
-                <p>{status.collectorHealth.latestError.message}</p>
-                <code>{status.collectorHealth.latestError.event}</code>
-              </div>
+              <div className="collector-latest-error"><strong>{status.collectorHealth.latestError.message}</strong><code>{status.collectorHealth.latestError.event}</code></div>
             ) : null}
-            <form action={clearLocalTracesAction} className="collector-actions">
-              <Button type="submit" className="button-secondary">Clear local traces</Button>
-              <p className="helper-text">Clears the local trace event store when stale or incompatible rows block run reads.</p>
-            </form>
             <CollectorLogList logs={status.collectorLogs} />
-          </CardContent>
+            <form action={clearLocalTracesAction} className="operator-actions">
+              <Button type="submit" className="button-secondary">Clear local traces</Button>
+            </form>
+          </div>
         </details>
-      </Card>
-
-      <section className="grid grid-3">
-        <Card>
-          <CardHeader>
-            <CardTitle>Context path</CardTitle>
-            <CardDescription>Sources selected or excluded before the LLM response.</CardDescription>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Action path</CardTitle>
-            <CardDescription>Tools exposed to the agent, calls made, arguments sent, and results returned.</CardDescription>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Model path</CardTitle>
-            <CardDescription>Provider/model selection, status, latency, token use, cost, and fallback information when available.</CardDescription>
-          </CardHeader>
-        </Card>
       </section>
-
-      <Card className="section" id="runs">
-        <CardHeader>
-          <CardTitle>Latest runs</CardTitle>
-          <CardDescription>
-            {runs.length === 0
-              ? "No runs recorded yet."
-              : `Showing ${String(visibleRuns.length)} of ${String(runs.length)} run${runs.length === 1 ? "" : "s"}.`}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {runs.length === 0 ? (
-            <div className="empty-state">
-              <div className="event-title">No runs recorded yet.</div>
-              <p>
-                Start the ARI MCP proxy, record context scope from an MCP-capable agent, then call a forwarded Merge tool.
-              </p>
-            </div>
-          ) : (
-            <>
-              <RunList runs={visibleRuns} />
-              {olderRuns.length > 0 ? (
-                <details className="older-runs">
-                  <summary className="disclosure-summary compact-disclosure-summary">
-                    <div>
-                      <CardTitle>Older runs</CardTitle>
-                      <CardDescription>{olderRuns.length} older run{olderRuns.length === 1 ? "" : "s"} hidden.</CardDescription>
-                    </div>
-                    <span className="disclosure-action disclosure-action-open">Hide older runs</span>
-                    <span className="disclosure-action disclosure-action-closed">Show older runs</span>
-                  </summary>
-                  <RunList runs={olderRuns} />
-                </details>
-              ) : null}
-            </>
-          )}
-        </CardContent>
-      </Card>
     </main>
   );
 }
 
+function RunList({ runs }: { runs: Awaited<ReturnType<typeof getRuns>> }) {
+  return (
+    <div className="run-table">
+      {runs.map((run) => {
+        const contextCount = run.paths.context.totalEvents;
+        const actionCount = run.paths.action.totalEvents;
+        const modelCount = run.paths.model.totalEvents;
+
+        return (
+          <Link className="run-table-row" href={`/runs/${run.runId}`} key={run.runId}>
+            <div className={`run-status-icon run-status-icon-${run.status}`}>
+              {run.status === "success" ? <CheckCircle2 size={18} /> : <CircleAlert size={18} />}
+            </div>
+            <div className="run-main">
+              <div className="run-title-line"><strong>{run.title}</strong><span>{humanizeKey(getSummaryMode(run))}</span></div>
+              <div className="run-evidence-summary">
+                {contextCount > 0 ? <span>{contextCount} context</span> : null}
+                {actionCount > 0 ? <span>{actionCount} action</span> : null}
+                {modelCount > 0 ? <span>{modelCount} model</span> : null}
+                <span>{run.totalEvents} total events</span>
+              </div>
+            </div>
+            <div className="run-time"><strong>{run.status}</strong><span>{formatDateTime(run.completedAt ?? run.startedAt)}</span></div>
+            <ArrowUpRight aria-hidden="true" className="run-open" size={18} />
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
+
+function SystemPill({ icon, label, value, tone }: { icon: React.ReactNode; label: string; value: string; tone: "good" | "warn" | "bad" }) {
+  return <div className={`system-pill system-pill-${tone}`}>{icon}<span>{label}</span><strong>{value}</strong></div>;
+}
+
+function ConfigGroup({ title, items }: { title: string; items: readonly { name: string; configured: boolean }[] }) {
+  return (
+    <div className="config-group">
+      <h3>{title}</h3>
+      {items.length === 0 ? <p>No variables in this group.</p> : items.map((item) => <EnvVarRow configured={item.configured} key={item.name} name={item.name} />)}
+    </div>
+  );
+}
+
+function EnvVarRow({ configured, name }: { configured: boolean; name: string }) {
+  return <div className="config-row"><code>{name}</code><span className={configured ? "config-set" : "config-missing"}>{configured ? "set" : "unset"}</span></div>;
+}
+
+function StatusFact({ label, value }: { label: string; value: string }) {
+  return <div className="status-fact"><span>{label}</span><strong>{value}</strong></div>;
+}
+
 function CollectorLogList({ logs }: { logs: readonly CollectorLogEntry[] }) {
-  if (logs.length === 0) {
-    return <p className="helper-text">No collector log entries recorded yet.</p>;
-  }
+  if (logs.length === 0) return null;
 
   return (
-    <div className="collector-log-list">
-      {logs.map((entry) => (
-        <article className="collector-log-row" key={entry.id}>
-          <div className="collector-log-meta">
-            <Badge className={`collector-log-level collector-log-${entry.level}`}>{entry.level}</Badge>
-            <span>{formatDateTime(entry.timestamp)}</span>
-          </div>
-          <div className="event-title">{entry.message}</div>
-          <code>{entry.event}</code>
-          {entry.details ? <pre>{JSON.stringify(entry.details, null, 2)}</pre> : null}
-        </article>
-      ))}
-    </div>
+    <details className="collector-log-details">
+      <summary>Recent collector logs <Badge>{logs.length}</Badge></summary>
+      <div className="collector-log-list">
+        {logs.map((entry) => (
+          <article className="collector-log-row" key={entry.id}>
+            <div className="collector-log-meta"><Badge className={`collector-log-level collector-log-${entry.level}`}>{entry.level}</Badge><span>{formatDateTime(entry.timestamp)}</span></div>
+            <strong>{entry.message}</strong>
+            <code>{entry.event}</code>
+          </article>
+        ))}
+      </div>
+    </details>
   );
 }
 
 function collectorTone(status: "running" | "degraded" | "unreachable"): "good" | "warn" | "bad" {
-  if (status === "running") {
-    return "good";
-  }
-
-  if (status === "degraded") {
-    return "warn";
-  }
-
+  if (status === "running") return "good";
+  if (status === "degraded") return "warn";
   return "bad";
-}
-
-function RunList({ runs }: { runs: Awaited<ReturnType<typeof getRuns>> }) {
-  return (
-    <>
-      {runs.map((run) => (
-        <article className="event" key={run.runId}>
-          <div className="event-badges">
-            <Badge className="event-type">{getSummaryMode(run)}</Badge>
-            <Badge className={run.status === "error" ? "status-error" : "status-success"}>{run.status}</Badge>
-          </div>
-          <div className="event-title">
-            <Button asChild>
-              <Link href={`/runs/${run.runId}`}>{run.title}</Link>
-            </Button>
-          </div>
-          <div className="event-meta">
-            {run.totalEvents} events · {formatDateTime(run.completedAt ?? run.startedAt)}
-          </div>
-        </article>
-      ))}
-    </>
-  );
-}
-
-function StatusItem({
-  label,
-  value,
-  tone = "neutral"
-}: {
-  label: string;
-  value: string;
-  tone?: "neutral" | "good" | "warn" | "bad";
-}) {
-  return (
-    <div className="status-item">
-      <div className="status-label">{label}</div>
-      <div className={`status-value status-${tone}`}>{value}</div>
-    </div>
-  );
-}
-
-function EnvVarRow({ configured, name, required = false }: { configured: boolean; name: string; required?: boolean }) {
-  return (
-    <div className="env-row">
-      <code>{name}</code>
-      <span className={configured ? "env-state env-configured" : "env-state env-missing"}>
-        {configured ? "set" : required ? "required" : "optional"}
-      </span>
-    </div>
-  );
 }

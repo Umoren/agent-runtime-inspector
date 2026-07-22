@@ -23,11 +23,11 @@ tool.completed
 tool.blocked
 ```
 
-The action path becomes more valuable when tool events share the same decision identifiers as the context and authorization events that preceded them.
+Decision identifiers connect the tool events to the context and authorization events that preceded them.
 
 ```text
 context.selected -> contextDecisionId: ctx_123
 authorization.decided -> contextDecisionId: ctx_123, authorizationDecisionId: auth_123
-tool.called -> contextDecisionId: ctx_123
-tool.completed -> contextDecisionId: ctx_123
+tool.called -> contextDecisionId: ctx_123, authorizationDecisionId: auth_123
+tool.completed -> contextDecisionId: ctx_123, authorizationDecisionId: auth_123
 ```

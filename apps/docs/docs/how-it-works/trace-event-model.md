@@ -8,6 +8,7 @@ Every dashboard view should be derivable from the same event model:
 run.started
 context.selected
 context.excluded
+authorization.decided
 tool.listed
 tool.called
 tool.completed
@@ -19,15 +20,17 @@ run.completed
 
 Every event includes:
 
-- `id`
-- `runId`
-- `timestamp`
-- `path`
-- `source`
-- `type`
-- typed `payload`
+```text
+id
+runId
+timestamp
+path
+source
+type
+typed payload
+```
 
-The current schema uses `runId` as the common boundary. The stronger provenance model adds durable decision identifiers:
+The schema uses `runId` as the common boundary and adds decision identifiers:
 
 ```text
 permissionSnapshotId
@@ -35,4 +38,4 @@ contextDecisionId
 authorizationDecisionId
 ```
 
-Those identifiers let the trace bind selected context, excluded context, authorization checks, and later tool calls.
+`permissionSnapshotId` and `contextDecisionId` begin with context retrieval. ARI creates `authorizationDecisionId` only when the agent attempts an upstream action. Together, the identifiers bind selected context, excluded context, the policy decision, and the later tool events.

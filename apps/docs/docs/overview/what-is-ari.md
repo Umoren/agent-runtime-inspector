@@ -1,6 +1,6 @@
 # What is ARI?
 
-Agent Runtime Inspector is a local permission and audit gateway for AI agents.
+Agent Runtime Inspector (ARI) is a local permission and audit gateway for AI agents.
 
 It sits between an agent and upstream MCP servers. ARI retrieves permitted context, asks a policy engine whether an exact action is allowed, forwards allowed calls, blocks denied calls before execution, and records the evidence locally.
 
@@ -11,11 +11,11 @@ AI agent -> ARI gateway -> upstream MCP server -> external system
                -> local collector -> dashboard
 ```
 
-ARI is built for OSS builders who want a concrete record around agent work before sending trace data to a hosted vendor.
+ARI is for open source builders who want to inspect an agent run before sending trace data to a hosted service.
 
 ## Why local-first?
 
-Hosted observability tools help teams debug and monitor LLM and agent systems. ARI focuses on the earlier boundary: the first provenance record around an agent run should be inspectable on the developer's machine.
+Hosted observability tools help teams debug and monitor large language model (LLM) and agent systems. ARI focuses on an earlier boundary: the first provenance record around an agent run should be inspectable on the developer's machine.
 
 An agent trace can contain retrieved context, tool arguments, customer records, repository details, internal docs, permission decisions, and excluded context. That trace is no longer harmless telemetry. It can become a copy of the sensitive workflow the agent touched.
 
@@ -38,4 +38,4 @@ ARI supports a generic Streamable HTTP MCP upstream. Merge Agent Handler is an o
 
 ARI does not expose or prove a model's private reasoning. It records external runtime evidence: selected context, excluded context, tool availability, tool calls, model calls, command results, and run status.
 
-That boundary is intentional. The goal is to make the inspectable runtime path clear without pretending the trace proves more than it records.
+The trace shows the observable runtime path without claiming more than the recorded evidence can prove.

@@ -17,4 +17,4 @@ model.completed
 
 Model events can record provider, model, task type, route reason, latency, token usage, estimated cost, status, and errors.
 
-The long-term goal is to make model selection inspectable as policy, not just as an implementation detail hidden behind the agent response.
+The current schema makes model selection visible in the trace. Policy-controlled model routing remains future work.

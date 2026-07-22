@@ -1,14 +1,12 @@
 # Connect Codex through ARI
 
-Codex can use local stdio MCP servers. In that setup, ARI runs as the MCP server command, retrieves permitted context, checks policy, and forwards allowed calls to the configured upstream MCP server.
+1. Add this project-scoped `.codex/config.toml`:
 
 The shape is:
 
 ```text
 Codex -> local ARI MCP gateway -> upstream MCP server
 ```
-
-A project-scoped Codex config can point at the ARI proxy command and restrict the tools exposed to the session.
 
 ```toml
 [mcp_servers.ari]
@@ -17,8 +15,12 @@ args = ["--silent", "proxy"]
 cwd = "/absolute/path/to/agent-runtime-inspector"
 startup_timeout_sec = 20
 tool_timeout_sec = 90
-default_tools_approval_mode = "prompt"
-enabled_tools = ["ari_get_context"]
 ```
 
-ARI exposes `ari_get_context` directly. Upstream tools are listed dynamically after the gateway connects. Keep Codex approval prompts enabled for early tests, especially for tools that can mutate external systems.
+2. Replace `cwd` with the absolute path to this repository.
+
+3. Start a new Codex session in the repository and run `/mcp`.
+
+Codex should list `ari_get_context` and the tools returned by ARI's configured upstream server. Do not set `enabled_tools = ["ari_get_context"]` if Codex also needs to call those upstream tools. In Codex configuration, `enabled_tools` is an allowlist.
+
+ARI retrieves permitted context, checks policy, and forwards only allowed calls. Keep the gateway's policy narrow while testing tools that can change external systems.

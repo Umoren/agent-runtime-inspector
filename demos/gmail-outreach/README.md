@@ -1,6 +1,6 @@
 # Gmail outreach policy
 
-This demo runs OPA locally as ARI's action-policy service. `policy.rego` is generic enforcement logic. `policy-data.json` is ignored local workflow data containing the approved recipient and the enabled switch.
+This demo runs Open Policy Agent (OPA) locally as ARI's action-policy service. `policy.rego` contains the enforcement logic. The ignored `policy-data.json` contains the approved recipient and the workflow switch.
 
 The policy permits one Gmail `create_draft` call only when all of the following are true:
 
@@ -12,16 +12,22 @@ The policy permits one Gmail `create_draft` call only when all of the following 
 
 The policy never permits sending email. Gmail's MCP `create_draft` creates a reviewable draft only.
 
-Before starting OPA, copy `opa/policy-data.example.json` to ignored `opa/policy-data.json`, replace the recipient, and change `enabled` to `true` only when the first draft is approved for creation.
+1. Copy `opa/policy-data.example.json` to `opa/policy-data.json`.
 
-Run OPA from this directory:
+2. Replace the example recipient.
+
+3. Change `enabled` to `true` only when the first draft is approved for creation.
+
+4. Start OPA from this directory:
 
 ```bash
 docker compose up
 ```
 
-Set this in ARI's root `.env`:
+5. Set the policy endpoint in ARI's root `.env`:
 
 ```dotenv
 ARI_POLICY_DECISION_URL=http://127.0.0.1:8181/v1/data/ari/gateway/result
 ```
+
+This demo defines the policy boundary. It does not prove the Gmail integration until ARI creates a real draft and the dashboard links the context, authorization, and tool events.

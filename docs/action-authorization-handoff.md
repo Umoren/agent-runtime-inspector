@@ -4,7 +4,7 @@
 
 ARI now sits between an agent and an upstream Model Context Protocol (MCP) server. The agent can ask ARI for permitted context and can see the upstream tools, but ARI checks policy before it forwards an exact tool call.
 
-The core promise is:
+The gateway records:
 
 > ARI records who tried to perform which action, for what purpose, using which approved context, under which policy decision.
 
@@ -46,7 +46,7 @@ const authorization = await policyEngine.evaluate({
 });
 ```
 
-The important detail is that policy sees the exact tool name and arguments. A policy can allow `create_draft` but deny `send_message`, or allow a draft only when its recipients and context meet the workflow's rules. ARI itself does not hardcode Gmail or another provider's fields.
+The policy sees the exact tool name and arguments. It can allow `create_draft` while denying `send_message`, or constrain a draft by recipient and selected context. ARI does not hardcode Gmail or another provider's fields.
 
 ## How policy works
 
@@ -87,7 +87,7 @@ if (authorization.decision === "deny") {
 }
 ```
 
-The server test proves this boundary by checking that the fake upstream's call count remains zero after a denied attempt. This is more important than merely showing a red status in the dashboard: the side effect never reaches the external service.
+The server test checks that the fake upstream's call count remains zero after a denied attempt. The side effect never reaches the external service.
 
 ## Why the action provider exists
 
@@ -117,7 +117,7 @@ const transport = new StreamableHTTPClientTransport(new URL(config.url), {
 
 Tokens are parsed against the MCP SDK schema, persisted with file mode `0600`, and removed when invalidated. Use an ignored path such as `.ari/gmail-tokens.json`. The implementation is in `packages/proxy/src/oauth-provider.ts` and is covered by persistence, malformed-file, and invalidation tests.
 
-## What is deliberately not hardcoded
+## Configuration boundaries
 
 - No Gmail tool names or argument rules in ARI core.
 - No allowlist of recipients in TypeScript.
@@ -129,20 +129,24 @@ The operator chooses the upstream, identity, purpose, context registry, and poli
 
 ## What is proven now
 
+The authorization path proves:
+
 - Selected and excluded context are linked to a permission snapshot and context decision.
 - Each attempted action produces an explicit authorization decision.
 - Allowed actions carry the authorization ID into tool events.
 - Denied actions produce `tool.blocked` and do not call the upstream transport.
+
+The integration path also proves:
+
 - Generic MCP and optional Merge transports share one authorization path.
 - OAuth tokens survive process restarts without being placed in trace events.
 
 ## What remains before the Gmail workflow is real
 
-1. Create a Google Cloud OAuth client and enable the Gmail API and Gmail MCP API.
-2. Configure a loopback redirect URL and the required Gmail scopes.
+1. Create a Google Cloud OAuth client, enable the required APIs, and configure the Gmail scopes.
+2. Configure a loopback redirect URL.
 3. Run an OPA endpoint with a versioned policy for the outreach-draft workflow.
 4. Point ARI at real local career/outreach context files.
-5. Authorize Gmail and create one real Gmail draft through `create_draft`.
-6. Verify in the ARI dashboard that context, policy, and action events share the same decision IDs.
+5. Authorize Gmail, create one real draft through `create_draft`, and verify the linked decision IDs in the dashboard.
 
 Until those credentials and that real draft exist, the generic authorization gateway is tested, but the Gmail integration is not yet proven end to end.

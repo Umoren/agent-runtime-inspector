@@ -11,7 +11,7 @@ const docsDir = path.dirname(fileURLToPath(import.meta.url));
 
 const config: Config = {
   title: "Agent Runtime Inspector",
-  tagline: "Provenance for local agent runtimes",
+  tagline: "Local permission and audit for AI agents",
   url: "https://ari.umoren.xyz",
   baseUrl: "/",
   organizationName: "Umoren",

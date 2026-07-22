@@ -4,29 +4,28 @@ ARI is an early open source build.
 
 The current implementation provides local collection, audit inspection, ARI-owned file context retrieval, and policy-enforced MCP action forwarding.
 
-## Current surface
+## Gateway boundary
 
-- Local collector for trace events.
-- Dashboard for inspecting runs, event paths, permission scope, and collector diagnostics.
-- Trace event schemas for context, action, model, and system paths.
-- Provider-neutral Streamable HTTP MCP upstream and optional Merge adapter.
-- Trusted principal and purpose supplied by gateway configuration rather than agent claims.
-- ARI-owned context retrieval through `ari_get_context`.
-- OPA action-policy adapter with default-deny behavior.
-- Explicit `authorization.decided` evidence before allowed or blocked tool calls.
-- Context/action binding through permission, context, and authorization decision identifiers.
-- Collector health and log diagnostics, including a local trace clear action for stale or incompatible rows.
-- Vercel AI SDK example for recording model and action events.
-- Public docs deployment configured for `https://ari.umoren.xyz`.
-- Long-form architecture articles for the product direction.
+- Provider-neutral Streamable HTTP MCP upstream with an optional Merge adapter.
+- Trusted principal and purpose from gateway configuration, not agent claims.
+- ARI-owned file context retrieval through `ari_get_context`.
+- OPA action policy with default-deny and fail-closed behavior.
+- Persistent OAuth tokens for protected remote MCP servers.
+
+## Inspection surface
+
+- Local collector and dashboard for trace review.
+- Context, action, model, and system event schemas.
+- Explicit `authorization.decided` evidence before a call or block.
+- Decision identifiers that bind context, authorization, and tool events.
+- Collector health diagnostics and local trace cleanup.
 
 ## Roadmap
 
 - Complete one real Gmail draft workflow through Google's remote MCP server and an external OPA policy.
-- Add persistent OAuth support for remote MCP servers that require interactive user authorization.
 - Add `ari_search_context` and `ari_get_permission_boundary` where a real provider requires them.
 - Add approval decisions, redactions, and policy version export.
 - Improve local developer-workspace capture for file reads, edits, command execution, and verification evidence.
 - Add durable audit export for sharing or reviewing a run outside the local dashboard.
 
-The product direction is not just to show that a tool ran. The goal is to show which context and permission boundary justified the action.
+The next proof point is the Gmail draft workflow. The generic gateway and OAuth persistence are implemented, but the repository does not yet contain evidence of a real Gmail draft created through ARI.

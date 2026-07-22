@@ -1,6 +1,16 @@
 # Run the Vercel AI SDK example
 
-The Vercel AI SDK example demonstrates how ARI can record model and action events around a scripted workflow.
+1. Add the model and Merge credentials described in the environment-variable reference to `.env`.
+
+2. Start the collector and dashboard with `pnpm dev`.
+
+3. Run the example in another terminal:
+
+   ```bash
+   pnpm example:merge
+   ```
+
+The example records model and action events around a scripted workflow.
 
 The example lives in:
 
@@ -8,14 +18,12 @@ The example lives in:
 examples/vercel-ai-sdk-merge
 ```
 
-It is useful when you want a concrete path that includes:
+The run can include:
 
-- selected context
-- excluded context
-- model call
-- model completion
+- selected and excluded context
+- model call and completion
 - Merge tool listing
-- Merge tool call
+- Merge tool call and result
 - run completion
 
 Provider and Merge credentials are loaded from local environment variables. Keep the example pointed at a safe test account or repository when exercising write tools.

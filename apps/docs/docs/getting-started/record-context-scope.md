@@ -1,6 +1,10 @@
 # Retrieve context through ARI
 
-The main MCP path starts with `ari_get_context`. The gateway supplies the trusted principal and purpose from operator configuration; the agent supplies only the task and optional title.
+1. Configure `ARI_PRINCIPAL_ID`, `ARI_PURPOSE`, and a context provider.
+
+2. Start the gateway with `pnpm proxy`.
+
+3. Call `ari_get_context` with a task and optional title:
 
 ```json
 {
@@ -8,6 +12,8 @@ The main MCP path starts with `ari_get_context`. The gateway supplies the truste
   "task": "Retrieve the context needed to prepare this response."
 }
 ```
+
+The gateway supplies the principal and purpose. The agent cannot replace them in the tool input.
 
 ARI retrieves candidate sources, evaluates source permissions, returns selected content, and returns summaries without content for excluded sources. It records `permissionSnapshotId` and `contextDecisionId` for the later action-policy check.
 

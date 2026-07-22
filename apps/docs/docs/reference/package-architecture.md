@@ -14,4 +14,4 @@ ARI is organized as a pnpm workspace.
 | `packages/ai-sdk` | Helpers for recording model events around AI SDK usage. |
 | `examples/vercel-ai-sdk-merge` | Scripted example that joins model and Merge action events. |
 
-The boundary to protect is the trace event model. Runtime surfaces can change, but the dashboard and docs should stay grounded in the event stream.
+The trace event model is the shared contract. Runtime integrations may change, but the dashboard and documentation should describe evidence present in that stream.

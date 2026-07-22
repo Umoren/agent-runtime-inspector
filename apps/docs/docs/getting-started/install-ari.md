@@ -1,14 +1,22 @@
 # Install ARI
 
-ARI is a pnpm TypeScript monorepo.
+1. Clone the repository and install its dependencies:
 
-```bash
-git clone git@github.com:Umoren/agent-runtime-inspector.git
-cd agent-runtime-inspector
-pnpm install
-```
+   ```bash
+   git clone git@github.com:Umoren/agent-runtime-inspector.git
+   cd agent-runtime-inspector
+   pnpm install
+   ```
 
-After the current command cleanup, this page should become the canonical quickstart. For now, use the repository README as the command source of truth if a script name changes.
+2. Start the collector and dashboard:
+
+   ```bash
+   pnpm dev
+   ```
+
+3. Open `http://localhost:3005`.
+
+The dashboard is now running. Configure an upstream MCP server, context provider, identity, and policy endpoint before starting `pnpm proxy`.
 
 ## Repository layout
 
@@ -23,4 +31,4 @@ packages/proxy
 examples/vercel-ai-sdk-merge
 ```
 
-The docs app is standalone inside the workspace and can be built as static assets.
+Build the documentation site with `pnpm docs:build`.

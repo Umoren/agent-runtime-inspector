@@ -1,222 +1,112 @@
-# Merge Agent Handler Setup
+# Merge Agent Handler setup
 
-Agent Runtime Inspector supports a Merge Agent Handler connected action path through the ARI MCP proxy.
+Merge Agent Handler is an optional upstream adapter for Agent Runtime Inspector (ARI). The adapter preserves Merge's Registered User and Tool Pack metadata while using the same context and policy boundary as other upstream MCP servers.
 
-The connected path needs:
+```text
+MCP client -> ARI gateway -> Merge Agent Handler -> external tool
+                 |  |
+                 |  -> policy engine
+                 -> collector -> dashboard
+```
 
-```bash
+## Configure the adapter
+
+Add these values to the repository's ignored `.env` file:
+
+```dotenv
+ARI_COLLECTOR_URL=http://localhost:4319
+ARI_PRINCIPAL_ID=
+ARI_PURPOSE=
+ARI_CONTEXT_PROVIDER_CONFIG_PATH=
+ARI_POLICY_DECISION_URL=
+
 MERGE_AGENT_HANDLER_MCP_URL=
 MERGE_REGISTERED_USER_ID=
 MERGE_TOOL_PACK_ID=
 MERGE_API_KEY=
-ARI_CONTEXT_PROVIDER_CONFIG_PATH=
-ARI_CONTEXT_REGISTRY_PATH=
 ```
 
-`MERGE_API_KEY` is required for Agent Handler MCP requests. Merge sends it as:
+`MERGE_API_KEY` is sent as a bearer token. ARI also sends the Registered User and Tool Pack identifiers required by the adapter.
 
-```text
-Authorization: Bearer <YOUR_API_KEY>
-```
+Configure either `ARI_CONTEXT_PROVIDER_CONFIG_PATH` or the older `ARI_CONTEXT_REGISTRY_PATH`. Do not set both. The [file-backed context provider](./file-context-provider.md) is the preferred path for repository and workspace files.
 
-To record one tool call, add:
+The gateway denies every attempted action until `ARI_POLICY_DECISION_URL` returns an explicit allow decision.
 
-```bash
-MERGE_TOOL_NAME=
-MERGE_TOOL_ARGUMENTS_JSON='{}'
-```
+## Start ARI
 
-To let ARI provide context before the tool call, set either `ARI_CONTEXT_PROVIDER_CONFIG_PATH` or `ARI_CONTEXT_REGISTRY_PATH`.
+1. Start the collector and dashboard:
 
-Use `ARI_CONTEXT_PROVIDER_CONFIG_PATH` for the current provider config path. It supports file-backed context sources and is the preferred path for using real repository or workspace files as context. See [File-Backed Context Provider](./file-context-provider.md) for the concepts, algorithms, config contract, and implementation notes.
+   ```bash
+   pnpm dev
+   ```
 
-Use `ARI_CONTEXT_REGISTRY_PATH` for the older local JSON registry path. The registry supplies requester permission snapshots and candidate context sources directly; ARI evaluates the source permissions at runtime instead of relying on the agent to declare what context was selected.
+2. Start the MCP gateway in another terminal:
 
-Example registry shape:
+   ```bash
+   pnpm proxy
+   ```
+
+3. Point an MCP-capable client at the ARI stdio command:
+
+   ```json
+   {
+     "mcpServers": {
+       "ari": {
+         "command": "pnpm",
+         "args": ["--silent", "proxy"],
+         "cwd": "/absolute/path/to/agent-runtime-inspector"
+       }
+     }
+   }
+   ```
+
+The client receives ARI's context tool and the tools returned by the configured Merge Tool Pack.
+
+## Retrieve context before acting
+
+Call `ari_get_context` before an upstream tool:
 
 ```json
 {
-  "requesters": [
-    {
-      "requesterId": "samuel",
-      "scopes": ["support_team_member", "github_issue_writer"]
-    }
-  ],
-  "sources": [
-    {
-      "sourceId": "support_ticket_438",
-      "sourceType": "support_ticket",
-      "title": "Checkout failure after SSO login",
-      "content": "Customer cannot complete checkout after SSO login.",
-      "requiredScopes": ["support_team_member"],
-      "allowedPurposes": ["support_to_github_issue"]
-    },
-    {
-      "sourceId": "private_finance_note_991",
-      "sourceType": "slack_message",
-      "title": "Private finance escalation note",
-      "content": "Finance-only context that must not be returned to the agent.",
-      "requiredScopes": ["finance_channel_member"],
-      "allowedPurposes": ["support_to_github_issue"]
-    }
-  ]
+  "task": "Create a GitHub issue from this support escalation."
 }
 ```
 
-To record a live model path, add:
+ARI takes the principal and purpose from trusted gateway configuration. It returns selected content, summarizes excluded sources without returning their content, and records the context decision.
 
-```bash
-ARI_MODEL_API_KEY=
-ARI_MODEL_PROVIDER=anthropic
-ARI_MODEL_NAME=claude-haiku-4-5-20251001
-```
+When the client calls a Merge tool, ARI sends the policy engine:
 
-`ARI_MODEL_PROVIDER` supports `openai-compatible` and `anthropic`. `ARI_MODEL_BASE_URL` is optional. Leave it unset for Anthropic or OpenAI defaults.
+- the trusted principal and purpose;
+- the Tool Pack as the upstream identifier;
+- the exact tool name and arguments;
+- the permission snapshot and context decision;
+- the selected source identifiers and types.
 
-Use one of Anthropic's active Claude 4-family models for the Anthropic path:
+ARI forwards the call only after an allow decision. A deny decision records `tool.blocked` and returns before Merge receives the request.
 
-- `claude-haiku-4-5-20251001` for the lowest-cost live model path.
-- `claude-sonnet-4-6` for a stronger model path.
+## Inspect the run
 
-Avoid retired or deprecated model IDs such as `claude-3-5-haiku-20241022`, `claude-3-5-sonnet-20241022`, and `claude-sonnet-4-20250514`.
-
-To let the model draft a GitHub issue and then create it through Merge Agent Handler, add:
-
-```bash
-ARI_AGENT_WORKFLOW=github_issue
-ARI_GITHUB_OWNER=
-ARI_GITHUB_REPO=
-ARI_GITHUB_LABELS_JSON='["ari-test"]'
-```
-
-This workflow calls `github__create_issue`, so use a repository where creating a test issue is acceptable.
-
-## What The Inspector Shows
-
-The connected proxy path records:
-
-- selected context
-- excluded context
-- permission snapshot id
-- context decision id
-- authorization decision id
-- authorization rule
-- provider/model selection
-- model latency and token usage when a model provider is configured
-- Registered User
-- Tool Pack
-- tools returned by Agent Handler
-- tool name and arguments when `MERGE_TOOL_NAME` is set
-- tool result, latency, and status when the call completes
-- local run id
-- local trace events
-- correlation metadata for later audit work
-
-## Start Locally
-
-```bash
-pnpm install
-pnpm ari dev
-```
-
-In another terminal:
-
-```bash
-pnpm --filter @ari/example-vercel-ai-sdk-merge dev
-```
-
-Then open:
-
-```text
-http://localhost:3005
-```
-
-## MCP Proxy Mode
-
-Start the proxy:
-
-```bash
-pnpm proxy
-```
-
-Connect an MCP-capable agent to ARI. The preferred path is to call `ari_get_context` first so ARI can retrieve allowed context, record excluded context, and bind that decision to later forwarded tool calls.
-
-`ari_get_context` input:
-
-```json
-{
-  "task": "Create a GitHub issue from this support escalation.",
-  "requesterId": "samuel",
-  "purpose": "support_to_github_issue"
-}
-```
-
-The tool returns selected context content to the agent and returns only summaries for excluded context. Excluded source content is recorded by ARI as audit evidence but is not returned to the agent.
-
-`ari_record_context_scope` remains available for clients that already selected context outside ARI. ARI blocks forwarded Merge tool calls until either `ari_get_context` or `ari_record_context_scope` establishes a context scope.
-
-The resulting run records:
+Open `http://localhost:3005` and select the run. An allowed path contains:
 
 ```text
 run.started
 context.selected
 context.excluded
+authorization.decided
 tool.listed
 tool.called
 tool.completed
 run.completed
 ```
 
-The action events carry the same `permissionSnapshotId`, `contextDecisionId`, and `authorizationDecisionId` as the context events.
+The action events include the permission, context, and authorization decision IDs. Merge-specific events also keep the Registered User and Tool Pack identifiers.
 
-## Example Runner
+## Run the scripted example
 
-Start with tool listing:
-
-```bash
-MERGE_AGENT_HANDLER_MCP_URL="https://..."
-MERGE_REGISTERED_USER_ID="..."
-MERGE_TOOL_PACK_ID="..."
-pnpm --filter @ari/example-vercel-ai-sdk-merge dev
-```
-
-Then call one selected tool:
+The Vercel AI SDK example can record model events and a selected Merge action:
 
 ```bash
-MERGE_AGENT_HANDLER_MCP_URL="https://..."
-MERGE_REGISTERED_USER_ID="..."
-MERGE_TOOL_PACK_ID="..."
-MERGE_API_KEY="..."
-ARI_MODEL_API_KEY="..."
-ARI_MODEL_PROVIDER=anthropic
-ARI_MODEL_NAME=claude-haiku-4-5-20251001
-MERGE_TOOL_NAME="linear_create_issue"
-MERGE_TOOL_ARGUMENTS_JSON='{"title":"Investigate SSO login failure","priority":"high"}'
-pnpm --filter @ari/example-vercel-ai-sdk-merge dev
+pnpm example:merge
 ```
 
-The tool name and arguments must match the tools exposed by your selected Tool Pack.
-
-## Reference GitHub Issue Flow
-
-This is a reference connected flow for the provenance architecture:
-
-```bash
-ARI_MODEL_API_KEY="..."
-ARI_MODEL_PROVIDER=anthropic
-ARI_MODEL_NAME=claude-haiku-4-5-20251001
-ARI_AGENT_WORKFLOW=github_issue
-ARI_GITHUB_OWNER="..."
-ARI_GITHUB_REPO="..."
-ARI_GITHUB_LABELS_JSON='["ari-test"]'
-pnpm --filter @ari/example-vercel-ai-sdk-merge dev
-```
-
-The run records:
-
-- context selected: support ticket and customer account
-- context excluded: private Slack note
-- model called: issue draft generation
-- action listed: tools exposed by the Merge Tool Pack
-- action called: `github__create_issue`
-- action completed: GitHub issue result, latency, and correlation metadata
+Use `MERGE_TOOL_NAME` and `MERGE_TOOL_ARGUMENTS_JSON` to select a direct call. The tool name and argument shape must match the configured Tool Pack. Use an account where the selected side effect is safe.

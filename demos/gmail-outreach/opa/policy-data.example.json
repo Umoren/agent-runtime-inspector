@@ -1,0 +1,28 @@
+{
+  "ari": {
+    "policy_version": "1",
+    "workflows": {
+      "career_outreach_draft": {
+        "enabled": false,
+        "policy_id": "ari.gmail.career_outreach_draft",
+        "policy_version": "1",
+        "principal_id": "samuel",
+        "upstream": {
+          "id": "gmail",
+          "type": "gmail"
+        },
+        "action": {
+          "name": "create_draft",
+          "recipients": ["replace-with-approved-recipient@example.com"],
+          "max_body_characters": 1200
+        },
+        "required_context_source_types": [
+          "career_positioning",
+          "career_body_of_work",
+          "career_outreach_guidance",
+          "career_target_market"
+        ]
+      }
+    }
+  }
+}

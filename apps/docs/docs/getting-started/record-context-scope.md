@@ -1,32 +1,14 @@
-# Record context scope
+# Retrieve context through ARI
 
-ARI's current MCP path starts with an explicit context-scope record. The agent tells ARI which context entered the run, which context was withheld, and which authorization rule permits later tool calls.
-
-Call `ari_record_context_scope` before any forwarded Merge Agent Handler tool:
+The main MCP path starts with `ari_get_context`. The gateway supplies the trusted principal and purpose from operator configuration; the agent supplies only the task and optional title.
 
 ```json
 {
-  "title": "Create issue from allowed project context",
-  "authorizationRule": "selected_project_context_allows_issue_creation",
-  "selected": [
-    {
-      "sourceId": "project-docs",
-      "sourceType": "project_doc",
-      "title": "Public project docs",
-      "reason": "Needed to prepare the issue body.",
-      "permissionRule": "project_read"
-    }
-  ],
-  "excluded": [
-    {
-      "sourceId": "local-env",
-      "sourceType": "secret_file",
-      "title": ".env",
-      "reason": "Credential material must not enter the tool call context.",
-      "permissionRule": "no_secret_material"
-    }
-  ]
+  "title": "Prepare an authorized customer response",
+  "task": "Retrieve the context needed to prepare this response."
 }
 ```
 
-ARI generates decision identifiers when they are not supplied. Later `tool.listed`, `tool.called`, and `tool.completed` events inherit the same provenance IDs so the dashboard can show which permission boundary justified the action.
+ARI retrieves candidate sources, evaluates source permissions, returns selected content, and returns summaries without content for excluded sources. It records `permissionSnapshotId` and `contextDecisionId` for the later action-policy check.
+
+`ari_record_context_scope` remains a compatibility tool for clients that select context outside ARI. It is hidden and rejected unless the gateway operator sets `ARI_ALLOW_AGENT_DECLARED_CONTEXT=true`.

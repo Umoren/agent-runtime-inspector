@@ -90,6 +90,10 @@ function eventHasError(event: TraceEvent): boolean {
     return true;
   }
 
+  if (event.type === "authorization.decided") {
+    return event.payload.decision === "deny";
+  }
+
   if (event.type === "run.completed") {
     return event.payload.status === "error";
   }

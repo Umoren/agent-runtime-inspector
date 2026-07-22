@@ -1,0 +1,55 @@
+{
+  "kind": "file",
+  "root": "../..",
+  "defaultMaxBytes": 64000,
+  "requesters": [
+    {
+      "requesterId": "samuel",
+      "scopes": ["career_outreach_context"]
+    }
+  ],
+  "sources": [
+    {
+      "sourceType": "career_positioning",
+      "include": ["foundation/positioning.md"],
+      "requiredScopes": ["career_outreach_context"],
+      "allowedPurposes": ["career_outreach_draft"],
+      "classification": "internal"
+    },
+    {
+      "sourceType": "career_body_of_work",
+      "include": ["foundation/body-of-work.md"],
+      "requiredScopes": ["career_outreach_context"],
+      "allowedPurposes": ["career_outreach_draft"],
+      "classification": "internal"
+    },
+    {
+      "sourceType": "career_outreach_guidance",
+      "include": ["foundation/cold-outreach-playbook.md"],
+      "requiredScopes": ["career_outreach_context"],
+      "allowedPurposes": ["career_outreach_draft"],
+      "classification": "internal"
+    },
+    {
+      "sourceType": "career_target_market",
+      "include": ["foundation/target-market.md"],
+      "requiredScopes": ["career_outreach_context"],
+      "allowedPurposes": ["career_outreach_draft"],
+      "classification": "internal"
+    },
+    {
+      "sourceType": "career_private_context",
+      "include": ["master-context.md"],
+      "requiredScopes": ["career_private_context"],
+      "allowedPurposes": ["career_outreach_draft"],
+      "classification": "confidential"
+    },
+    {
+      "sourceType": "career_resume",
+      "include": ["resume/current.md"],
+      "requiredScopes": ["career_resume_reader"],
+      "allowedPurposes": ["career_outreach_draft"],
+      "classification": "confidential"
+    }
+  ]
+}

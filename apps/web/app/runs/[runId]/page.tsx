@@ -1,13 +1,8 @@
 import Link from "next/link";
 import { ArrowLeft, Home } from "lucide-react";
-import { RawEventLog } from "../../../src/components/RawEventLog";
-import { PathPanel } from "../../../src/components/PathPanel";
-import { RunSummaryPanel } from "../../../src/components/RunSummaryPanel";
-import { PermissionAuditChain } from "../../../src/components/PermissionAuditChain";
-import { buildDashboardModel, getRunEvents, type RunMode } from "../../../src/lib/collector";
-import { Separator } from "../../../src/components/ui/separator";
+import { RunAuditView } from "../../../src/components/RunAuditView";
+import { buildDashboardModel, getRunEvents } from "../../../src/lib/collector";
 import { Button } from "../../../src/components/ui/button";
-import { Badge } from "../../../src/components/ui/badge";
 
 export default async function RunPage({ params }: { params: Promise<{ runId: string }> }) {
   const { runId } = await params;
@@ -15,16 +10,17 @@ export default async function RunPage({ params }: { params: Promise<{ runId: str
   const dashboard = buildDashboardModel(events);
 
   return (
-    <main className="shell">
-      <nav className="top-nav">
+    <main className="audit-shell">
+      <nav className="audit-nav">
+        <Link className="audit-brand" href="/"><span>ARI</span><small>Agent Runtime Inspector</small></Link>
         <div className="nav-actions">
           <Button asChild className="button-secondary">
             <Link href="/#runs">
               <ArrowLeft aria-hidden="true" size={16} />
-              Back to runs
+              Runs
             </Link>
           </Button>
-          <Button asChild className="button-secondary">
+          <Button asChild className="button-secondary audit-home-button">
             <Link href="/">
               <Home aria-hidden="true" size={16} />
               Home
@@ -33,48 +29,7 @@ export default async function RunPage({ params }: { params: Promise<{ runId: str
         </div>
       </nav>
 
-      <section className="hero">
-        <div className="hero-meta">
-          <div className="kicker">Agent run</div>
-          <Badge>{modeLabel(dashboard.mode)}</Badge>
-        </div>
-        <h1>{dashboard.summary.title}</h1>
-        <p>What context was allowed, what was withheld, which tool ran, and why that call was permitted.</p>
-      </section>
-
-      <RunSummaryPanel summary={dashboard.summary} />
-
-      <PermissionAuditChain events={dashboard.raw} />
-
-      <Separator className="section" />
-
-      <section className="path-stack section">
-        <PathPanel path="context" events={dashboard.grouped.context} />
-        <PathPanel path="action" events={dashboard.grouped.action} />
-        <PathPanel path="model" events={dashboard.grouped.model} />
-      </section>
-
-      <section className="section">
-        <PathPanel path="system" events={dashboard.grouped.system} />
-      </section>
-
-      <RawEventLog events={dashboard.raw} />
+      <RunAuditView summary={dashboard.summary} events={dashboard.raw} mode={dashboard.mode} />
     </main>
   );
-}
-
-function modeLabel(mode: RunMode): string {
-  if (mode === "mcp-proxy") {
-    return "MCP proxy run";
-  }
-
-  if (mode === "merge-action") {
-    return "Merge action run";
-  }
-
-  if (mode === "model") {
-    return "model run";
-  }
-
-  return "collector run";
 }

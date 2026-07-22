@@ -6,9 +6,25 @@ const optionalString = z.preprocess(emptyStringToUndefined, z.string().min(1).op
 
 const proxyEnvSchema = z.object({
   ARI_COLLECTOR_URL: z.preprocess(emptyStringToUndefined, z.string().url().default("http://localhost:4319")),
-  MERGE_AGENT_HANDLER_MCP_URL: z.string().url(),
-  MERGE_REGISTERED_USER_ID: z.string().min(1),
-  MERGE_TOOL_PACK_ID: z.string().min(1),
+  ARI_CONTEXT_PROVIDER_CONFIG_PATH: optionalString,
+  ARI_CONTEXT_REGISTRY_PATH: optionalString,
+  ARI_PRINCIPAL_ID: z.string().min(1),
+  ARI_PURPOSE: z.string().min(1),
+  ARI_POLICY_DECISION_URL: z.preprocess(emptyStringToUndefined, z.string().url().optional()),
+  ARI_POLICY_HEADERS_JSON: optionalString,
+  ARI_UPSTREAM_MCP_URL: z.preprocess(emptyStringToUndefined, z.string().url().optional()),
+  ARI_UPSTREAM_ID: optionalString,
+  ARI_UPSTREAM_TYPE: optionalString,
+  ARI_UPSTREAM_HEADERS_JSON: optionalString,
+  ARI_UPSTREAM_OAUTH_CLIENT_ID: optionalString,
+  ARI_UPSTREAM_OAUTH_CLIENT_SECRET: optionalString,
+  ARI_UPSTREAM_OAUTH_REDIRECT_URL: z.preprocess(emptyStringToUndefined, z.string().url().optional()),
+  ARI_UPSTREAM_OAUTH_TOKEN_PATH: optionalString,
+  ARI_UPSTREAM_OAUTH_SCOPE: optionalString,
+  ARI_ALLOW_AGENT_DECLARED_CONTEXT: z.preprocess(emptyStringToUndefined, z.enum(["true", "false"]).default("false")),
+  MERGE_AGENT_HANDLER_MCP_URL: z.preprocess(emptyStringToUndefined, z.string().url().optional()),
+  MERGE_REGISTERED_USER_ID: optionalString,
+  MERGE_TOOL_PACK_ID: optionalString,
   MERGE_API_KEY: optionalString
 });
 
@@ -37,7 +53,7 @@ function loadNearestEnvFile(startDirectory = process.cwd()): void {
 function findNearestFile(fileName: string, startDirectory: string): string | null {
   let currentDirectory = startDirectory;
 
-  while (true) {
+  for (;;) {
     const candidate = join(currentDirectory, fileName);
 
     if (existsSync(candidate)) {

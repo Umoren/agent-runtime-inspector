@@ -190,7 +190,7 @@ function explainRun(events: readonly TraceEvent[]): string {
   }
 
   if (listedTools?.type === "tool.listed") {
-    parts.push(`${String(listedTools.payload.tools.length)} tools exposed to the agent`);
+    parts.push(`${String(listedTools.payload.toolCount ?? listedTools.payload.tools.length)} tools reported by the upstream inventory`);
   }
 
   if (calledTool?.type === "tool.called") {

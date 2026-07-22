@@ -8,7 +8,7 @@ The intended command groups are:
 | --- | --- |
 | `ari dev` | Start the collector and dashboard. |
 | `ari init` | Create a local ARI config file. |
-| `ari proxy` | Start the local MCP proxy for Merge Agent Handler. |
+| `ari proxy` | Start the local ARI MCP authorization gateway. |
 | `ari replay <runId>` | Print a dashboard URL for a stored run. |
 
 Root workspace scripts provide shortcuts for local development and docs:

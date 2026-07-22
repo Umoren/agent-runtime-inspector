@@ -31,7 +31,7 @@ function printHelp(): void {
 Usage:
   ari dev              Start collector and dashboard
   ari init             Create ari.config.json
-  ari proxy            Start the local MCP proxy for Merge Agent Handler
+  ari proxy            Start the local ARI MCP authorization gateway
   ari replay <runId>   Print a dashboard URL for a stored run
 `);
 }

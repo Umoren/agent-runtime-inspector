@@ -8,6 +8,7 @@ Every view in the dashboard comes from the same event model:
 run.started
 context.selected
 context.excluded
+authorization.decided
 tool.listed
 tool.called
 tool.completed
@@ -62,18 +63,25 @@ Excluded context is first-class evidence. It proves that a candidate source exis
 
 What the agent could do.
 
-This path records Tool Packs, available tools, tool calls, arguments, results, latency, and blocked actions.
+This path records explicit policy decisions, compact upstream tool inventories, tool calls, arguments, results, latency, and blocked actions.
 
-The action path should bind tool calls back to context and authorization decisions:
+`tool.listed` persists the tool count, sorted tool names, and a SHA-256 hash of the full runtime inventory. Tool descriptions and input schemas remain available to the live MCP client but are not copied into every trace. The hash changes when the upstream names, descriptions, or schemas change.
+
+The inventory is observed at ARI's proxy boundary. A downstream MCP client may apply an additional allowlist, so ARI does not describe the upstream inventory as the agent's final effective tool scope.
+
+`authorization.decided` records the trusted principal, purpose, upstream, requested tool, allow or deny result, policy id, policy version, and reason. Context selection does not create this event. ARI creates it only when the agent attempts a specific action.
+
+The action path binds tool calls back to context and authorization decisions:
 
 ```text
 context.selected -> contextDecisionId: ctx_123
 context.excluded -> contextDecisionId: ctx_123
+authorization.decided -> contextDecisionId: ctx_123, authorizationDecisionId: auth_123
 tool.called -> contextDecisionId: ctx_123
 tool.completed -> contextDecisionId: ctx_123
 ```
 
-For Merge-backed execution, action events also carry Tool Pack, Registered User, tool arguments, result, latency, status, and correlation metadata.
+Generic action events carry an upstream identifier. The optional Merge adapter also preserves Tool Pack and Registered User metadata for compatibility.
 
 ### Model path
 
@@ -123,4 +131,4 @@ requires approval
 escalated
 ```
 
-These outcomes can appear in context events, argument checks, tool blocks, Merge rule violations, or future authorization decision events.
+Allowed and denied action outcomes appear in `authorization.decided`. A denial is followed by `tool.blocked`, and no upstream tool request is made.

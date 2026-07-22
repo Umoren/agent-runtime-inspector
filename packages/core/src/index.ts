@@ -4,6 +4,7 @@ export { err, ok } from "./result.js";
 export {
   contextExcludedEventSchema,
   contextSelectedEventSchema,
+  authorizationDecidedEventSchema,
   modelCalledEventSchema,
   modelCompletedEventSchema,
   runCompletedEventSchema,
@@ -18,6 +19,7 @@ export {
   traceSourceSchema
 } from "./events.js";
 export type { TraceEvent, TraceEventType, TracePath, TraceSource } from "./events.js";
+export type { ToolCallProvenance } from "./provenance.js";
 
 export { buildRunSummary, groupEventsByPath } from "./run.js";
 export type { PathSummary, RunStatus, RunSummary } from "./run.js";

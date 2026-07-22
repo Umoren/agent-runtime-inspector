@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const tracePathSchema = z.enum(["context", "action", "model", "system"]);
-export const traceSourceSchema = z.enum(["merge", "ai-sdk", "collector"]);
+export const traceSourceSchema = z.enum(["merge", "mcp", "policy", "ai-sdk", "collector"]);
 
 const baseTraceEventSchema = z.object({
   id: z.string().min(1),
@@ -56,13 +56,15 @@ export const toolListedEventSchema = baseTraceEventSchema.extend({
   type: z.literal("tool.listed"),
   path: z.literal("action"),
   payload: provenanceIdsSchema.extend({
-    toolPackId: z.string().min(1),
-    registeredUserId: z.string().min(1),
+    upstreamId: z.string().min(1).optional(),
+    upstreamType: z.string().min(1).optional(),
+    toolPackId: z.string().min(1).optional(),
+    registeredUserId: z.string().min(1).optional(),
+    toolCount: z.number().int().nonnegative().optional(),
+    inventoryHash: z.string().regex(/^sha256:[a-f0-9]{64}$/).optional(),
     tools: z.array(
       z.object({
         name: z.string().min(1),
-        description: z.string().optional(),
-        inputSchema: z.unknown().optional(),
         risk: z.enum(["read", "write", "admin"]).optional()
       })
     )
@@ -74,6 +76,7 @@ export const toolCalledEventSchema = baseTraceEventSchema.extend({
   path: z.literal("action"),
   payload: provenanceIdsSchema.extend({
     toolName: z.string().min(1),
+    upstreamId: z.string().min(1).optional(),
     toolPackId: z.string().min(1).optional(),
     registeredUserId: z.string().min(1).optional(),
     arguments: z.record(z.unknown()),
@@ -86,6 +89,7 @@ export const toolCompletedEventSchema = baseTraceEventSchema.extend({
   path: z.literal("action"),
   payload: provenanceIdsSchema.extend({
     toolName: z.string().min(1),
+    upstreamId: z.string().min(1).optional(),
     status: z.enum(["success", "error"]),
     latencyMs: z.number().nonnegative(),
     result: z.unknown().optional(),
@@ -99,8 +103,25 @@ export const toolBlockedEventSchema = baseTraceEventSchema.extend({
   path: z.literal("action"),
   payload: provenanceIdsSchema.extend({
     toolName: z.string().min(1),
+    upstreamId: z.string().min(1).optional(),
     reason: z.string().min(1),
     policy: z.string().optional()
+  })
+});
+
+export const authorizationDecidedEventSchema = baseTraceEventSchema.extend({
+  type: z.literal("authorization.decided"),
+  path: z.literal("action"),
+  payload: provenanceIdsSchema.extend({
+    authorizationDecisionId: z.string().min(1),
+    principalId: z.string().min(1),
+    purpose: z.string().min(1),
+    upstreamId: z.string().min(1),
+    toolName: z.string().min(1),
+    decision: z.enum(["allow", "deny"]),
+    reason: z.string().min(1),
+    policyId: z.string().min(1),
+    policyVersion: z.string().min(1).optional()
   })
 });
 
@@ -147,6 +168,7 @@ export const traceEventSchema = z.discriminatedUnion("type", [
   toolCalledEventSchema,
   toolCompletedEventSchema,
   toolBlockedEventSchema,
+  authorizationDecidedEventSchema,
   modelCalledEventSchema,
   modelCompletedEventSchema,
   runCompletedEventSchema

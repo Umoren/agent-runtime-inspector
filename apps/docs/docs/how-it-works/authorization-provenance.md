@@ -15,10 +15,12 @@ what result came back
 what got logged for audit
 ```
 
-The record should turn scattered logs into an inspectable path:
+ARI creates the authorization decision when a specific action is attempted. The policy input includes the trusted principal, configured purpose, upstream identity, tool name, arguments, and selected context evidence.
+
+The record turns scattered logs into an inspectable path:
 
 ```text
-request -> identity -> permission snapshot -> selected context -> excluded context -> tool scope -> arguments -> result -> audit record
+request -> trusted identity -> context decision -> policy decision -> tool call or block -> result -> audit record
 ```
 
 ## Policy outcomes
@@ -34,4 +36,4 @@ requires approval
 escalated
 ```
 
-Those outcomes can appear in context events, argument checks, tool blocks, Merge rule violations, or future authorization decision events.
+Allowed and denied actions produce `authorization.decided`. Denied actions also produce `tool.blocked` before any upstream mutation.

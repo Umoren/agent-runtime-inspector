@@ -8,7 +8,7 @@ describe("run aggregation", () => {
 
     expect(summary.runId).toBe("run_permission_fixture");
     expect(summary.status).toBe("success");
-    expect(summary.paths.action.totalEvents).toBe(3);
+    expect(summary.paths.action.totalEvents).toBe(4);
     expect(summary.paths.context.totalEvents).toBe(2);
   });
 
@@ -17,6 +17,7 @@ describe("run aggregation", () => {
 
     expect(grouped.system).toHaveLength(2);
     expect(grouped.action.map((event) => event.type)).toEqual([
+      "authorization.decided",
       "tool.listed",
       "tool.called",
       "tool.completed"
@@ -67,7 +68,6 @@ const traceEvents: TraceEvent[] = [
     payload: {
       permissionSnapshotId: "perm_permission_fixture",
       contextDecisionId: "ctx_permission_fixture",
-      authorizationDecisionId: "auth_permission_fixture",
       sourceId: "docs_public",
       sourceType: "project_doc",
       title: "Public project docs",
@@ -85,7 +85,6 @@ const traceEvents: TraceEvent[] = [
     payload: {
       permissionSnapshotId: "perm_permission_fixture",
       contextDecisionId: "ctx_permission_fixture",
-      authorizationDecisionId: "auth_permission_fixture",
       sourceId: "secret_env",
       sourceType: "secret_file",
       title: ".env",
@@ -97,6 +96,27 @@ const traceEvents: TraceEvent[] = [
     id: "evt_004",
     runId: "run_permission_fixture",
     timestamp: "2026-06-15T00:00:03.000Z",
+    type: "authorization.decided",
+    path: "action",
+    source: "policy",
+    payload: {
+      permissionSnapshotId: "perm_permission_fixture",
+      contextDecisionId: "ctx_permission_fixture",
+      authorizationDecisionId: "auth_permission_fixture",
+      authorizationRule: "project_context_allows_tool_call",
+      principalId: "samuel",
+      purpose: "project_issue_management",
+      upstreamId: "github",
+      toolName: "github__create_issue",
+      decision: "allow",
+      reason: "The project issue policy allows this action.",
+      policyId: "project_context_allows_tool_call"
+    }
+  },
+  {
+    id: "evt_005",
+    runId: "run_permission_fixture",
+    timestamp: "2026-06-15T00:00:04.000Z",
     type: "tool.listed",
     path: "action",
     source: "merge",
@@ -111,9 +131,9 @@ const traceEvents: TraceEvent[] = [
     }
   },
   {
-    id: "evt_005",
+    id: "evt_006",
     runId: "run_permission_fixture",
-    timestamp: "2026-06-15T00:00:04.000Z",
+    timestamp: "2026-06-15T00:00:05.000Z",
     type: "tool.called",
     path: "action",
     source: "merge",
@@ -130,9 +150,9 @@ const traceEvents: TraceEvent[] = [
     }
   },
   {
-    id: "evt_006",
+    id: "evt_007",
     runId: "run_permission_fixture",
-    timestamp: "2026-06-15T00:00:05.000Z",
+    timestamp: "2026-06-15T00:00:06.000Z",
     type: "tool.completed",
     path: "action",
     source: "merge",
@@ -149,9 +169,9 @@ const traceEvents: TraceEvent[] = [
     }
   },
   {
-    id: "evt_007",
+    id: "evt_008",
     runId: "run_permission_fixture",
-    timestamp: "2026-06-15T00:00:06.000Z",
+    timestamp: "2026-06-15T00:00:07.000Z",
     type: "run.completed",
     path: "system",
     source: "collector",

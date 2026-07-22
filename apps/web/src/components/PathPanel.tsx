@@ -118,9 +118,20 @@ function ActionPath({ events }: { events: readonly TraceEvent[] }) {
   const calls = events.filter((event): event is Extract<TraceEvent, { type: "tool.called" }> => event.type === "tool.called");
   const completed = events.filter((event): event is Extract<TraceEvent, { type: "tool.completed" }> => event.type === "tool.completed");
   const blocked = events.filter((event): event is Extract<TraceEvent, { type: "tool.blocked" }> => event.type === "tool.blocked");
+  const decisions = events.filter((event): event is Extract<TraceEvent, { type: "authorization.decided" }> => event.type === "authorization.decided");
 
   return (
     <div className="path-groups">
+      {decisions.map((event) => (
+        <article className="path-row" key={event.id}>
+          <div className={`path-status ${event.payload.decision === "allow" ? "path-status-good" : "path-status-bad"}`}>{event.payload.decision}</div>
+          <div className="path-row-main">
+            <div className="path-row-title">{event.payload.policyId}</div>
+            <p>{event.payload.reason}</p>
+            <div className="path-row-meta"><span>{event.payload.principalId}</span><span>{event.payload.purpose}</span><span>{event.payload.authorizationDecisionId}</span></div>
+          </div>
+        </article>
+      ))}
       {inventory ? (
         <section className="path-group">
           <div className="path-group-heading">
@@ -130,7 +141,7 @@ function ActionPath({ events }: { events: readonly TraceEvent[] }) {
           <div className="tool-inventory">
             <div className="path-row-title">Scoped tools</div>
             <p>
-              ARI recorded {String(inventory.payload.toolCount ?? inventory.payload.tools.length)} tools reported by the configured Tool Pack and Registered User.
+              ARI recorded {String(inventory.payload.toolCount ?? inventory.payload.tools.length)} tools reported by {inventory.payload.upstreamId ?? "the configured upstream provider"}.
             </p>
             <ToolInventory tools={inventory.payload.tools} />
           </div>
@@ -273,6 +284,8 @@ function eventTitle(event: TraceEvent): string {
     case "tool.completed":
     case "tool.blocked":
       return event.payload.toolName;
+    case "authorization.decided":
+      return `${event.payload.decision}: ${event.payload.toolName}`;
     case "model.called":
     case "model.completed":
       return `${event.payload.provider}/${event.payload.model}`;
@@ -407,6 +420,21 @@ function EventDetail({ event }: { event: TraceEvent }) {
       return (
         <div className="event-detail">
           <KeyValueList items={[["Reason", event.payload.reason], ...provenanceItems(event.payload)]} />
+        </div>
+      );
+    case "authorization.decided":
+      return (
+        <div className="event-detail">
+          <KeyValueList
+            items={[
+              ["Decision", event.payload.decision],
+              ["Principal", event.payload.principalId],
+              ["Purpose", event.payload.purpose],
+              ["Policy", event.payload.policyId],
+              ["Reason", event.payload.reason],
+              ...provenanceItems(event.payload)
+            ]}
+          />
         </div>
       );
     case "model.called":

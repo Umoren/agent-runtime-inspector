@@ -1,25 +1,27 @@
-# Use MCP proxy mode
+# Use MCP gateway mode
 
-Proxy mode lets an MCP-capable agent connect to ARI first. ARI then forwards tool calls to Merge Agent Handler and records the action path.
+Gateway mode lets an MCP-capable agent connect to ARI first. ARI retrieves permitted context, asks the configured policy engine about each attempted action, and forwards allowed calls to any configured Streamable HTTP MCP server.
 
 ```text
-MCP agent -> ARI MCP proxy -> Merge Agent Handler -> external app
-                    |
-                    -> collector -> dashboard
+MCP agent -> ARI gateway -> upstream MCP server -> external app
+                 |  |
+                 |  -> policy engine
+                 -> collector -> dashboard
 ```
-
-This makes the agent's tool execution path inspectable without changing the external system the tool eventually reaches.
 
 ## Expected event shape
 
-A simple proxy run records:
+An allowed run records:
 
 ```text
 run.started
+context.selected
+context.excluded
+authorization.decided
 tool.listed
 tool.called
 tool.completed
 run.completed
 ```
 
-Future context-provenance work will bind those action events to context and authorization decision identifiers.
+A denied run records `authorization.decided`, `tool.blocked`, and `run.completed`. ARI does not call the upstream tool after a deny decision.

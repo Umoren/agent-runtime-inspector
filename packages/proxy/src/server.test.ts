@@ -3,17 +3,21 @@ import type { CallToolResult, ListToolsResult } from "@modelcontextprotocol/sdk/
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { createLocalContextProvider } from "./context-provider.js";
+import type { ActionProvider } from "./action-provider.js";
+import type { PolicyEngine } from "./policy.js";
 import type { createAriMcpProxyServer as createAriMcpProxyServerType } from "./server.js";
 
 const mocks = vi.hoisted(() => {
   const recordedEvents: TraceEvent[] = [];
   const listTools = vi.fn();
   const callTool = vi.fn();
+  const evaluatePolicy = vi.fn();
 
   return {
     recordedEvents,
     listTools,
-    callTool
+    callTool,
+    evaluatePolicy
   };
 });
 
@@ -24,18 +28,6 @@ vi.mock("@ari/ai-sdk", () => ({
         mocks.recordedEvents.push(event);
         return Promise.resolve();
       }
-    };
-  }
-}));
-
-vi.mock("@ari/merge", () => ({
-  createMcpSdkTransport() {
-    return {};
-  },
-  createMergeAgentHandlerClient() {
-    return {
-      listTools: mocks.listTools,
-      callTool: mocks.callTool
     };
   }
 }));
@@ -57,6 +49,13 @@ describe("ARI MCP proxy server", () => {
     mocks.recordedEvents.length = 0;
     mocks.listTools.mockReset();
     mocks.callTool.mockReset();
+    mocks.evaluatePolicy.mockReset();
+    mocks.evaluatePolicy.mockResolvedValue({
+      decision: "allow",
+      reason: "The configured policy allows this action.",
+      policyId: "policy.test.allow",
+      policyVersion: "1"
+    });
 
     mocks.listTools.mockImplementation((runId: string, provenance?: ProvenanceFixture) => {
       const tools = [
@@ -80,6 +79,8 @@ describe("ARI MCP proxy server", () => {
         timestamp: "2026-06-15T00:00:00.000Z",
         payload: {
           ...provenance,
+          upstreamId: "test-upstream",
+          upstreamType: "test-mcp",
           toolPackId: "tp_123",
           registeredUserId: "ru_123",
           toolCount: 1,
@@ -114,6 +115,7 @@ describe("ARI MCP proxy server", () => {
           payload: {
             ...input.provenance,
             toolName: input.toolName,
+            upstreamId: "test-upstream",
             toolPackId: "tp_123",
             registeredUserId: "ru_123",
             arguments: input.arguments,
@@ -130,6 +132,7 @@ describe("ARI MCP proxy server", () => {
           payload: {
             ...input.provenance,
             toolName: input.toolName,
+            upstreamId: "test-upstream",
             status: "success",
             latencyMs: 20,
             result: {
@@ -152,11 +155,11 @@ describe("ARI MCP proxy server", () => {
     );
   });
 
-  it("exposes the ARI context-scope tool alongside forwarded Merge tools", async () => {
+  it("exposes ARI-owned context retrieval alongside generic upstream tools", async () => {
     const server = await createTestServer();
     const result = await listTools(server);
 
-    expect(result.tools.map((tool) => tool.name)).toEqual(["ari_get_context", "ari_record_context_scope", "linear_create_issue"]);
+    expect(result.tools.map((tool) => tool.name)).toEqual(["ari_get_context", "linear_create_issue"]);
   }, 15_000);
 
   it("returns an explicit error when ARI context is requested without a configured context provider", async () => {
@@ -186,15 +189,13 @@ describe("ARI MCP proxy server", () => {
     expect(blocked?.payload.policy).toBe("context_scope_required");
   });
 
-  it("records context scope and binds later Merge tool events to the same provenance ids", async () => {
-    const server = await createTestServer();
+  it("keeps compatibility context separate from the later action authorization decision", async () => {
+    const server = await createTestServer({ allowAgentDeclaredContext: true });
 
     const scopeResult = await callTool(server, "ari_record_context_scope", {
       title: "Escalate support request",
       permissionSnapshotId: "perm_123",
       contextDecisionId: "ctx_123",
-      authorizationDecisionId: "auth_123",
-      authorizationRule: "support_ticket_allows_issue_creation",
       selected: [
         {
           sourceId: "ticket_123",
@@ -222,13 +223,14 @@ describe("ARI MCP proxy server", () => {
     });
 
     expect(toolResult.isError).toBe(false);
+    const authorizationDecisionMatcher: unknown = expect.stringMatching(/^auth_/);
     expect(mocks.listTools).toHaveBeenLastCalledWith(
       expect.any(String),
       expect.objectContaining({
         permissionSnapshotId: "perm_123",
         contextDecisionId: "ctx_123",
-        authorizationDecisionId: "auth_123",
-        authorizationRule: "support_ticket_allows_issue_creation"
+        authorizationDecisionId: authorizationDecisionMatcher,
+        authorizationRule: "policy.test.allow"
       })
     );
     const manualProvenanceMatcher: unknown = expect.objectContaining({
@@ -258,12 +260,13 @@ describe("ARI MCP proxy server", () => {
       "ctx_123"
     ]);
     expect(linkedEvents.map((event) => event.payload.authorizationRule)).toEqual([
-      "support_ticket_allows_issue_creation",
-      "support_ticket_allows_issue_creation",
-      "support_ticket_allows_issue_creation",
-      "support_ticket_allows_issue_creation",
-      "support_ticket_allows_issue_creation"
+      undefined,
+      undefined,
+      "policy.test.allow",
+      "policy.test.allow",
+      "policy.test.allow"
     ]);
+    expect(mocks.recordedEvents.map((event) => event.type)).toContain("authorization.decided");
   });
 
   it("gets context from ARI, withholds excluded content, and binds later tool events to the generated context decision", async () => {
@@ -338,7 +341,83 @@ describe("ARI MCP proxy server", () => {
     );
     expect(linkedEvents.every((event) => event.payload.contextDecisionId === contextPayload.contextDecisionId)).toBe(true);
   });
+
+  it("rejects requester and purpose assertions that do not match trusted gateway identity", async () => {
+    const server = await createTestServer({ contextProvider: permittedContextProvider() });
+
+    const requesterResult = await callTool(server, "ari_get_context", {
+      task: "Create an issue.",
+      requesterId: "another-user"
+    });
+    const purposeResult = await callTool(server, "ari_get_context", {
+      task: "Create an issue.",
+      purpose: "untrusted-purpose"
+    });
+
+    expect(requesterResult.isError).toBe(true);
+    expect(textFromToolResult(requesterResult)).toContain("trusted principal");
+    expect(purposeResult.isError).toBe(true);
+    expect(textFromToolResult(purposeResult)).toContain("configured purpose");
+    expect(mocks.recordedEvents).toHaveLength(0);
+  });
+
+  it("records a policy denial and never calls the upstream tool", async () => {
+    mocks.evaluatePolicy.mockResolvedValueOnce({
+      decision: "deny",
+      reason: "The recipient is outside the selected conversation.",
+      policyId: "email.recipient_must_match_thread",
+      policyVersion: "3"
+    });
+    const server = await createTestServer({ contextProvider: permittedContextProvider() });
+
+    const contextResult = await callTool(server, "ari_get_context", {
+      task: "Create an authorized response."
+    });
+    const toolResult = await callTool(server, "linear_create_issue", {
+      recipient: "outside@example.com"
+    });
+
+    expect(contextResult.isError).toBe(false);
+    expect(toolResult.isError).toBe(true);
+    expect(mocks.callTool).not.toHaveBeenCalled();
+    expect(mocks.recordedEvents.map((event) => event.type)).toEqual([
+      "run.started",
+      "context.selected",
+      "authorization.decided",
+      "tool.blocked",
+      "run.completed"
+    ]);
+
+    const decision = mocks.recordedEvents.find(
+      (event): event is Extract<TraceEvent, { type: "authorization.decided" }> => event.type === "authorization.decided"
+    );
+    expect(decision?.payload).toEqual(
+      expect.objectContaining({
+        principalId: "samuel",
+        purpose: "support_to_linear_issue",
+        decision: "deny",
+        policyId: "email.recipient_must_match_thread",
+        policyVersion: "3"
+      })
+    );
+  });
 });
+
+function permittedContextProvider() {
+  return createLocalContextProvider({
+    requesters: [{ requesterId: "samuel", scopes: ["support_team_member"] }],
+    sources: [
+      {
+        sourceId: "ticket_123",
+        sourceType: "support_ticket",
+        title: "Customer request",
+        content: "A customer requested help.",
+        requiredScopes: ["support_team_member"],
+        allowedPurposes: ["support_to_linear_issue"]
+      }
+    ]
+  });
+}
 
 type ProvenanceFixture = {
   permissionSnapshotId: string;
@@ -363,20 +442,42 @@ const contextResponseSchema = z.object({
   )
 });
 
-async function createTestServer(
+function createTestServer(
   options: Partial<Parameters<typeof createAriMcpProxyServer>[0]> = {}
 ): Promise<TestServer> {
-  const server = await createAriMcpProxyServer({
+  const server = createAriMcpProxyServer({
     collectorUrl: "http://collector.test",
-    merge: {
-      mcpUrl: "https://merge.test/mcp",
-      registeredUserId: "ru_123",
-      toolPackId: "tp_123"
+    actionProvider: testActionProvider(),
+    identity: {
+      principalId: "samuel",
+      purpose: "support_to_linear_issue"
     },
+    policyEngine: testPolicyEngine(),
     ...options
   });
 
-  return server as unknown as TestServer;
+  return Promise.resolve(server as unknown as TestServer);
+}
+
+function testActionProvider(): ActionProvider {
+  return {
+    metadata: {
+      upstreamId: "test-upstream",
+      upstreamType: "test-mcp",
+      eventSource: "mcp"
+    },
+    listTools: mocks.listTools,
+    callTool: mocks.callTool,
+    close() {
+      return Promise.resolve();
+    }
+  };
+}
+
+function testPolicyEngine(): PolicyEngine {
+  return {
+    evaluate: mocks.evaluatePolicy
+  };
 }
 
 function textFromToolResult(result: CallToolResult): string {

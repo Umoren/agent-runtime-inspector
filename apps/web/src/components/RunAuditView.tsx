@@ -19,6 +19,7 @@ import { RawEvidenceLoader } from "./RawEvidenceLoader";
 type ContextEvent = Extract<TraceEvent, { type: "context.selected" | "context.excluded" }>;
 type ToolCalledEvent = Extract<TraceEvent, { type: "tool.called" }>;
 type ToolCompletedEvent = Extract<TraceEvent, { type: "tool.completed" }>;
+type AuthorizationEvent = Extract<TraceEvent, { type: "authorization.decided" }>;
 
 export function RunAuditView({
   summary,
@@ -40,9 +41,10 @@ export function RunAuditView({
       )
     : undefined;
   const blocked = events.find((event): event is Extract<TraceEvent, { type: "tool.blocked" }> => event.type === "tool.blocked");
+  const authorization = events.find((event): event is AuthorizationEvent => event.type === "authorization.decided");
   const contextEvidence = selected[0] ?? excluded[0];
-  const provenance = contextEvidence?.payload ?? called?.payload;
-  const verdict = getVerdict(summary, blocked, completed);
+  const provenance = authorization?.payload ?? called?.payload ?? contextEvidence?.payload;
+  const verdict = getVerdict(summary, authorization, blocked, completed);
   const actionName = called ? readableToolName(called.payload.toolName) : blocked ? readableToolName(blocked.payload.toolName) : "No action recorded";
 
   return (
@@ -80,8 +82,8 @@ export function RunAuditView({
         <DecisionStep
           icon={verdict.tone === "blocked" ? <ShieldX size={18} /> : <ShieldCheck size={18} />}
           label="Authorization"
-          title={verdict.label}
-          detail={provenance?.authorizationRule ?? "No authorization rule was recorded."}
+          title={authorization ? humanizeKey(authorization.payload.decision) : verdict.label}
+          detail={authorization?.payload.reason ?? "No action authorization decision was recorded."}
         />
         <FlowArrow />
         <DecisionStep
@@ -118,7 +120,7 @@ export function RunAuditView({
                   <div className="execution-icon"><Wrench size={18} /></div>
                   <div>
                     <strong>{called.payload.toolName}</strong>
-                    <span>Called through Merge Agent Handler</span>
+                    <span>Called through {called.payload.upstreamId ?? "the configured upstream provider"}</span>
                   </div>
                   <div className={`execution-status execution-status-${completed?.payload.status ?? "running"}`}>
                     {completed?.payload.status ?? "running"}
@@ -149,7 +151,7 @@ export function RunAuditView({
               <div className="telemetry-body">
                 {listed ? (
                   <div className="inventory-note">
-                    <strong>{listed.payload.toolCount ?? listed.payload.tools.length} tools reported by the upstream Tool Pack</strong>
+                    <strong>{listed.payload.toolCount ?? listed.payload.tools.length} tools reported by {listed.payload.upstreamId ?? "the upstream provider"}</strong>
                     <p>This inventory was recorded at the ARI proxy boundary. A downstream MCP client may apply an additional allowlist that ARI cannot currently observe.</p>
                   </div>
                 ) : null}
@@ -165,12 +167,14 @@ export function RunAuditView({
             <strong>{verdict.label}</strong>
           </div>
           <DecisionFact label="Context sources" value={`${String(selected.length)} selected / ${String(excluded.length)} withheld`} />
+          {authorization ? <DecisionFact label="Principal" value={authorization.payload.principalId} /> : null}
+          {authorization ? <DecisionFact label="Purpose" value={authorization.payload.purpose} /> : null}
           <DecisionFact label="Action" value={actionName} />
           <DecisionFact label="Result" value={completed?.payload.status ?? (blocked ? "blocked" : summary.status)} />
           {completed ? <DecisionFact label="Latency" value={formatDuration(completed.payload.latencyMs)} /> : null}
           <div className="decision-rule">
             <span>Applied rule</span>
-            <p>{provenance?.authorizationRule ?? "No authorization rule recorded."}</p>
+            <p>{authorization?.payload.policyId ?? provenance?.authorizationRule ?? "No authorization policy recorded."}</p>
           </div>
           <details className="decision-ids">
             <summary>Decision identifiers <ChevronDown size={15} /></summary>
@@ -246,11 +250,14 @@ function DecisionId({ label, value }: { label: string; value: string | undefined
 
 function getVerdict(
   summary: RunSummary,
+  authorization: AuthorizationEvent | undefined,
   blocked: Extract<TraceEvent, { type: "tool.blocked" }> | undefined,
   completed: ToolCompletedEvent | undefined
 ): { label: string; tone: "allowed" | "blocked" | "pending" } {
+  if (authorization?.payload.decision === "deny") return { label: "Blocked", tone: "blocked" };
   if (blocked || summary.status === "error" || completed?.payload.status === "error") return { label: blocked ? "Blocked" : "Failed", tone: "blocked" };
-  if (summary.status === "success") return { label: "Allowed", tone: "allowed" };
+  if (authorization?.payload.decision === "allow" && summary.status === "success") return { label: "Allowed", tone: "allowed" };
+  if (summary.status === "success") return { label: "Completed", tone: "allowed" };
   return { label: "In progress", tone: "pending" };
 }
 

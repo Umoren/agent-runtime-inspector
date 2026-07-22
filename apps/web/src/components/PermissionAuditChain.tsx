@@ -37,8 +37,9 @@ export function PermissionAuditChain({ events }: { events: readonly TraceEvent[]
           <AuditBlock label="Tool scope" value={chain.listed ? `${String(chain.listed.payload.toolCount ?? chain.listed.payload.tools.length)} tools` : "not listed"}>
             {chain.listed ? (
               <div className="audit-facts">
-                <Fact label="Tool Pack" value={chain.listed.payload.toolPackId} />
-                <Fact label="Registered User" value={chain.listed.payload.registeredUserId} />
+                <Fact label="Upstream" value={chain.listed.payload.upstreamId ?? chain.listed.payload.toolPackId ?? "Not recorded"} />
+                <Fact label="Provider type" value={chain.listed.payload.upstreamType ?? "Not recorded"} />
+                {chain.listed.payload.registeredUserId ? <Fact label="Adapter identity" value={chain.listed.payload.registeredUserId} /> : null}
               </div>
             ) : (
               <p>No scoped tool inventory recorded.</p>

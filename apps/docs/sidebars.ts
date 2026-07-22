@@ -44,6 +44,7 @@ const sidebars: SidebarsConfig = {
         "how-it-works/action-path",
         "how-it-works/model-path",
         "how-it-works/system-path",
+        "how-it-works/action-authorization",
         "how-it-works/authorization-provenance"
       ]
     },

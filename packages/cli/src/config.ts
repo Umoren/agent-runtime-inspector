@@ -7,11 +7,23 @@ import { err, ok } from "@ari/core";
 export const ariConfigSchema = z.object({
   collectorUrl: z.string().url(),
   dashboardUrl: z.string().url(),
-  merge: z.object({
-    agentHandlerMcpUrl: z.string().url().optional(),
-    registeredUserId: z.string().optional(),
-    toolPackId: z.string().optional()
-  })
+  gateway: z
+    .object({
+      principalId: z.string().min(1).optional(),
+      purpose: z.string().min(1).optional(),
+      upstreamMcpUrl: z.string().url().optional(),
+      upstreamId: z.string().min(1).optional(),
+      upstreamType: z.string().min(1).optional(),
+      policyDecisionUrl: z.string().url().optional()
+    })
+    .default({}),
+  merge: z
+    .object({
+      agentHandlerMcpUrl: z.string().url().optional(),
+      registeredUserId: z.string().optional(),
+      toolPackId: z.string().optional()
+    })
+    .default({})
 });
 
 export type AriConfig = z.infer<typeof ariConfigSchema>;
@@ -19,6 +31,7 @@ export type AriConfig = z.infer<typeof ariConfigSchema>;
 export const defaultConfig: AriConfig = {
   collectorUrl: "http://localhost:4319",
   dashboardUrl: "http://localhost:3005",
+  gateway: {},
   merge: {}
 };
 

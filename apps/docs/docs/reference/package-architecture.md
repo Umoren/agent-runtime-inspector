@@ -9,8 +9,8 @@ ARI is organized as a pnpm workspace.
 | `packages/core` | Trace event schemas, run grouping, and summaries. |
 | `packages/collector` | Local collector API and trace store. |
 | `packages/cli` | Local command entrypoint. |
-| `packages/merge` | Merge Agent Handler client and transport helpers. |
-| `packages/proxy` | MCP proxy server that records forwarded tool calls. |
+| `packages/merge` | Optional Merge Agent Handler adapter and transport helpers. |
+| `packages/proxy` | Provider-neutral MCP gateway, context retrieval, policy evaluation, and action recording. |
 | `packages/ai-sdk` | Helpers for recording model events around AI SDK usage. |
 | `examples/vercel-ai-sdk-merge` | Scripted example that joins model and Merge action events. |
 

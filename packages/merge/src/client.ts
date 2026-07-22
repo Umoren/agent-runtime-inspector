@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import type { Result, TraceEvent } from "@ari/core";
+import type { Result, ToolCallProvenance, TraceEvent } from "@ari/core";
 import { err, ok } from "@ari/core";
 import type { MergeAgentHandlerConfig } from "./config.js";
 import type { AgentHandlerTransport, AgentHandlerTool } from "./transport.js";
@@ -37,13 +37,6 @@ export type MergeAgentHandlerClient = {
       MergeAdapterError
     >
   >;
-};
-
-export type ToolCallProvenance = {
-  permissionSnapshotId: string;
-  contextDecisionId: string;
-  authorizationDecisionId: string;
-  authorizationRule?: string;
 };
 
 export function createMergeAgentHandlerClient(

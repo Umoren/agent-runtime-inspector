@@ -1,78 +1,41 @@
-# Comms Plan
+# Communications plan
 
-## This Week's Article Goal
+## Current story
 
-Target the Agentic AI Foundation developer-experience conversation through the practical question:
+ARI now enforces the action boundary it records.
 
-> When an agent calls a tool, can you see what it was allowed to know, what was withheld, and why the call was permitted?
+The public question is:
 
-This is a provenance article, but not another provenance essay. The piece should come from ARI's real MCP proxy path: context scope recorded by the agent, selected context, excluded context, Tool Pack, Registered User, forwarded tool call, arguments, result, and audit record.
+> When an agent calls a tool, can you see what it was allowed to know, what stayed out, which policy approved the call, and whether a denied action reached the external service?
 
-The AAIF/DX bridge:
+The strongest material comes from the real gateway path: trusted identity, selected and excluded context, an exact tool call, the policy decision, and the upstream result.
 
-- Goose-style runtimes make agents useful for developers.
-- MCP gives agents a standard way to connect to tools and context.
-- ARI explores the provenance record around that work: what the agent was allowed to know, what it could not use, what it could do, what it did, and what evidence supports the final result.
+## Content sequence
 
-Do not frame this as a toy external action demo. The real surface is permission-linked MCP tool execution.
+1. Show the permission problem with one concrete agent action.
+2. Explain where ARI sits between an MCP client and upstream server.
+3. Demonstrate an allow and a deny against the same tool boundary.
+4. Open the dashboard and follow the shared decision IDs.
+5. State what the run proves and what remains outside ARI's observation boundary.
 
-## Public Build Sequence
+## Evidence to publish
 
-### Post 1
+- A short gateway diagram.
+- One recorded allowed action.
+- One denied action where the upstream call count remains zero.
+- The linked context, authorization, and tool events.
+- Setup commands that reproduce the local run.
 
-I wrote about the AI integration layer.
+Avoid describing ARI as a finished governance platform. The current build is an early local gateway with a tested generic authorization path. The Gmail integration becomes public evidence only after it creates a real draft end to end.
 
-Now I am building the inspector for it.
+## Builder outreach
 
-The first question:
+Ask for builders who already have one of these problems:
 
-When an AI agent runs, can you see what happened?
+- an MCP tool that changes an external system;
+- sensitive context near the agent workflow;
+- action rules that differ by user or purpose;
+- a need to review why an action was allowed;
+- trace data that cannot leave the developer's machine unchanged.
 
-### Post 2
-
-Three questions define the inspector:
-
-- What did the LLM know?
-- What could the agent do?
-- How did the request run?
-
-### Post 3
-
-Share the first dashboard wireframe:
-
-- run overview
-- context path
-- action path
-- model path
-- raw event log
-- audit export
-
-### Post 4
-
-Show Merge Agent Handler connected path:
-
-- Registered User
-- Tool Pack
-- MCP endpoint
-- tool list
-- tool call
-- result
-- local trace
-
-### Post 5
-
-Ask for 10 builders:
-
-I am looking for 10 people building AI agents with Merge Agent Handler, MCP, or Vercel AI SDK.
-
-I want to see where agent debugging breaks in your setup.
-
-## Launch
-
-Launch with:
-
-- GitHub repo
-- 90-second demo video
-- one Merge-connected example
-- MCP proxy walkthrough with selected context, excluded context, and one real forwarded tool call
-- setup in under five minutes
+The useful checkpoint is a small integration test, not a broad partnership conversation. Connect one workflow, define one policy boundary, inspect one run, and decide what the trace still cannot explain.

@@ -9,7 +9,8 @@ const sidebars: SidebarsConfig = {
       items: [
         "overview/what-is-ari",
         "overview/why-provenance-for-agents",
-        "overview/status-roadmap"
+        "overview/status-roadmap",
+        "getting-started/capture-workspace-run"
       ]
     },
     {
@@ -19,8 +20,7 @@ const sidebars: SidebarsConfig = {
       items: [
         "getting-started/install-ari",
         "getting-started/record-context-scope",
-        "getting-started/open-dashboard",
-        "getting-started/capture-workspace-run"
+        "getting-started/open-dashboard"
       ]
     },
     {
@@ -28,9 +28,9 @@ const sidebars: SidebarsConfig = {
       label: "Guides",
       collapsed: false,
       items: [
-        "guides/connect-merge-agent-handler",
         "guides/use-mcp-proxy-mode",
         "guides/connect-codex",
+        "guides/connect-merge-agent-handler",
         "guides/vercel-ai-sdk-example"
       ]
     },

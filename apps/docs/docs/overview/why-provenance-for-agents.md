@@ -4,11 +4,11 @@ Agent systems compress several backend responsibilities into one runtime flow.
 
 An agent can read context, choose a tool, send arguments to another system, receive a result, and generate a response. The user sees a conversation. The builder still needs the operational record behind that conversation.
 
-Provenance gives that record a shape.
+Provenance connects those events into one record.
 
 It also gives the trace a boundary. Agent traces can carry the same sensitive material the agent touched: retrieved context, tool arguments, customer records, repository details, internal docs, permission decisions, and excluded context. A useful provenance layer should make that record inspectable before it leaves the developer's machine.
 
-## The useful questions
+## Questions about context and permission
 
 For an agent run, ARI is designed to help answer:
 
@@ -16,6 +16,10 @@ For an agent run, ARI is designed to help answer:
 - What candidate context was excluded or withheld?
 - Which identity and permission boundary were used?
 - Which tools were available?
+
+## Questions about execution
+
+- Which policy allowed or denied the action?
 - Which tool did the agent call?
 - What arguments and result were recorded?
 - Which model path ran?

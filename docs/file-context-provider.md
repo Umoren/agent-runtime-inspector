@@ -1,4 +1,4 @@
-# File-Backed Context Provider
+# File-backed context provider
 
 The file-backed context provider lets ARI use repository or workspace files as agent context without hardcoding those files inside the MCP proxy.
 
@@ -30,7 +30,7 @@ The provider does not decide whether an agent may call the final tool. It decide
 `ExcludedContext`
 : Context withheld from the agent. Excluded context records source id, type, title, reason, and permission rule, but never file content.
 
-## Config Shape
+## Config shape
 
 Set `ARI_CONTEXT_PROVIDER_CONFIG_PATH` to a JSON file:
 
@@ -61,7 +61,7 @@ Set `ARI_CONTEXT_PROVIDER_CONFIG_PATH` to a JSON file:
 
 Relative `root` values resolve from the config file location. Include and exclude patterns must stay inside the configured root. Patterns that contain `..` path segments or start from `/` are rejected.
 
-## Discovery Algorithm
+## Discovery algorithm
 
 The provider discovers files from the configured root on every context request.
 
@@ -121,7 +121,7 @@ build/**
 **/*.sqlite
 ```
 
-## Safety Algorithm
+## Safety algorithm
 
 Included files must pass the provider safety checks before their content can be returned.
 
@@ -148,7 +148,7 @@ realpath must stay under context root
 
 Oversized files and binary-looking files are also converted into excluded context. Their content is not read into selected context.
 
-## Selection Formula
+## Selection formula
 
 The file provider produces candidate `ContextSource` records. The shared permission evaluator then applies the same policy model used by the registry-backed provider.
 
@@ -178,20 +178,19 @@ excluded(s, r, p) =
 
 Provider exclusions run first. That means `.env`, escaped symlinks, oversized files, and binary files cannot become selected context even if the requester has broad scopes.
 
-## Provenance Binding
+## Provenance binding
 
 When an agent calls `ari_get_context`, ARI creates:
 
 ```text
 permissionSnapshotId
 contextDecisionId
-authorizationDecisionId
-authorizationRule
 ```
 
-ARI records `context.selected` and `context.excluded` events with those ids. Later forwarded tool calls carry the same ids through:
+ARI records `context.selected` and `context.excluded` with those IDs. When the agent attempts an action, ARI creates `authorizationDecisionId` and records the policy identifier as `authorizationRule`. The later action events carry all three decision IDs:
 
 ```text
+authorization.decided
 tool.listed
 tool.called
 tool.completed
@@ -203,17 +202,22 @@ That gives the auditor a direct path:
 file policy decision -> selected/excluded context -> downstream tool call
 ```
 
-## Implementation Highlights
+## Safety properties
 
-- File content is never hardcoded in the proxy.
-- Requesters, source groups, purposes, scopes, classifications, and limits live in config.
-- The MCP server does not know whether context came from a JSON registry or files.
 - Excluded file content is not returned to the agent.
 - Default secret/runtime exclusions apply before requester-scope evaluation.
 - File safety checks happen before permission selection.
+- Symlinks cannot escape the configured root.
+- Oversized and binary-looking files become excluded evidence.
+
+## Implementation details
+
+- File content is configured outside the proxy.
+- Requesters, source groups, purposes, scopes, classifications, and limits live in config.
+- The MCP server uses the same interface for a JSON registry and file-backed context.
 - The provider uses Node filesystem APIs and local pattern matching, so the proxy does not need a new glob dependency.
 
-## Running It
+## Running it
 
 Set the provider config path:
 
@@ -227,14 +231,12 @@ Start the proxy:
 pnpm proxy
 ```
 
-Then call `ari_get_context` from an MCP-capable agent:
+Set `ARI_PRINCIPAL_ID` and `ARI_PURPOSE` in the gateway environment. Then call `ari_get_context` from an MCP-capable agent:
 
 ```json
 {
-  "task": "Create an audit summary from ARI repository context.",
-  "requesterId": "samuel",
-  "purpose": "ari_context_audit"
+  "task": "Create an audit summary from ARI repository context."
 }
 ```
 
-The response returns selected file content and excluded summaries. The trace records both.
+The response returns selected file content and excluded summaries. The agent cannot replace the configured principal or purpose.

@@ -15,6 +15,7 @@ ARI uses environment variables for its collector, trusted gateway identity, upst
 | `ARI_PRINCIPAL_ID` | Trusted principal bound to this gateway process. |
 | `ARI_PURPOSE` | Trusted purpose bound to context retrieval and action policy input. |
 | `ARI_CONTEXT_PROVIDER_CONFIG_PATH` | File or registry context-provider configuration. |
+| `ARI_CONTEXT_REGISTRY_PATH` | Older JSON context registry. Do not set it with `ARI_CONTEXT_PROVIDER_CONFIG_PATH`. |
 | `ARI_ALLOW_AGENT_DECLARED_CONTEXT` | Compatibility switch for `ari_record_context_scope`; defaults to `false`. |
 
 ## Upstream MCP server
@@ -26,7 +27,7 @@ ARI uses environment variables for its collector, trusted gateway identity, upst
 | `ARI_UPSTREAM_TYPE` | Operator-defined provider type used in policy input and traces. |
 | `ARI_UPSTREAM_HEADERS_JSON` | Optional JSON object of request headers. Keep credentials out of committed files. |
 
-For an OAuth-protected upstream MCP server, configure all four required values together:
+For an OAuth-protected upstream MCP server, configure the client ID, client secret, redirect URL, and token path together. The scope is optional.
 
 | Variable | Purpose |
 | --- | --- |

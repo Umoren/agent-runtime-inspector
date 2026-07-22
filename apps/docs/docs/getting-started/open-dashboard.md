@@ -1,6 +1,16 @@
 # Open the dashboard
 
-The dashboard is the main inspection surface for ARI runs.
+1. Start the collector and dashboard:
+
+   ```bash
+   pnpm dev
+   ```
+
+2. Open `http://localhost:3005`.
+
+3. Select a run to inspect its recorded evidence.
+
+The run view shows:
 
 It shows:
 
@@ -9,12 +19,7 @@ It shows:
 - action path events
 - model path events
 - system lifecycle events
-- raw event payloads for debugging
 
-The local dashboard currently runs from `apps/web`. The default development port used by the repo is `3005`.
+The raw event panel shows the underlying payloads for debugging.
 
-```text
-http://localhost:3005
-```
-
-Use the dashboard to inspect whether a trace answers the provenance questions you care about, not only whether the run succeeded.
+A successful status only says that the run completed. Read the context and action paths to see which evidence supported it.

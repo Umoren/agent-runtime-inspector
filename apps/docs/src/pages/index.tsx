@@ -4,17 +4,17 @@ import Layout from "@theme/Layout";
 const entryPoints = [
   {
     title: "Start locally",
-    description: "Install the workspace, run the local collector and dashboard, then inspect a first run.",
+    description: "Install ARI, start the collector and dashboard, then open the local inspection surface.",
     to: "/docs/getting-started/install-ari"
   },
   {
     title: "Connect an MCP agent",
-    description: "Put ARI between an MCP-capable agent and Merge Agent Handler to record the action path.",
+    description: "Put ARI between an MCP-capable agent and an upstream server to enforce and record actions.",
     to: "/docs/guides/use-mcp-proxy-mode"
   },
   {
     title: "Understand the trace model",
-    description: "Read the event paths that organize context, action, model, and system evidence.",
+    description: "See how context, authorization, action, model, and system events connect.",
     to: "/docs/how-it-works/trace-event-model"
   },
   {
@@ -27,17 +27,17 @@ const entryPoints = [
 export default function Home(): JSX.Element {
   return (
     <Layout
-      title="Provenance for local agent runtimes"
-      description="Agent Runtime Inspector records the context, tools, model calls, and system events around an agent run."
+      title="Local permission and audit for AI agents"
+      description="Agent Runtime Inspector enforces context and action boundaries, then records the evidence locally."
     >
       <main>
         <section className="heroSurface">
           <div className="heroInner">
-            <div className="heroKicker">Open source agent provenance</div>
+            <div className="heroKicker">Open source agent permission and audit</div>
             <h1 className="heroTitle">Agent Runtime Inspector</h1>
             <p className="heroCopy">
-              ARI is a local provenance layer for agent runs. It records what context entered the run,
-              which actions were available, what tools executed, and what evidence the dashboard can inspect.
+              ARI retrieves permitted context, checks proposed tool calls through policy, blocks denied
+              actions, and records the decision path on your machine.
             </p>
             <div className="heroActions">
               <Link className="buttonLink primary" to="/docs/getting-started/install-ari">

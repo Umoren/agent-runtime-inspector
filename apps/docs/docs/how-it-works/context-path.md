@@ -14,17 +14,10 @@ Context events can represent documents, records, local files, source snippets, s
 
 `context.selected` records source evidence that entered the run.
 
-Useful payload details include:
-
-- source identifier
-- source type
-- title
-- selection reason
-- permission rule
-- decision identifiers
+The payload includes the source identifier, source type, title, selection reason, permission rule, and decision identifiers.
 
 ## Excluded context
 
 `context.excluded` records source evidence that did not enter the run.
 
-This is first-class provenance. It shows that a candidate source was known and stayed outside the model or action boundary for a stated reason.
+This event shows that the runtime found a candidate source and kept it outside the model or action boundary for a stated reason. It does not include the source content.

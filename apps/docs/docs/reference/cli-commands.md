@@ -1,8 +1,6 @@
 # CLI commands
 
-Command names are being cleaned up, so treat this as a lightweight reference until the CLI surface is finalized.
-
-The intended command groups are:
+Run local commands through `pnpm ari`:
 
 | Command | Purpose |
 | --- | --- |
@@ -10,6 +8,13 @@ The intended command groups are:
 | `ari init` | Create a local ARI config file. |
 | `ari proxy` | Start the local ARI MCP authorization gateway. |
 | `ari replay <runId>` | Print a dashboard URL for a stored run. |
+
+For example:
+
+```bash
+pnpm ari init
+pnpm ari dev
+```
 
 Root workspace scripts provide shortcuts for local development and docs:
 

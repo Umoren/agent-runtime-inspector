@@ -23,17 +23,16 @@ The record turns scattered logs into an inspectable path:
 request -> trusted identity -> context decision -> policy decision -> tool call or block -> result -> audit record
 ```
 
-## Policy outcomes
+## Current policy outcomes
 
-The event model should make policy outcomes explicit:
+ARI currently records:
 
 ```text
 allowed
 excluded
-redacted
 blocked
-requires approval
-escalated
 ```
 
-Allowed and denied actions produce `authorization.decided`. Denied actions also produce `tool.blocked` before any upstream mutation.
+Selected context is recorded separately from these outcomes. Allowed and denied actions produce `authorization.decided`. A denied action also produces `tool.blocked` before any upstream mutation.
+
+Redaction, approval, and escalation decisions remain roadmap work.

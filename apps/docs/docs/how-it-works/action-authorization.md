@@ -24,7 +24,7 @@ For each attempted action, ARI sends the policy engine one provider-neutral JSON
 }
 ```
 
-ARI does not interpret service-specific tool names or argument fields. OPA policies decide how those values should be constrained for a workflow.
+ARI does not interpret service-specific tool names or argument fields. Open Policy Agent (OPA) policies constrain those values for each workflow.
 
 ## Decision contract
 
@@ -41,8 +41,8 @@ The configured OPA data endpoint must return an object under `result`:
 }
 ```
 
-ARI records this as `authorization.decided`. An allow decision is bound to subsequent `tool.listed`, `tool.called`, and `tool.completed` events through `authorizationDecisionId`.
+ARI records this as `authorization.decided`. The `authorizationDecisionId` also appears on the later `tool.listed`, `tool.called`, and `tool.completed` events.
 
 ## Fail-closed behavior
 
-ARI denies the action when the policy endpoint is missing, unreachable, returns an HTTP error, or returns no valid decision. A denial records `authorization.decided` and `tool.blocked`; the upstream `callTool` method is never invoked.
+ARI denies the action when the policy endpoint is missing, unreachable, returns an HTTP error, or returns no valid decision. A denial records `authorization.decided` and `tool.blocked`. The gateway returns before invoking the upstream `callTool` method.

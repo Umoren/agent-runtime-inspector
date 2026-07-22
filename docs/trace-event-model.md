@@ -1,4 +1,4 @@
-# Trace Event Model
+# Trace event model
 
 The trace event stream is the product contract.
 
@@ -20,13 +20,15 @@ run.completed
 
 Every event includes:
 
-- `id`
-- `runId`
-- `timestamp`
-- `path`
-- `source`
-- `type`
-- typed `payload`
+```text
+id
+runId
+timestamp
+path
+source
+type
+typed payload
+```
 
 The schema uses `runId` as the run boundary and durable decision ids so context, authorization, and action events can be bound explicitly:
 
@@ -37,13 +39,13 @@ authorizationDecisionId
 authorizationRule
 ```
 
-The goal is not only to show that a tool ran. The event stream should prove which context and permission boundary justified the action.
+The event stream shows that a tool ran and records the context and permission boundary that justified the action.
 
 ## Paths
 
 ### Context path
 
-What the LLM knew.
+What context ARI returned or withheld.
 
 This path records selected context, excluded context, source metadata, and permission rules.
 
@@ -77,8 +79,8 @@ The action path binds tool calls back to context and authorization decisions:
 context.selected -> contextDecisionId: ctx_123
 context.excluded -> contextDecisionId: ctx_123
 authorization.decided -> contextDecisionId: ctx_123, authorizationDecisionId: auth_123
-tool.called -> contextDecisionId: ctx_123
-tool.completed -> contextDecisionId: ctx_123
+tool.called -> contextDecisionId: ctx_123, authorizationDecisionId: auth_123
+tool.completed -> contextDecisionId: ctx_123, authorizationDecisionId: auth_123
 ```
 
 Generic action events carry an upstream identifier. The optional Merge adapter also preserves Tool Pack and Registered User metadata for compatibility.
@@ -95,7 +97,7 @@ The run lifecycle.
 
 This path records when a run starts and completes.
 
-## Authorization Provenance
+## Authorization provenance
 
 Authorization provenance is the binding layer across context and action.
 
@@ -118,17 +120,16 @@ This turns scattered logs into an inspectable provenance record:
 request -> identity -> permission snapshot -> selected context -> excluded context -> tool scope -> arguments -> result -> audit record
 ```
 
-## Policy Outcomes
+## Policy outcomes
 
-The event model should make policy outcomes explicit:
+The current event model records:
 
 ```text
 allowed
 excluded
-redacted
 blocked
-requires approval
-escalated
 ```
 
 Allowed and denied action outcomes appear in `authorization.decided`. A denial is followed by `tool.blocked`, and no upstream tool request is made.
+
+Redaction, approval, and escalation outcomes remain roadmap work.

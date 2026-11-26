@@ -13,14 +13,17 @@ ARI records only MCP tool calls that pass through its gateway. Codex model promp
 Set the upstream values in the ignored root `.env` file:
 
 ```dotenv
-ARI_UPSTREAM_MCP_URL=
-ARI_UPSTREAM_ID=github
+ARI_UPSTREAM_MCP_URL=http://localhost:8082
+ARI_UPSTREAM_ID=github-demo
 ARI_UPSTREAM_TYPE=github
-ARI_UPSTREAM_HEADERS_JSON='{}'
-ARI_POLICY_DECISION_URL=
+ARI_UPSTREAM_HEADERS_JSON='{"Authorization":"Bearer YOUR_GITHUB_TOKEN"}'
+ARI_CONTEXT_REGISTRY_PATH=examples/codex-github-mcp/context-registry.json
+ARI_PRINCIPAL_ID=demo-agent
+ARI_PURPOSE=create_test_issue
+ARI_POLICY_DECISION_URL=http://localhost:8181/v1/data/ari/demo/decision
 ```
 
-Set `ARI_UPSTREAM_MCP_URL` to the Streamable HTTP endpoint for your GitHub MCP server. Set `ARI_UPSTREAM_ID` and `ARI_UPSTREAM_TYPE` to stable values that your policy uses. Add required authentication headers to `ARI_UPSTREAM_HEADERS_JSON` as a JSON object. Keep credentials in `.env`; do not commit them.
+The GitHub MCP server listens on `http://localhost:8082` in the example. The token in `ARI_UPSTREAM_HEADERS_JSON` must have permission to create issues in the test repository. Keep it in the ignored `.env` file. Do not commit it.
 
 `ARI_UPSTREAM_MCP_URL`, `ARI_UPSTREAM_ID`, and `ARI_UPSTREAM_TYPE` are required for the upstream. `ARI_UPSTREAM_HEADERS_JSON` is optional when the endpoint needs no custom headers. See the [environment variable reference](../reference/environment-variables.md) for OAuth settings and policy headers.
 
@@ -28,35 +31,15 @@ Set `ARI_UPSTREAM_MCP_URL` to the Streamable HTTP endpoint for your GitHub MCP s
 
 ARI denies calls by default until the policy endpoint returns an explicit allow. Configure an Open Policy Agent (OPA) data endpoint in `ARI_POLICY_DECISION_URL`. Use a policy that matches the upstream, tool, operation, owner, and repository. Store the allowed owner and repository in policy data so you can set them without changing the policy code.
 
-For example, this Rego rule allows only issue creation with the GitHub MCP `issue_write` tool in the configured repository:
+The example policy lives in `examples/codex-github-mcp/policy.rego`. It allows `issue_write` with `method=create` only when the owner and repository match `policy-data.json` and ARI selected the demo checkout ticket. Start OPA with both files:
 
-```rego
-package ari.gateway
-
-import rego.v1
-
-default result := {
-  "allow": false,
-  "reason": "No policy allows this action.",
-  "policyId": "ari.default_deny"
-}
-
-result := {
-  "allow": true,
-  "reason": "Issue creation is allowed in the configured repository.",
-  "policyId": "ari.github.issue_create",
-  "policyVersion": "1"
-} if {
-  input.upstream.id == "github"
-  input.upstream.type == "github"
-  input.action.name == "issue_write"
-  input.action.arguments.method == "create"
-  input.action.arguments.owner == data.ari.github_repository.owner
-  input.action.arguments.repo == data.ari.github_repository.name
-}
+```bash
+opa run --server --addr localhost:8181 \
+  examples/codex-github-mcp/policy.rego \
+  examples/codex-github-mcp/policy-data.json
 ```
 
-Set `data.ari.github_repository.owner` and `data.ari.github_repository.name` in your policy data. Do not use wildcard repository checks. The default rule denies other tools, operations, owners, and repositories. GitHub still checks the token's permissions.
+Set the test repository owner and name in `policy-data.json`. Do not use a production repository. The default rule denies every other tool, operation, owner, and repository. GitHub also checks the token's permissions.
 
 ## Start ARI and connect Codex
 
@@ -85,6 +68,6 @@ tool_timeout_sec = 90
 
 Replace `cwd` with the absolute path to your checkout. Start a new Codex session in the repository and run `/mcp`. Codex should list `ari_get_context` and the GitHub MCP tools returned by ARI.
 
-Call `ari_get_context` before the action. ARI checks each upstream tool call against policy. A denial records `authorization.decided` and `tool.blocked`, then returns before the GitHub MCP server receives the call. An allow records the tool call and its result.
+Call `ari_get_context` before the action. Ask Codex to create one issue in the configured test repository. Then ask it to target a different repository. ARI allows the first call and denies the second before the GitHub MCP server receives it. The local trace records each decision and tool result.
 
 Open `http://localhost:3005` and inspect the run. The trace covers the tools routed through ARI. It does not cover Codex prompts, direct GitHub use outside the gateway, or Codex native shell and editor operations.

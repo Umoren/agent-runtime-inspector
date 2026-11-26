@@ -16,8 +16,6 @@ import { clearLocalTracesAction } from "./actions";
 
 export default async function HomePage() {
   const [runs, status] = await Promise.all([getRuns(), getSystemStatus()]);
-  const directToolVars = status.merge.optional.filter((item) => item.name.startsWith("MERGE_TOOL"));
-  const githubWorkflowVars = status.merge.optional.filter((item) => item.name.startsWith("ARI_"));
 
   return (
     <main className="console-shell">
@@ -38,7 +36,8 @@ export default async function HomePage() {
         <div className="console-statuses">
           <SystemPill icon={<Activity size={15} />} label="Collector" value={status.collector} tone={collectorTone(status.collector)} />
           <SystemPill icon={<Database size={15} />} label="Storage" value="local" tone="good" />
-          <SystemPill icon={<CheckCircle2 size={15} />} label="Merge" value={status.merge.state === "configured" ? "ready" : "setup needed"} tone={status.merge.state === "configured" ? "good" : "warn"} />
+          <SystemPill icon={<CheckCircle2 size={15} />} label="MCP upstream" value={status.upstream.state === "configured" ? "ready" : "setup needed"} tone={status.upstream.state === "configured" ? "good" : "warn"} />
+          <SystemPill icon={<CheckCircle2 size={15} />} label="Policy" value={status.policy.state} tone={status.policy.state === "configured" ? "good" : "warn"} />
         </div>
       </header>
 
@@ -66,10 +65,8 @@ export default async function HomePage() {
           </summary>
           <div className="operator-body">
             <div className="operator-grid">
-              <ConfigGroup title="Merge credentials" items={status.merge.required} />
-              <ConfigGroup title="Direct action" items={directToolVars} />
-              <ConfigGroup title="GitHub workflow" items={githubWorkflowVars} />
-              <ConfigGroup title="Model provider" items={[...status.model.required, ...status.model.optional]} />
+              <ConfigGroup title="MCP upstream" items={[...status.upstream.required, ...status.upstream.optional]} />
+              <ConfigGroup title="Policy engine" items={[...status.policy.required, ...status.policy.optional]} />
             </div>
             <div className="diagnostic-row">
               <StatusFact label="Storage read" value={status.collectorHealth?.storage.state ?? "unknown"} />

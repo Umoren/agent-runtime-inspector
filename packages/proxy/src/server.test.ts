@@ -75,7 +75,7 @@ describe("ARI MCP proxy server", () => {
         runId,
         type: "tool.listed",
         path: "action",
-        source: "merge",
+        source: "mcp",
         timestamp: "2026-06-15T00:00:00.000Z",
         payload: {
           ...provenance,
@@ -110,7 +110,7 @@ describe("ARI MCP proxy server", () => {
           runId: input.runId,
           type: "tool.called",
           path: "action",
-          source: "merge",
+          source: "mcp",
           timestamp: "2026-06-15T00:00:01.000Z",
           payload: {
             ...input.provenance,
@@ -127,7 +127,7 @@ describe("ARI MCP proxy server", () => {
           runId: input.runId,
           type: "tool.completed",
           path: "action",
-          source: "merge",
+          source: "mcp",
           timestamp: "2026-06-15T00:00:02.000Z",
           payload: {
             ...input.provenance,

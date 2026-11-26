@@ -297,7 +297,7 @@ function shortId(value: string): string {
 
 function modeLabel(mode: RunMode): string {
   if (mode === "mcp-proxy") return "MCP audit run";
-  if (mode === "merge-action") return "Action audit run";
+  if (mode === "mcp-action") return "Action audit run";
   if (mode === "model") return "Model audit run";
   return "Runtime audit";
 }

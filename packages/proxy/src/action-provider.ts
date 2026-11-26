@@ -24,10 +24,6 @@ export type ActionProviderMetadata = {
   upstreamId: string;
   upstreamType: string;
   eventSource: TraceSource;
-  legacy?: {
-    toolPackId?: string;
-    registeredUserId?: string;
-  };
 };
 
 export type ActionProviderError = {
@@ -302,7 +298,6 @@ function toolListedEvent(
       ...provenancePayload(provenance),
       upstreamId: metadata.upstreamId,
       upstreamType: metadata.upstreamType,
-      ...metadata.legacy,
       toolCount: tools.length,
       inventoryHash: toolInventoryHash(tools),
       tools: tools.map(({ name }) => ({ name })).sort((left, right) => left.name.localeCompare(right.name))
@@ -331,7 +326,6 @@ function toolCalledEvent(
       ...provenancePayload(input.provenance),
       toolName: input.toolName,
       upstreamId: metadata.upstreamId,
-      ...metadata.legacy,
       arguments: input.arguments,
       correlationId
     }

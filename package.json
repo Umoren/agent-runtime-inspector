@@ -21,7 +21,6 @@
     "docs:dev": "pnpm --filter @ari/docs start",
     "docs:build": "pnpm --filter @ari/docs build",
     "docs:serve": "pnpm --filter @ari/docs serve",
-    "example:merge": "pnpm --filter @ari/example-vercel-ai-sdk-merge dev",
     "build": "pnpm -r build",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",

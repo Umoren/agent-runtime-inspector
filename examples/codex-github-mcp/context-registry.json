@@ -1,0 +1,29 @@
+{
+  "kind": "local-registry",
+  "requesters": [
+    {
+      "requesterId": "demo-agent",
+      "scopes": ["support_ticket_reader"]
+    }
+  ],
+  "sources": [
+    {
+      "sourceId": "ticket:checkout-demo",
+      "sourceType": "support_ticket",
+      "title": "Demo checkout failure after SSO",
+      "content": "A demo user cannot complete checkout after signing in with SSO. Reproduce the failure and record the steps in the test repository.",
+      "requiredScopes": ["support_ticket_reader"],
+      "allowedPurposes": ["create_test_issue"],
+      "classification": "internal"
+    },
+    {
+      "sourceId": "note:finance-private-demo",
+      "sourceType": "private_note",
+      "title": "Private demo finance note",
+      "content": "This private note must not be returned to the agent.",
+      "requiredScopes": ["finance_note_reader"],
+      "allowedPurposes": ["finance_review"],
+      "classification": "confidential"
+    }
+  ]
+}

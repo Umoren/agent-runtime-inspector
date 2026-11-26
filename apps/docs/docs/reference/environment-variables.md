@@ -1,6 +1,6 @@
 # Environment variables
 
-ARI uses environment variables for its collector, trusted gateway identity, upstream MCP server, policy engine, and optional adapters.
+ARI uses environment variables for its collector, trusted gateway identity, upstream MCP server, and policy engine.
 
 ## Collector
 
@@ -27,6 +27,8 @@ ARI uses environment variables for its collector, trusted gateway identity, upst
 | `ARI_UPSTREAM_TYPE` | Operator-defined provider type used in policy input and traces. |
 | `ARI_UPSTREAM_HEADERS_JSON` | Optional JSON object of request headers. Keep credentials out of committed files. |
 
+Set `ARI_UPSTREAM_MCP_URL`, `ARI_UPSTREAM_ID`, and `ARI_UPSTREAM_TYPE` for the upstream. Set `ARI_UPSTREAM_HEADERS_JSON` only when the server requires request headers.
+
 For an OAuth-protected upstream MCP server, configure the client ID, client secret, redirect URL, and token path together. The scope is optional.
 
 | Variable | Purpose |
@@ -44,16 +46,7 @@ For an OAuth-protected upstream MCP server, configure the client ID, client secr
 | `ARI_POLICY_DECISION_URL` | OPA data API decision endpoint. Missing configuration produces a default deny. |
 | `ARI_POLICY_HEADERS_JSON` | Optional JSON object of policy-service request headers. |
 
-## Optional Merge adapter
-
-| Variable | Purpose |
-| --- | --- |
-| `MERGE_AGENT_HANDLER_MCP_URL` | MCP endpoint for Merge Agent Handler. |
-| `MERGE_REGISTERED_USER_ID` | Registered User used for tool execution. |
-| `MERGE_TOOL_PACK_ID` | Tool Pack that defines available tools. |
-| `MERGE_API_KEY` | Bearer token for Agent Handler MCP requests. |
-| `MERGE_TOOL_NAME` | Optional direct tool call name for examples. |
-| `MERGE_TOOL_ARGUMENTS_JSON` | Optional JSON arguments for direct tool calls. |
+ARI denies upstream tool calls by default. It forwards a call only when this endpoint returns an explicit allow decision.
 
 ## Model provider
 

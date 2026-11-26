@@ -1,10 +1,8 @@
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { mergeAgentHandlerConfigSchema } from "@ari/merge";
 import { z } from "zod";
 import { readProxyEnv } from "./env.js";
 import { createAriMcpProxyServer } from "./server.js";
 import { createHttpMcpActionProvider, type ActionProvider } from "./action-provider.js";
-import { createMergeActionProvider } from "./merge-adapter.js";
 import { createDenyAllPolicyEngine, createOpaHttpPolicyEngine, type PolicyEngine } from "./policy.js";
 import {
   createContextProviderFromConfigFile,
@@ -53,25 +51,7 @@ async function actionProviderFromEnv(env: ProxyEnv): Promise<ActionProvider> {
     });
   }
 
-  const mergeValues = [env.MERGE_AGENT_HANDLER_MCP_URL, env.MERGE_REGISTERED_USER_ID, env.MERGE_TOOL_PACK_ID];
-  const hasSomeMergeConfig = mergeValues.some(Boolean);
-  const hasAllMergeConfig = mergeValues.every(Boolean);
-
-  if (hasSomeMergeConfig && !hasAllMergeConfig) {
-    throw new Error("Merge configuration is incomplete. Set its MCP URL, Registered User ID, and Tool Pack ID together.");
-  }
-
-  if (hasAllMergeConfig) {
-    const merge = mergeAgentHandlerConfigSchema.parse({
-      mcpUrl: env.MERGE_AGENT_HANDLER_MCP_URL,
-      registeredUserId: env.MERGE_REGISTERED_USER_ID,
-      toolPackId: env.MERGE_TOOL_PACK_ID,
-      apiKey: env.MERGE_API_KEY
-    });
-    return await createMergeActionProvider(merge);
-  }
-
-  throw new Error("Configure ARI_UPSTREAM_MCP_URL or a complete optional Merge adapter.");
+  throw new Error("Configure ARI_UPSTREAM_MCP_URL, ARI_UPSTREAM_ID, and ARI_UPSTREAM_TYPE.");
 }
 
 function oauthConfigFromEnv(env: ProxyEnv): { oauth?: {

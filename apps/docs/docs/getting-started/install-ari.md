@@ -26,9 +26,7 @@ apps/docs       Docusaurus docs site
 packages/core   Trace event model and run helpers
 packages/cli    Local CLI entrypoint
 packages/collector
-packages/merge
 packages/proxy
-examples/vercel-ai-sdk-merge
 ```
 
 Build the documentation site with `pnpm docs:build`.

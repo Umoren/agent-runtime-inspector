@@ -23,7 +23,7 @@
       "sourceType": "ari_documentation",
       "include": [
         "docs/file-context-provider.md",
-        "docs/merge-agent-handler-setup.md"
+        "apps/docs/docs/guides/connect-codex.md"
       ],
       "requiredScopes": ["ari_repo_reader"],
       "allowedPurposes": ["ari_context_audit"],

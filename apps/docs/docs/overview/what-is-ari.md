@@ -32,10 +32,10 @@ ARI organizes a run into four paths:
 | Model | How did the request run? | provider, model, latency, token use, status |
 | System | What happened to the run? | start, completion, status, summary |
 
-ARI supports a generic Streamable HTTP MCP upstream. Merge Agent Handler is an optional adapter rather than a core product dependency.
+ARI supports a provider-neutral Streamable HTTP MCP upstream. The trace includes only tool calls routed through ARI. Codex model prompts and native shell or editor calls are outside this boundary.
 
 ## What ARI does not claim
 
-ARI does not expose or prove a model's private reasoning. It records external runtime evidence: selected context, excluded context, tool availability, tool calls, model calls, command results, and run status.
+ARI does not expose or prove a model's private reasoning. It records context decisions and MCP tool calls that pass through its gateway. Instrumented integrations can emit model events. Codex prompts and native shell or editor calls remain outside this trace.
 
 The trace shows the observable runtime path without claiming more than the recorded evidence can prove.

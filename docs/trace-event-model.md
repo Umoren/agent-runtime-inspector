@@ -83,7 +83,7 @@ tool.called -> contextDecisionId: ctx_123, authorizationDecisionId: auth_123
 tool.completed -> contextDecisionId: ctx_123, authorizationDecisionId: auth_123
 ```
 
-Generic action events carry an upstream identifier. The optional Merge adapter also preserves Tool Pack and Registered User metadata for compatibility.
+Action events carry the configured upstream identifier. ARI records actions routed through its gateway. It does not record Codex model prompts or native shell and editor calls.
 
 ### Model path
 

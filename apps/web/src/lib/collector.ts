@@ -2,14 +2,14 @@ import { buildRunSummary, groupEventsByPath, traceEventListSchema } from "@ari/c
 import type { RunSummary, TraceEvent } from "@ari/core";
 import { envValue } from "./env";
 
-export type RunMode = "mcp-proxy" | "merge-action" | "model" | "collector";
+export type RunMode = "mcp-proxy" | "mcp-action" | "model" | "collector";
 
 export type SystemStatus = {
   collector: "running" | "degraded" | "unreachable";
   collectorUrl: string;
   storage: "local SQLite";
-  merge: MergeConfigStatus;
-  model: ModelConfigStatus;
+  upstream: UpstreamConfigStatus;
+  policy: PolicyConfigStatus;
   collectorHealth: CollectorHealth | undefined;
   collectorLogs: CollectorLogEntry[];
 };
@@ -38,7 +38,7 @@ export type CollectorLogEntry = {
   details?: Record<string, unknown>;
 };
 
-export type MergeConfigStatus = {
+export type UpstreamConfigStatus = {
   state: "configured" | "missing required env";
   required: EnvVarStatus[];
   optional: EnvVarStatus[];
@@ -49,8 +49,8 @@ export type EnvVarStatus = {
   configured: boolean;
 };
 
-export type ModelConfigStatus = {
-  state: "configured" | "manual fallback";
+export type PolicyConfigStatus = {
+  state: "configured" | "default deny";
   required: EnvVarStatus[];
   optional: EnvVarStatus[];
 };
@@ -119,7 +119,7 @@ export function getSummaryMode(summary: RunSummary): RunMode {
   }
 
   if (hasAction) {
-    return "merge-action";
+    return "mcp-action";
   }
 
   if (hasModel) {
@@ -130,23 +130,14 @@ export function getSummaryMode(summary: RunSummary): RunMode {
 }
 
 export async function getSystemStatus(): Promise<SystemStatus> {
-  const required = [
-    envStatus("MERGE_AGENT_HANDLER_MCP_URL"),
-    envStatus("MERGE_REGISTERED_USER_ID"),
-    envStatus("MERGE_TOOL_PACK_ID"),
-    envStatus("MERGE_API_KEY")
+  const upstreamRequired = [
+    envStatus("ARI_UPSTREAM_MCP_URL"),
+    envStatus("ARI_UPSTREAM_ID"),
+    envStatus("ARI_UPSTREAM_TYPE")
   ];
-  const optional = [
-    envStatus("MERGE_TOOL_NAME"),
-    envStatus("MERGE_TOOL_ARGUMENTS_JSON"),
-    envStatus("ARI_AGENT_WORKFLOW"),
-    envStatus("ARI_GITHUB_OWNER"),
-    envStatus("ARI_GITHUB_REPO"),
-    envStatus("ARI_GITHUB_LABELS_JSON")
-  ];
-  const missingRequired = required.filter((item) => !item.configured);
-  const modelRequired = [envStatus("ARI_MODEL_API_KEY"), envStatus("ARI_MODEL_NAME")];
-  const missingModelRequired = modelRequired.filter((item) => !item.configured);
+  const missingUpstreamRequired = upstreamRequired.filter((item) => !item.configured);
+  const policyRequired = [envStatus("ARI_POLICY_DECISION_URL")];
+  const policyConfigured = policyRequired.every((item) => item.configured);
   const collectorHealth = await getCollectorHealth();
   const collectorLogs = await getCollectorLogs();
 
@@ -154,15 +145,22 @@ export async function getSystemStatus(): Promise<SystemStatus> {
     collector: collectorHealth?.status ?? "unreachable",
     collectorUrl: getCollectorUrl(),
     storage: "local SQLite",
-    merge: {
-      state: missingRequired.length === 0 ? "configured" : "missing required env",
-      required,
-      optional
+    upstream: {
+      state: missingUpstreamRequired.length === 0 ? "configured" : "missing required env",
+      required: upstreamRequired,
+      optional: [
+        envStatus("ARI_UPSTREAM_HEADERS_JSON"),
+        envStatus("ARI_UPSTREAM_OAUTH_CLIENT_ID"),
+        envStatus("ARI_UPSTREAM_OAUTH_CLIENT_SECRET"),
+        envStatus("ARI_UPSTREAM_OAUTH_REDIRECT_URL"),
+        envStatus("ARI_UPSTREAM_OAUTH_TOKEN_PATH"),
+        envStatus("ARI_UPSTREAM_OAUTH_SCOPE")
+      ]
     },
-    model: {
-      state: missingModelRequired.length === 0 ? "configured" : "manual fallback",
-      required: modelRequired,
-      optional: [envStatus("ARI_MODEL_PROVIDER"), envStatus("ARI_MODEL_BASE_URL"), envStatus("ARI_MODEL_PROMPT")]
+    policy: {
+      state: policyConfigured ? "configured" : "default deny",
+      required: policyRequired,
+      optional: [envStatus("ARI_POLICY_HEADERS_JSON")]
     },
     collectorHealth,
     collectorLogs
@@ -217,8 +215,8 @@ function getRunMode(events: readonly TraceEvent[]): RunMode {
     return "mcp-proxy";
   }
 
-  if (events.some((event) => event.source === "merge" || event.type.startsWith("tool."))) {
-    return "merge-action";
+  if (events.some((event) => event.type.startsWith("tool."))) {
+    return "mcp-action";
   }
 
   if (events.some((event) => event.source === "ai-sdk" || event.type.startsWith("model."))) {

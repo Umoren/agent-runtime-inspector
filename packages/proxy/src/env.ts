@@ -21,11 +21,7 @@ const proxyEnvSchema = z.object({
   ARI_UPSTREAM_OAUTH_REDIRECT_URL: z.preprocess(emptyStringToUndefined, z.string().url().optional()),
   ARI_UPSTREAM_OAUTH_TOKEN_PATH: optionalString,
   ARI_UPSTREAM_OAUTH_SCOPE: optionalString,
-  ARI_ALLOW_AGENT_DECLARED_CONTEXT: z.preprocess(emptyStringToUndefined, z.enum(["true", "false"]).default("false")),
-  MERGE_AGENT_HANDLER_MCP_URL: z.preprocess(emptyStringToUndefined, z.string().url().optional()),
-  MERGE_REGISTERED_USER_ID: optionalString,
-  MERGE_TOOL_PACK_ID: optionalString,
-  MERGE_API_KEY: optionalString
+  ARI_ALLOW_AGENT_DECLARED_CONTEXT: z.preprocess(emptyStringToUndefined, z.enum(["true", "false"]).default("false"))
 });
 
 export type ProxyEnv = z.infer<typeof proxyEnvSchema>;

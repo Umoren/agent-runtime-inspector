@@ -6,7 +6,7 @@ The current implementation provides local collection, audit inspection, ARI-owne
 
 ## Gateway boundary
 
-- Provider-neutral Streamable HTTP MCP upstream with an optional Merge adapter.
+- Provider-neutral Streamable HTTP MCP upstream.
 - Trusted principal and purpose from gateway configuration, not agent claims.
 - ARI-owned file context retrieval through `ari_get_context`.
 - OPA action policy with default-deny and fail-closed behavior.

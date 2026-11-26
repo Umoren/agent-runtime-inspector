@@ -16,13 +16,6 @@ export const ariConfigSchema = z.object({
       upstreamType: z.string().min(1).optional(),
       policyDecisionUrl: z.string().url().optional()
     })
-    .default({}),
-  merge: z
-    .object({
-      agentHandlerMcpUrl: z.string().url().optional(),
-      registeredUserId: z.string().optional(),
-      toolPackId: z.string().optional()
-    })
     .default({})
 });
 
@@ -31,8 +24,7 @@ export type AriConfig = z.infer<typeof ariConfigSchema>;
 export const defaultConfig: AriConfig = {
   collectorUrl: "http://localhost:4319",
   dashboardUrl: "http://localhost:3005",
-  gateway: {},
-  merge: {}
+  gateway: {}
 };
 
 export async function writeDefaultConfig(path = "ari.config.json"): Promise<Result<AriConfig, string>> {

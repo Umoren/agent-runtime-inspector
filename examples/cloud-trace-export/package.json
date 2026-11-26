@@ -1,5 +1,5 @@
 {
-  "name": "@ari/example-vercel-ai-sdk-merge",
+  "name": "@ari/example-cloud-trace-export",
   "version": "0.0.0",
   "type": "module",
   "private": true,
@@ -8,14 +8,15 @@
     "dev": "tsx src/index.ts",
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run --passWithNoTests",
+    "test": "vitest run",
     "lint": "eslint src --ext .ts"
   },
   "dependencies": {
-    "@ari/ai-sdk": "workspace:*",
     "@ari/core": "workspace:*",
-    "@ari/merge": "workspace:*",
-    "zod": "^3.25.0"
+    "@google-cloud/opentelemetry-cloud-trace-exporter": "^3.1.0",
+    "@opentelemetry/api": "1.9.0",
+    "@opentelemetry/core": "^2.12.0",
+    "@opentelemetry/sdk-trace-base": "^2.2.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

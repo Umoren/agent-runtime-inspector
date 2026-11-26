@@ -7,7 +7,7 @@ Treat ARI as a production developer tool. The code should make agent runtime beh
 - Use strict TypeScript from day one.
 - Keep `core` as the source of truth for trace schemas, domain types, and aggregation.
 - Use discriminated unions for trace events.
-- Use Zod at every external boundary: collector payloads, CLI config, Merge responses, mock trace imports.
+- Use Zod at every external boundary: collector payloads, CLI config, upstream MCP responses, mock trace imports.
 - Use `unknown` for external input and parse it before use. Isolate and explain any unavoidable `any`.
 ## Naming rules
 
@@ -19,11 +19,11 @@ Treat ARI as a production developer tool. The code should make agent runtime beh
 Packages depend inward:
 
 ```text
-web, cli, collector, merge, proxy, ai-sdk -> core
+web, cli, collector, proxy, ai-sdk -> core
 core -> zod only
 ```
 
-`core` must not depend on UI, CLI, Merge, storage, or framework code.
+`core` must not depend on UI, CLI, upstream providers, storage, or framework code.
 
 ## Runtime model
 
@@ -47,7 +47,7 @@ Use `Result<T, E>` for expected product failures:
 
 - missing config
 - invalid trace payload
-- Merge auth failure
+- upstream authentication failure
 - tool call rejected
 - run not found
 

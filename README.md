@@ -11,7 +11,7 @@ AI agent -> ARI gateway -> upstream MCP server -> external system
                -> local collector -> dashboard
 ```
 
-The gateway core uses provider-neutral contracts for upstream tools, identity, context, and policy. Merge Agent Handler remains available as an optional adapter.
+The gateway uses provider-neutral contracts for upstream tools, identity, context, and policy.
 
 ## What ARI records
 
@@ -121,7 +121,9 @@ run.completed
 
 For a denied action, `tool.blocked` replaces the call and completion events. ARI returns before calling the upstream server.
 
-## Connect Codex
+## Connect Codex to GitHub MCP through ARI
+
+Follow the [Codex and GitHub MCP guide](apps/docs/docs/guides/connect-codex.md) to configure the upstream and an exact-repository `issue_write` policy.
 
 Add a project-scoped `.codex/config.toml`:
 
@@ -134,7 +136,9 @@ startup_timeout_sec = 20
 tool_timeout_sec = 90
 ```
 
-Start a new Codex session from the repository and run `/mcp` to confirm that ARI and its upstream tools are available. ARI still requires context and an explicit policy allow decision before it forwards an upstream action.
+Configure the GitHub MCP server as ARI's Streamable HTTP upstream with the variables above. The [GitHub MCP server](https://github.com/github/github-mcp-server) is open source and supports [Streamable HTTP](https://github.com/github/github-mcp-server/blob/main/docs/streamable-http.md). ARI denies tool calls by default until the policy endpoint returns an explicit allow.
+
+Start a new Codex session from the repository and run `/mcp`. Codex should list `ari_get_context` and the tools returned by the GitHub MCP server. ARI records only tool calls routed through its gateway. Codex model prompts and native shell or editor calls are outside that trace.
 
 ## What works now
 
@@ -142,7 +146,6 @@ The current open source build includes a provider-neutral Streamable HTTP MCP up
 
 - trusted gateway identity and ARI-owned file context retrieval;
 - Open Policy Agent (OPA) authorization with default-deny behavior;
-- an optional Merge Agent Handler adapter;
 - local event collection and an audit-focused dashboard.
 
 The generic authorization boundary is covered by tests. The Gmail demo includes policy and context configuration, but it has not yet created a real Gmail draft end to end.
@@ -153,7 +156,6 @@ The generic authorization boundary is covered by tests. The Gmail demo includes 
 | --- | --- |
 | `pnpm dev` | Start the collector and dashboard. |
 | `pnpm proxy` | Start the local MCP gateway. |
-| `pnpm example:merge` | Run the Merge Agent Handler example. |
 | `pnpm docs:dev` | Start the documentation site. |
 | `pnpm docs:build` | Build the documentation site. |
 | `pnpm typecheck` | Typecheck the workspace. |
@@ -169,11 +171,9 @@ packages/
   core/                        Trace schemas, types, aggregation
   collector/                   Local event collector
   cli/                         ari command
-  merge/                       Optional Merge Agent Handler adapter
   proxy/                       MCP, context, policy, and OAuth gateway
   ai-sdk/                      Vercel AI SDK instrumentation helpers
 examples/
-  vercel-ai-sdk-merge/         Connected Merge example
 demos/
   gmail-outreach/              OPA policy for a reviewable Gmail draft
 ```
@@ -186,7 +186,7 @@ demos/
 - [Action authorization handoff](docs/action-authorization-handoff.md)
 - [Articles](docs/articles/README.md)
 
-ARI does not expose or prove a model's private reasoning. It records observable runtime evidence.
+ARI does not expose or prove a model's private reasoning. It records observable runtime evidence. Model events require an instrumented integration. Codex prompts and native shell or editor calls are not recorded by the MCP gateway.
 
 ## License
 

@@ -29,9 +29,7 @@ const sidebars: SidebarsConfig = {
       collapsed: false,
       items: [
         "guides/use-mcp-proxy-mode",
-        "guides/connect-codex",
-        "guides/connect-merge-agent-handler",
-        "guides/vercel-ai-sdk-example"
+        "guides/connect-codex"
       ]
     },
     {

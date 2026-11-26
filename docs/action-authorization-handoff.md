@@ -8,7 +8,7 @@ The gateway records:
 
 > ARI records who tried to perform which action, for what purpose, using which approved context, under which policy decision.
 
-The implementation is provider-neutral. Gmail, Merge Agent Handler, or another MCP server is configured outside the core. Service-specific rules also live outside the core in the policy engine.
+The implementation is provider-neutral. GitHub MCP or another MCP server is configured outside the core. Service-specific rules also live outside the core in the policy engine.
 
 ## The five parts
 
@@ -91,7 +91,7 @@ The server test checks that the fake upstream's call count remains zero after a 
 
 ## Why the action provider exists
 
-ARI's server no longer imports Merge-specific behavior. It depends on this interface:
+ARI's server depends on this provider-neutral interface:
 
 ```ts
 type ActionTransport = {
@@ -103,7 +103,7 @@ type ActionTransport = {
 };
 ```
 
-`createHttpMcpActionProvider` implements that interface for any Streamable HTTP MCP server. `createMergeActionProvider` is an optional compatibility adapter. Adding a provider should normally mean adding configuration or a small adapter, not changing authorization logic.
+`createHttpMcpActionProvider` implements that interface for any Streamable HTTP MCP server. Adding a provider should normally mean adding configuration, not changing authorization logic.
 
 ## OAuth-protected MCP servers
 
@@ -121,7 +121,7 @@ Tokens are parsed against the MCP SDK schema, persisted with file mode `0600`, a
 
 - No Gmail tool names or argument rules in ARI core.
 - No allowlist of recipients in TypeScript.
-- No assumption that Merge is the upstream provider.
+- No assumption about the upstream provider.
 - No identity or purpose accepted from an untrusted agent assertion.
 - No implicit allow when OPA is missing or unhealthy.
 
@@ -138,7 +138,7 @@ The authorization path proves:
 
 The integration path also proves:
 
-- Generic MCP and optional Merge transports share one authorization path.
+- Streamable HTTP MCP actions use the same authorization path.
 - OAuth tokens survive process restarts without being placed in trace events.
 
 ## What remains before the Gmail workflow is real

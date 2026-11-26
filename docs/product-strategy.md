@@ -14,7 +14,6 @@ ARI retrieves permitted context, checks an exact tool call through policy, block
 
 - Developers connecting agents to Model Context Protocol (MCP) servers.
 - Backend engineers responsible for agent permissions and external side effects.
-- Developers evaluating Merge Agent Handler.
 - Teams that need a local record before sending traces to a hosted service.
 
 The first useful feedback should come from builders with a real tool call and a real permission constraint. Generic interest in observability is less useful than a workflow where the agent can read sensitive context or mutate an external system.
@@ -52,7 +51,7 @@ The current build has five connected parts:
 4. An Open Policy Agent endpoint allows or denies the exact action.
 5. A local collector and dashboard show the resulting evidence.
 
-The gateway also has persistent OAuth token storage for protected remote MCP servers. Merge Agent Handler uses an adapter over the same action and policy path.
+The gateway also has persistent OAuth token storage for protected remote MCP servers.
 
 ## Current milestone
 

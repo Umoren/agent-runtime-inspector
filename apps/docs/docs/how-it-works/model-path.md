@@ -1,5 +1,7 @@
 # Model path
 
+ARI can record model events when an instrumented integration emits them. Codex prompts are not available through the MCP gateway and do not appear in the ARI trace.
+
 The model path answers:
 
 ```text
